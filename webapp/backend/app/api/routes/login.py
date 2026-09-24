@@ -39,7 +39,6 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Allows pwdlib to transparently upgrade old password hashes.
     if updated_hash is not None:
         user.password_hash = updated_hash
         await session.commit()

@@ -66,3 +66,19 @@ async def update_current_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="User update violates a database constraint",
         )
+
+@router.get("/me", response_model=UserRead)
+async def read_current_user(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    repository = UserRepository(session)
+    user = await repository.get_by_id(current_user.id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User not found",
+        )
+
+    return user

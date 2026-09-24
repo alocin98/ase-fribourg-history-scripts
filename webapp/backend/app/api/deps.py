@@ -11,13 +11,12 @@ from app.core.security import ALGORITHM
 from app.models.user import User
 from app.repositories.user import UserRepository
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_STR}/login"
+reusable_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_STR}/login/access-token"
 )
 
-
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: Annotated[str, Depends(reusable_oauth2)],
     session: Annotated[AsyncSession, Depends(get_db)],
 ) -> User:
     credentials_exception = HTTPException(
@@ -31,10 +30,10 @@ async def get_current_user(
             token,
             settings.SECRET_KEY,
             algorithms=[ALGORITHM],
-        )
+        ) 
 
         subject = payload.get("sub")
-
+        
         if subject is None:
             raise credentials_exception
 
