@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -37,7 +38,7 @@ async def get_current_user(
         if subject is None:
             raise credentials_exception
 
-        user_id = int(subject)
+        user_id = UUID(subject)
 
     except (jwt.InvalidTokenError, ValueError, TypeError):
         raise credentials_exception

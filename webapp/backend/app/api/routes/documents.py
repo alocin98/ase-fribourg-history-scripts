@@ -1,7 +1,7 @@
 import shutil
 import zipfile
 from pathlib import Path, PurePosixPath
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse
@@ -36,7 +36,8 @@ async def create_document(
     if not file.filename or not file.filename.lower().endswith(".zip"):
         raise HTTPException(status_code=400, detail="Only ZIP files are accepted")
 
-    document_dir = STORAGE_ROOT / uuid4().hex
+    document_id = uuid4()
+    document_dir = STORAGE_ROOT / str(document_id)
     pages_dir = document_dir / "pages"
     archive_path = document_dir / "original.zip"
     document_dir.mkdir(parents=True, exist_ok=False)
@@ -85,10 +86,11 @@ async def create_document(
         repository = DocumentRepository(session)
         document = await repository.create(
             data=DocumentCreate(
+                id=document_id,
                 owner_id=current_user.id,
                 original_filename=Path(file.filename).name,
                 storage_path=str(archive_path),
-                image_paths=image_paths,
+                image_paths=[str(image_path) for image_path in image_paths],
             )
         )
         return DocumentUploadResponse(id=document.id)
@@ -120,7 +122,7 @@ async def list_user_documents(
 @router.get("/{document_id}/pages", response_model=list[PageRead])
 async def list_document_pages(
     request: Request,
-    document_id: int,
+    document_id: UUID,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -151,8 +153,8 @@ async def list_document_pages(
 
 @router.get("/{document_id}/pages/{page_id}", name="get_page")
 async def get_document_page(
-    document_id: int,
-    page_id: int,
+    document_id: UUID,
+    page_id: UUID,
     session: AsyncSession = Depends(get_db),
 ):
     repository = DocumentRepository(session)
@@ -167,7 +169,7 @@ async def get_document_page(
 
 @router.get("/{document_id}/download", name="download_document")
 async def download_document(
-    document_id: int,
+    document_id: UUID,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):

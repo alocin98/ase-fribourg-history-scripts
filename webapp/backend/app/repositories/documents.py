@@ -1,4 +1,5 @@
 from pathlib import Path
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +13,7 @@ class DocumentRepository:
 
     async def create(self, data: DocumentCreate) -> Document:
         document = Document(
+            id=data.id,
             owner_id=data.owner_id,
             original_filename=data.original_filename,
             storage_path=data.storage_path,
@@ -25,12 +27,12 @@ class DocumentRepository:
                 page_number=page_number,
                 image_path=str(image_path),
             )
-            for page_number, image_path in enumerate(image_paths, start=1)
+            for page_number, image_path in enumerate(data.image_paths, start=1)
         )
         await self.session.commit()
         return document
 
-    async def get_all(self, owner_id: int) -> list[Document]:
+    async def get_all(self, owner_id: UUID) -> list[Document]:
         result = await self.session.scalars(
             select(Document)
             .where(Document.owner_id == owner_id)
@@ -40,8 +42,8 @@ class DocumentRepository:
 
     async def get_document_by_id(
         self,
-        document_id: int,
-        owner_id: int,
+        document_id: UUID,
+        owner_id: UUID,
     ) -> Document | None:
         return await self.session.scalar(
             select(Document).where(
@@ -67,7 +69,7 @@ class DocumentRepository:
         )
         return list(result.all())
 
-    async def get_page_by_id(self, page_id: int, document_id: int) -> Page | None:
+    async def get_page_by_id(self, page_id: UUID, document_id: UUID) -> Page | None:
         return await self.session.scalar(
             select(Page).join(Document).where(
                 Page.id == page_id,
