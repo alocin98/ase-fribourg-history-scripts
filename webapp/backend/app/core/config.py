@@ -15,7 +15,12 @@ class Settings(BaseSettings):
     API_TITLE: str
     API_DESCRIPTION: str
     API_VERSION: str
+
+    MAX_UPLOAD_SIZE: int
+    STORAGE_ROOT: str
     
+    DEFAULT_USER: str
+    DEFAULT_PASSWORD: str
 
 
 settings = Settings()

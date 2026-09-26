@@ -9,3 +9,6 @@ stop:
 
 stop-all:
 	docker-compose -f Docker-compose.yml down --volumes --remove-orphans
+
+logs:
+	docker-compose -f Docker-compose.yml logs -f

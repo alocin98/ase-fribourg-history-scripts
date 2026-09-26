@@ -7,6 +7,7 @@ services:
       - "${API_PORT:-8000}:8000"
     volumes:
       - ./app:/app/app
+      - ./storage:/data/documents
     env_file:
       - .env
     depends_on:
