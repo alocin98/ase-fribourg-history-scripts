@@ -1,0 +1,42 @@
+/* Réinitialisation générale pour que toutes les pages partagent la même base. */
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  min-height: 100vh;
+  font-family: Inter, 'Segoe UI', sans-serif;
+  background: #f8fafc;
+  color: #111827;
+}
+
+/* Tous les éléments calculent leur largeur en incluant leurs bordures et marges internes. */
+* {
+  box-sizing: border-box;
+}
+
+/* Les liens héritent de la couleur définie par chaque composant. */
+a {
+  color: inherit;
+}
+
+/* Les contrôles utilisent la même police que le reste de l'application. */
+button,
+input {
+  font: inherit;
+}
+
+/* Les images restent toujours contenues dans leur parent. */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Les titres et paragraphes sont normalisés avant l'application des styles de page. */
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
