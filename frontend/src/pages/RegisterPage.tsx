@@ -65,9 +65,9 @@ export default function RegisterPage() {
   return (
     <div className="auth-page register-auth-page">
       <nav className="auth-nav" aria-label="Navigation d'authentification">
-        <Link to="/" className="auth-nav-brand welcome-brand" aria-label="ASE Project, accueil">
+        <Link to="/" className="auth-nav-brand welcome-brand" aria-label="Manuscript AI, accueil">
           <span className="logo-circle">A</span>
-          <span><strong>ASE Project</strong><small>Archives en mouvement</small></span>
+          <span><strong>Manuscript AI</strong><small>Archives en mouvement</small></span>
         </Link>
         <div className="auth-nav-links">
           <Link to="/" className="auth-home-nav-link">Accueil</Link>

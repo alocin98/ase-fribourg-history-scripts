@@ -127,9 +127,9 @@ export default function HomePage() {
           >
             <span>{isMobileMenuOpen ? '×' : '☰'}</span>
           </button>
-          <Link to="/" className="dashboard-brand-link" aria-label="ASE Project, accueil">
+          <Link to="/" className="dashboard-brand-link" aria-label="Manuscript AI, accueil">
             <span className="logo-circle">A</span>
-            <span className="dashboard-brand-copy"><strong>ASE Project</strong><small>Archives en mouvement</small></span>
+            <span className="dashboard-brand-copy"><strong>Manuscript AI</strong><small>{isFrench ? 'Archives en mouvement' : 'Archives in motion'}</small></span>
           </Link>
         </div>
 
@@ -205,10 +205,6 @@ export default function HomePage() {
               <span>{isFrench ? 'Paramètres' : 'Settings'}</span>
             </button>
           </nav>
-          <div className="sidebar-footer">
-            <span className="sidebar-footer-mark">A</span>
-            <span><strong>ASE Project</strong><small>{isFrench ? 'Archives & analyse' : 'Archives & analysis'}</small></span>
-          </div>
         </aside>
 
         {activeSection === 'dashboard' ? <section className="content-area" id="dashboard">

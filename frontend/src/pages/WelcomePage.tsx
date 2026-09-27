@@ -1,6 +1,7 @@
 // Import des outils nécessaires pour naviguer et changer la langue.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import manuscriptHero from '../assets/manuscript-hero.png'
 
 // Langues disponibles sur la page publique.
 type Language = 'fr' | 'en'
@@ -27,6 +28,16 @@ export default function WelcomePage() {
   const initials = `${firstName.charAt(0)}${lastName.charAt(0) || email.charAt(0)}`.toUpperCase()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
 
+  // Le défilement vers les ancres ne concerne que cette page.
+  useEffect(() => {
+    const root = document.documentElement
+    const previous = root.style.scrollBehavior
+    root.style.scrollBehavior = 'smooth'
+    return () => {
+      root.style.scrollBehavior = previous
+    }
+  }, [])
+
   // Met à jour la langue choisie pour qu'elle soit conservée entre les pages.
   const changeLanguage = (nextLanguage: Language) => {
     localStorage.setItem('ase_language', nextLanguage)
@@ -49,15 +60,18 @@ export default function WelcomePage() {
   return (
     <div className="welcome-page">
       <header className="welcome-topbar">
-        <Link to="/" className="welcome-brand" aria-label="ASE Project">
+        <Link to="/" className="welcome-brand" aria-label="Manuscript AI">
           <span className="logo-circle">A</span>
           <span>
-            <strong>ASE Project</strong>
+            <strong>Manuscript AI</strong>
             <small>{isFrench ? 'Archives en mouvement' : 'Archives in motion'}</small>
           </span>
         </Link>
 
         <nav className="welcome-nav" aria-label={isFrench ? 'Navigation principale' : 'Main navigation'}>
+          <a className="welcome-scroll-link" href="#fonctionnalites">{isFrench ? 'Fonctionnalités' : 'Features'}</a>
+          <a className="welcome-scroll-link" href="#comment-ca-marche">{isFrench ? 'Comment ça marche' : 'How it works'}</a>
+          <a className="welcome-scroll-link" href="#apropos">{isFrench ? 'À propos' : 'About'}</a>
           {isAuthenticated && (
             <Link to="/dashboard" className="welcome-dashboard-link">
               {isFrench ? 'Dashboard' : 'Dashboard'} <span aria-hidden="true">↗</span>
@@ -97,69 +111,138 @@ export default function WelcomePage() {
         </nav>
       </header>
 
-      <main className="welcome-main">
-        <section className="welcome-hero welcome-hero-new" id="projet">
-          <div className="welcome-hero-copy">
-            <span className="eyebrow">{isFrench ? 'ASE · Atelier de recherche historique' : 'ASE · Historical research workspace'}</span>
-            <h1>{isFrench ? 'Chaque archive ouvre une nouvelle piste.' : 'Every archive opens a new trail.'}</h1>
+      <main>
+        <section className="ms-page ms-hero" id="accueil">
+          <div className="ms-hero-copy">
+            <p className="ms-kicker">{isFrench ? 'Recherche · IA · Patrimoine' : 'Research · AI · Heritage'}</p>
+            <h1>
+              {isFrench ? <>Donnez une nouvelle lecture aux<br />manuscrits historiques</> : <>Give historical manuscripts<br />a new reading</>}
+            </h1>
             <p>
               {isFrench
-                ? 'Importez un document, explorez son contenu et retrouvez facilement vos analyses. Votre travail commence ici.'
-                : 'Upload a document, explore its contents, and return to your analyses whenever you need. Your work starts here.'}
+                ? 'Une plateforme pour reconnaître, analyser et comprendre des documents historiques grâce à l’intelligence artificielle.'
+                : 'A platform to recognize, analyze, and understand historical documents through artificial intelligence.'}
             </p>
-            <div className="welcome-actions">
-              <button type="button" className="primary-button" onClick={openWorkspace}>
-                {isFrench ? 'Ouvrir mon espace de travail' : 'Open my workspace'} <span aria-hidden="true">↗</span>
-              </button>
-              {!isAuthenticated && <Link to="/register" className="text-button">{isFrench ? 'Créer un compte' : 'Create an account'} →</Link>}
+            <div className="ms-hero-actions">
+              <a className="ms-hero-cta" href="#fonctionnalites">
+                {isFrench ? 'Découvrir la plateforme' : 'Discover the platform'} <span aria-hidden="true">→</span>
+              </a>
+              <a className="ms-hero-link" href="#comment-ca-marche">
+                {isFrench ? 'Voir comment ça marche' : 'See how it works'} <span aria-hidden="true">↓</span>
+              </a>
             </div>
           </div>
 
-          <div className="welcome-visual welcome-workspace-preview" aria-label={isFrench ? 'Aperçu de l’espace de travail' : 'Workspace preview'}>
-            <div className="workspace-preview-top">
-              <span>{isFrench ? 'ESPACE DE TRAVAIL' : 'WORKSPACE'}</span>
-              <span className="workspace-live"><i />{isFrench ? 'Prêt' : 'Ready'}</span>
-            </div>
-            <div className="workspace-preview-title">
-              <span>{isFrench ? 'Votre recherche' : 'Your research'}</span>
-              <strong>{isFrench ? 'Commencez par une source' : 'Begin with a source'}</strong>
-            </div>
-            <div className="workspace-drop-zone">
-              <span className="drop-icon">↑</span>
-              <strong>{isFrench ? 'Déposez un document' : 'Drop in a document'}</strong>
-              <small>{isFrench ? 'Images et documents historiques' : 'Images and historical documents'}</small>
-            </div>
-            <div className="workspace-preview-footer"><span>01</span><span>{isFrench ? 'Importer' : 'Import'}</span><i /><span>02</span><span>{isFrench ? 'Analyser' : 'Analyse'}</span><i /><span>03</span><span>{isFrench ? 'Conserver' : 'Keep'}</span></div>
-          </div>
-        </section>
-
-        <section className="welcome-hub welcome-hub-new" aria-label={isFrench ? 'Navigation du projet' : 'Project navigation'}>
-          <div className="hub-heading">
-            <div><span className="eyebrow">{isFrench ? 'Navigation du projet' : 'Project navigation'}</span><h2>{isFrench ? 'Où voulez-vous aller ?' : 'Where would you like to go?'}</h2></div>
-            <p>{isFrench ? 'Choisissez une rubrique pour continuer.' : 'Choose a section to continue.'}</p>
-          </div>
-          <div className="hub-grid">
-            <button type="button" className="welcome-destination destination-upload" onClick={openWorkspace}><span className="destination-icon">↑</span><span className="destination-index">01 / {isFrench ? 'ACTION' : 'ACTION'}</span><strong>{isFrench ? 'Importer un document' : 'Import a document'}</strong><small>{isFrench ? 'Ajouter une image ou un fichier à analyser.' : 'Add an image or file to analyse.'}</small><span className="destination-arrow">↗</span></button>
-            <button type="button" className="welcome-destination destination-work" onClick={openWorkspace}><span className="destination-icon">▦</span><span className="destination-index">02 / {isFrench ? 'ESPACE' : 'WORKSPACE'}</span><strong>{isFrench ? 'Mon tableau de bord' : 'My dashboard'}</strong><small>{isFrench ? 'Retrouver les outils de votre espace.' : 'Return to your workspace tools.'}</small><span className="destination-arrow">↗</span></button>
-            <a href="#parcours" className="welcome-destination destination-guide"><span className="destination-icon">✳</span><span className="destination-index">03 / {isFrench ? 'GUIDE' : 'GUIDE'}</span><strong>{isFrench ? 'Comprendre le parcours' : 'Explore the process'}</strong><small>{isFrench ? 'Voir comment une source devient une analyse.' : 'See how a source becomes an analysis.'}</small><span className="destination-arrow">↓</span></a>
-          </div>
-        </section>
-
-        <section className="welcome-process welcome-process-new" id="parcours" aria-label={isFrench ? 'Parcours d’une source' : 'Source workflow'}>
-          <div className="process-intro">
-            <span className="eyebrow">{isFrench ? 'Un parcours lisible' : 'A clear process'}</span>
-            <h2>{isFrench ? 'De la source au résultat, sans perdre le fil.' : 'From source to result, keep the thread.'}</h2>
-            <p>{isFrench ? 'Les pages Analyse, Documents et Historique sont prévues dans la navigation. Le Dashboard rassemble actuellement les outils disponibles.' : 'Analysis, Documents, and History are planned in the navigation. The Dashboard currently brings together the available tools.'}</p>
-          </div>
-          <div className="process-list">
-            <article><span>01</span><div><h3>{isFrench ? 'Importer' : 'Import'}</h3><p>{isFrench ? 'Choisissez le document historique qui vous intéresse.' : 'Choose the historical document you want to explore.'}</p></div></article>
-            <article><span>02</span><div><h3>{isFrench ? 'Examiner' : 'Examine'}</h3><p>{isFrench ? 'Prévisualisez la source et consultez les éléments disponibles.' : 'Preview the source and review the available details.'}</p></div></article>
-            <article><span>03</span><div><h3>{isFrench ? 'Poursuivre' : 'Continue'}</h3><p>{isFrench ? 'Téléchargez le fichier ou revenez plus tard à votre espace.' : 'Download the file or return to your workspace later.'}</p></div></article>
-          </div>
+          <figure className="ms-art" aria-label={isFrench ? 'Manuscrit ancien numérisé et annoté' : 'Scanned and annotated old manuscript'}>
+            <img className="ms-art-image" src={manuscriptHero} alt={isFrench ? 'Page de manuscrit ancien' : 'Page of an old manuscript'} />
+            <span className="ms-scan ms-scan-one" aria-hidden="true" />
+            <span className="ms-scan ms-scan-two" aria-hidden="true" />
+            <span className="ms-note ms-note-line">{isFrench ? 'Ligne 04' : 'Line 04'}</span>
+            <span className="ms-note ms-note-structure">Structure</span>
+          </figure>
         </section>
       </main>
 
-      <footer className="welcome-footer">ASE Project · {isFrench ? 'Recherche historique augmentée' : 'Augmented historical research'}</footer>
+      <section className="ms-band" aria-label={isFrench ? 'Ce que la lecture montre' : 'What the reading shows'}>
+        <div className="ms-page ms-proof">
+          <p className="ms-proof-statement">
+            {isFrench
+              ? 'De l’image au sens, avec une approche claire et assistée par l’IA.'
+              : 'From image to meaning, with a clear approach assisted by AI.'}
+          </p>
+          <div className="ms-proof-tags">
+            <span>{isFrench ? 'Reconnaissance' : 'Recognition'}</span>
+            <span>{isFrench ? 'Analyse' : 'Analysis'}</span>
+            <span>{isFrench ? 'Compréhension' : 'Understanding'}</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="ms-block" id="fonctionnalites" aria-label={isFrench ? 'Autour du manuscrit' : 'Around the manuscript'}>
+        <div className="ms-page">
+          <div className="ms-intro">
+            <p className="ms-kicker">{isFrench ? 'Fonctionnalités' : 'Features'}</p>
+            <h2>{isFrench ? 'Une approche plus claire des documents anciens' : 'A clearer approach to old documents'}</h2>
+          </div>
+          <div className="ms-cards">
+            <article className="ms-card">
+              <div className="ms-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 8V5h3M16 5h3v3M20 16v3h-3M8 19H5v-3" /></svg>
+              </div>
+              <h3>{isFrench ? 'Reconnaître' : 'Recognize'}</h3>
+              <p>{isFrench ? 'Identifier les caractères, les lignes et les structures d’un manuscrit.' : 'Identify the characters, lines, and structures of a manuscript.'}</p>
+            </article>
+            <article className="ms-card">
+              <div className="ms-icon ms-icon-violet" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg>
+              </div>
+              <h3>{isFrench ? 'Analyser' : 'Analyze'}</h3>
+              <p>{isFrench ? 'Explorer les éléments visuels et textuels d’un document numérisé.' : 'Explore the visual and textual elements of a digitized document.'}</p>
+            </article>
+            <article className="ms-card">
+              <div className="ms-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11c.4.4.7 1 .8 1.6h4.4c.1-.6.4-1.2.8-1.6A6 6 0 0 0 12 3z" /></svg>
+              </div>
+              <h3>{isFrench ? 'Comprendre' : 'Understand'}</h3>
+              <p>{isFrench ? 'Faire émerger le contexte et les informations importantes.' : 'Bring out the context and the important information.'}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="ms-band ms-steps" id="comment-ca-marche" aria-label={isFrench ? 'Comment commencer' : 'How to begin'}>
+        <div className="ms-page">
+          <div className="ms-intro">
+            <p className="ms-kicker">{isFrench ? 'Parcours' : 'Path'}</p>
+            <h2>{isFrench ? 'Comment ça marche' : 'How it works'}</h2>
+          </div>
+          <ol className="ms-step-grid">
+            <li>
+              <span>01</span>
+              <h3>{isFrench ? 'Importer un document' : 'Import a document'}</h3>
+              <p>{isFrench ? 'Partagez une image ou une numérisation de votre document.' : 'Share an image or a scan of your document.'}</p>
+            </li>
+            <li>
+              <span>02</span>
+              <h3>{isFrench ? 'Laisser l’IA l’examiner' : 'Let the AI examine it'}</h3>
+              <p>{isFrench ? 'Les structures, lignes et éléments remarquables sont repérés.' : 'Structures, lines, and notable elements are picked out.'}</p>
+            </li>
+            <li>
+              <span>03</span>
+              <h3>{isFrench ? 'Explorer les résultats' : 'Explore the results'}</h3>
+              <p>{isFrench ? 'Parcourez les informations utiles avec un regard renouvelé.' : 'Browse the useful information with a fresh look.'}</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section className="ms-block" id="apropos">
+        <div className="ms-page">
+          <div className="ms-banner">
+            <p className="ms-kicker">Manuscript AI</p>
+            <h2>{isFrench ? 'Commencez par regarder autrement' : 'Start by looking differently'}</h2>
+            <p>
+              {isFrench
+                ? 'Découvrez une expérience pensée pour rapprocher l’histoire, l’image et l’intelligence artificielle.'
+                : 'Discover an experience designed to bring history, the image, and artificial intelligence closer.'}
+            </p>
+            <div className="ms-banner-actions">
+              {isAuthenticated ? (
+                <button type="button" className="ms-banner-cta" onClick={openWorkspace}>
+                  {isFrench ? 'Explorer le projet' : 'Explore the project'} <span aria-hidden="true">↗</span>
+                </button>
+              ) : (
+                <a className="ms-banner-cta" href="#fonctionnalites">
+                  {isFrench ? 'Explorer le projet' : 'Explore the project'} <span aria-hidden="true">↗</span>
+                </a>
+              )}
+              <a className="ms-banner-link" href="#fonctionnalites">{isFrench ? 'En savoir plus' : 'Learn more'}</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="welcome-footer ase-foot">Manuscript AI · {isFrench ? 'Reconnaître, analyser et comprendre les documents historiques' : 'Recognize, analyze, and understand historical documents'}</footer>
     </div>
   )
 }
