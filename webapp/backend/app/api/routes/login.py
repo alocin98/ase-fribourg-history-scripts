@@ -1,6 +1,8 @@
 from datetime import timedelta
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.user import Token, UserLogin
@@ -12,13 +14,9 @@ from app.repositories.user import UserRepository
 router = APIRouter(prefix="/login", tags=["login"])
 
 
-@router.post("", response_model=Token)
-async def login(
-    data: UserLogin,
-    session: AsyncSession = Depends(get_db),
-):
+async def _authenticate(email: str, password: str, session: AsyncSession) -> Token:
     repository = UserRepository(session)
-    user = await repository.get_by_email(data.email)
+    user = await repository.get_by_email(email)
 
     if user is None:
         raise HTTPException(
@@ -28,7 +26,7 @@ async def login(
         )
 
     valid, updated_hash = verify_password(
-        data.password,
+        password,
         user.password_hash,
     )
 
@@ -51,3 +49,20 @@ async def login(
     )
 
     return Token(access_token=access_token)
+
+
+@router.post("", response_model=Token)
+async def login(
+    data: UserLogin,
+    session: AsyncSession = Depends(get_db),
+):
+    return await _authenticate(data.email, data.password, session)
+
+
+@router.post("/access-token", response_model=Token)
+async def login_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: AsyncSession = Depends(get_db),
+):
+    """OAuth2 compatible login (form data), used by the Swagger UI. The username field is the email."""
+    return await _authenticate(form_data.username, form_data.password, session)

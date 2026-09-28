@@ -155,12 +155,14 @@ async def list_document_pages(
 async def get_document_page(
     document_id: UUID,
     page_id: UUID,
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
     repository = DocumentRepository(session)
     page = await repository.get_page_by_id(
         page_id=page_id,
-        document_id=document_id
+        document_id=document_id,
+        owner_id=current_user.id,
     )
     if page is None or not Path(page.image_path).is_file():
         raise HTTPException(status_code=404, detail="Page not found")
