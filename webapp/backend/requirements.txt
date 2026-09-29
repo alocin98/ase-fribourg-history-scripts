@@ -1,0 +1,9 @@
+fastapi[standard]
+sqlalchemy[asyncio]
+alembic
+pydantic-settings
+asyncpg
+email-validator
+pwdlib[argon2]
+pwdlib[bcrypt]
+PyJWT
