@@ -36,6 +36,17 @@ Pour vérifier que le code compile correctement :
 npm run build
 ```
 
+## Déploiement avec Docker
+
+L'image compile l'application puis la sert avec nginx (port 80).
+
+```bash
+docker build -t ase-frontend .
+docker run -p 3000:80 ase-frontend
+```
+
+L'application appelle l'API sur `/api` (même domaine). Sur Dokploy, le frontend et le backend partagent le même domaine : le backend reçoit le chemin `/api` (sans « strip path ») et le frontend le reste.
+
 ## Structure principale
 
 - src/pages : contient les pages de connexion, inscription et accueil
