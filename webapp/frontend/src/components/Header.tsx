@@ -12,7 +12,7 @@ export default function Header() {
   return (
     <header className="header">
       <Link to="/" className="brand" aria-label={t('header.homeLabel')}>
-        <span className="logo-circle">A</span>
+        <span className="brand-logo">A</span>
         <span>
           <strong>Manuscript AI</strong>
           <small>{t('header.tagline')}</small>
@@ -72,27 +72,27 @@ function ProfileMenu() {
   }
 
   return (
-    <div className="profile" ref={menuRef}>
+    <div className="account" ref={menuRef}>
       <button
         type="button"
-        className="profile-trigger"
+        className="account-trigger"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <span className="profile-initials">{initials || '?'}</span>
-        <span className="profile-email">{email}</span>
-        <span className="profile-caret" aria-hidden="true">▾</span>
+        <span className="account-initials">{initials || '?'}</span>
+        <span className="account-email">{email}</span>
+        <span className="account-caret" aria-hidden="true">▾</span>
       </button>
 
       {isOpen && (
-        <div className="profile-menu" role="menu">
-          <div className="profile-menu-info">
+        <div className="account-menu" role="menu">
+          <div className="account-menu-info">
             {name && <strong>{name}</strong>}
             <span className="muted-small">{email}</span>
           </div>
-          <Link to="/app" role="menuitem" onClick={() => setIsOpen(false)}>{t('header.dashboard')}</Link>
-          <button type="button" role="menuitem" className="profile-logout" onClick={handleLogout}>
+          <Link to="/dashboard" role="menuitem" onClick={() => setIsOpen(false)}>{t('header.dashboard')}</Link>
+          <button type="button" role="menuitem" className="account-logout" onClick={handleLogout}>
             {t('header.logout')}
           </button>
         </div>

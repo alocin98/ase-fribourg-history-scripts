@@ -8,26 +8,6 @@
     "logout": "Se déconnecter",
     "language": "Langue"
   },
-  "account": {
-    "dashboard": "Dashboard",
-    "documents": "Documents"
-  },
-  "landing": {
-    "title": "Donnez une nouvelle lecture aux manuscrits historiques",
-    "subtitle": "Reconnaître, analyser et comprendre des documents historiques grâce à l'intelligence artificielle.",
-    "myAccount": "Mon compte",
-    "createAccount": "Créer un compte",
-    "login": "Se connecter"
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "welcome": "Bienvenue ! Les fonctionnalités d'analyse de documents seront bientôt disponibles.",
-    "welcomeName": "Bienvenue, {{name}} ! Les fonctionnalités d'analyse de documents seront bientôt disponibles."
-  },
-  "documents": {
-    "title": "Documents",
-    "empty": "Aucun document pour l'instant."
-  },
   "login": {
     "title": "Connexion",
     "email": "Email",
