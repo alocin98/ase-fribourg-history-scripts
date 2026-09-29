@@ -85,6 +85,16 @@ export function isAuthenticated(): boolean {
   return true
 }
 
+// Lit le profil sauvegardé à la connexion, ou null s'il est absent ou invalide.
+export function getProfile(): UserProfile | null {
+  try {
+    const saved = localStorage.getItem(PROFILE_KEY)
+    return saved ? JSON.parse(saved) as UserProfile : null
+  } catch {
+    return null
+  }
+}
+
 // Découpe le nom complet du backend en prénom et nom pour l'affichage.
 function toProfile(user: ApiUser): UserProfile {
   const [firstName = '', ...rest] = user.name.trim().split(/\s+/)

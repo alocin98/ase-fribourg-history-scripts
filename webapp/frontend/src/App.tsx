@@ -2,8 +2,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 // Import des pages principales de l'application.
-import WelcomePage from './pages/WelcomePage'
-import HomePage from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
+import AccountPage from './pages/AccountPage'
+import DashboardPage from './pages/DashboardPage'
+import DocumentsPage from './pages/DocumentsPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { isAuthenticated } from './api/auth'
@@ -11,22 +13,23 @@ import { isAuthenticated } from './api/auth'
 // Import du fichier de style principal.
 import './App.css'
 
-// Protège le tableau de bord et redirige les visiteurs non connectés.
-function ProtectedDashboard() {
-  return isAuthenticated() ? <HomePage /> : <Navigate to="/login" replace />
+// Protège la page du compte et redirige les visiteurs non connectés.
+function ProtectedAccount() {
+  return isAuthenticated() ? <AccountPage /> : <Navigate to="/login" replace />
 }
 
 // Composant principal de l'application.
 function App() {
-  // Retour du routeur principal avec les différentes routes de l'application.
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/dashboard" element={<ProtectedDashboard />} />
-
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/app" element={<ProtectedAccount />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="documents" element={<DocumentsPage />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
