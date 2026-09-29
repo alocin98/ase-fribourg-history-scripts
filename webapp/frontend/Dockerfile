@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # Étape 2 : service des fichiers statiques avec nginx.
-# Les appels /api sont routés vers le backend par Dokploy (même domaine).
+# Les appels /api sont routés vers le backend par Coolify (même domaine).
 FROM nginx:1.29-alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
