@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 // Import du composant de téléchargement utilisé dans cette page.
 import UploadPanel from '../components/UploadPanel'
+import { logout as clearSession } from '../api/auth'
 
 // Structure des informations visibles dans le menu du profil utilisateur.
 type UserProfile = {
@@ -58,9 +59,9 @@ export default function HomePage() {
     setLanguage(nextLanguage)
   }
 
-  // Déconnecte l'utilisateur et le ramène à l'accueil public en gardant ses informations de profil.
+  // Déconnecte l'utilisateur et le ramène à l'accueil public.
   const logout = () => {
-    localStorage.removeItem('ase_auth')
+    clearSession()
     setIsProfileOpen(false)
     setIsMobileMenuOpen(false)
     navigate('/')

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import manuscriptHero from '../assets/manuscript-hero.png'
+import { isAuthenticated as hasSession, logout as clearSession } from '../api/auth'
 
 // Langues disponibles sur la page publique.
 type Language = 'fr' | 'en'
@@ -13,7 +14,7 @@ export default function WelcomePage() {
     localStorage.getItem('ase_language') === 'en' ? 'en' : 'fr',
   )
   const isFrench = language === 'fr'
-  const isAuthenticated = localStorage.getItem('ase_auth') === 'true'
+  const isAuthenticated = hasSession()
   const userProfile = (() => {
     try {
       const saved = localStorage.getItem('ase_user_profile')
@@ -46,15 +47,14 @@ export default function WelcomePage() {
 
   // Ferme la session depuis l'accueil sans quitter cette page.
   const logout = () => {
-    localStorage.removeItem('ase_auth')
+    clearSession()
     setIsProfileOpen(false)
     navigate('/')
   }
 
   // Une action de travail demande une connexion si l'utilisateur est nouveau.
   const openWorkspace = () => {
-    const isAuthenticated = !!localStorage.getItem('ase_auth')
-    navigate(isAuthenticated ? '/dashboard' : '/login')
+    navigate(hasSession() ? '/dashboard' : '/login')
   }
 
   return (

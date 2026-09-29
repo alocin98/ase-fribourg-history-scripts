@@ -2,6 +2,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { ApiError, login } from '../api/auth'
+
 // Page de connexion de l'application.
 export default function LoginPage() {
   // Le hook de navigation permet de rediriger vers la page d'accueil après connexion.
@@ -11,9 +13,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Cette fonction vérifie les informations saisies avant de valider la connexion.
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  // Cette fonction vérifie les informations saisies puis les envoie au backend.
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     // Vérification que tous les champs sont bien remplis.
@@ -22,34 +25,24 @@ export default function LoginPage() {
       return
     }
 
-    // Réutilise le profil existant ou prépare un profil minimal pour cette adresse.
-    const savedProfile = localStorage.getItem('ase_user_profile')
-    let profile: { firstName: string; lastName: string; email: string }
+    setError('')
+    setIsSubmitting(true)
 
     try {
-      const parsedProfile = savedProfile ? JSON.parse(savedProfile) : null
-      profile = parsedProfile?.email?.toLowerCase() === email.trim().toLowerCase()
-        ? parsedProfile
-        : {
-            firstName: email.trim().split('@')[0] || 'Utilisateur',
-            lastName: '',
-            email: email.trim(),
-          }
-    } catch {
-      profile = {
-        firstName: email.trim().split('@')[0] || 'Utilisateur',
-        lastName: '',
-        email: email.trim(),
+      await login(email.trim(), password)
+      // Redirection vers l'espace de travail après la connexion.
+      navigate('/dashboard')
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError('Email ou mot de passe incorrect.')
+      } else if (err instanceof ApiError && err.status === 422) {
+        setError('Veuillez saisir une adresse email valide.')
+      } else {
+        setError('Impossible de joindre le serveur. Réessayez plus tard.')
       }
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Sauvegarde les informations du profil et l'état de connexion pour le dashboard.
-    localStorage.setItem('ase_user_profile', JSON.stringify(profile))
-    localStorage.setItem('ase_auth', 'true')
-    setError('')
-
-    // Redirection vers l'espace de travail après la connexion.
-    navigate('/dashboard')
   }
 
   // Structure visuelle de la page de connexion.
@@ -114,8 +107,8 @@ export default function LoginPage() {
 
           {error && <p className="error-text">{error}</p>}
 
-          <button type="submit" className="primary-button full-width">
-            Se connecter
+          <button type="submit" className="primary-button full-width" disabled={isSubmitting}>
+            {isSubmitting ? 'Connexion…' : 'Se connecter'}
           </button>
           </form>
 

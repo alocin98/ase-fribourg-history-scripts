@@ -6,15 +6,14 @@ import WelcomePage from './pages/WelcomePage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import { isAuthenticated } from './api/auth'
 
 // Import du fichier de style principal.
 import './App.css'
 
 // Protège le tableau de bord et redirige les visiteurs non connectés.
 function ProtectedDashboard() {
-  const isAuthenticated = localStorage.getItem('ase_auth') === 'true'
-
-  return isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />
+  return isAuthenticated() ? <HomePage /> : <Navigate to="/login" replace />
 }
 
 // Composant principal de l'application.

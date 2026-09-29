@@ -2,6 +2,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { ApiError, register } from '../api/auth'
+
 // Page d'inscription de l'application.
 export default function RegisterPage() {
   // Le hook de navigation permet de diriger l'utilisateur après l'inscription.
@@ -17,6 +19,7 @@ export default function RegisterPage() {
 
   // Le message d'erreur est affiché si certaines validations ne sont pas respectées.
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Cette fonction met à jour les champs au fur et à mesure que l'utilisateur tape.
   const handleChange = (field: string, value: string) => {
@@ -24,7 +27,7 @@ export default function RegisterPage() {
   }
 
   // Cette fonction valide les informations saisies avant de créer le compte.
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const { name, email, password, confirmPassword } = formData
@@ -41,24 +44,24 @@ export default function RegisterPage() {
       return
     }
 
-    // Sépare le nom complet pour afficher le prénom, le nom et les initiales dans le profil.
-    const nameParts = name.trim().split(/\s+/)
-    const firstName = nameParts[0] ?? ''
-    const lastName = nameParts.slice(1).join(' ')
-
-    // Conserve localement les informations publiques du compte pour le menu de profil.
-    localStorage.setItem('ase_user_profile', JSON.stringify({
-      firstName,
-      lastName,
-      email: email.trim(),
-    }))
-
-    // Enregistre le statut de connexion localement.
-    localStorage.setItem('ase_auth', 'true')
     setError('')
+    setIsSubmitting(true)
 
-    // Redirection vers l'espace de travail après création du compte.
-    navigate('/dashboard')
+    try {
+      // Crée le compte sur le backend puis connecte directement l'utilisateur.
+      await register(name.trim(), email.trim(), password)
+      navigate('/dashboard')
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setError('Un compte existe déjà avec cette adresse email.')
+      } else if (err instanceof ApiError && err.status === 422) {
+        setError('Veuillez saisir une adresse email valide.')
+      } else {
+        setError('Impossible de joindre le serveur. Réessayez plus tard.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Structure visuelle de la page d'inscription.
@@ -150,8 +153,8 @@ export default function RegisterPage() {
 
           {error && <p className="error-text">{error}</p>}
 
-          <button type="submit" className="primary-button full-width">
-            S’inscrire
+          <button type="submit" className="primary-button full-width" disabled={isSubmitting}>
+            {isSubmitting ? 'Création…' : 'S’inscrire'}
           </button>
           </form>
 
