@@ -1,0 +1,59 @@
+{
+  "header": {
+    "homeLabel": "Manuscript AI, home",
+    "tagline": "Archives in motion",
+    "register": "Sign up",
+    "login": "Log in",
+    "dashboard": "Dashboard",
+    "logout": "Log out",
+    "language": "Language"
+  },
+  "account": {
+    "dashboard": "Dashboard",
+    "documents": "Documents"
+  },
+  "landing": {
+    "title": "Give historical manuscripts a new reading",
+    "subtitle": "Recognize, analyze and understand historical documents with artificial intelligence.",
+    "myAccount": "My account",
+    "createAccount": "Create an account",
+    "login": "Log in"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome! Document analysis features will be available soon.",
+    "welcomeName": "Welcome, {{name}}! Document analysis features will be available soon."
+  },
+  "documents": {
+    "title": "Documents",
+    "empty": "No documents yet."
+  },
+  "login": {
+    "title": "Log in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "noAccount": "Don't have an account yet?",
+    "createAccount": "Create an account"
+  },
+  "register": {
+    "title": "Create an account",
+    "name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "submit": "Sign up",
+    "submitting": "Creating…",
+    "hasAccount": "Already have an account?",
+    "login": "Log in"
+  },
+  "errors": {
+    "requiredFields": "Please fill in all fields.",
+    "passwordMismatch": "The passwords do not match.",
+    "invalidCredentials": "Incorrect email or password.",
+    "invalidEmail": "Please enter a valid email address.",
+    "emailTaken": "An account with this email address already exists.",
+    "server": "Unable to reach the server. Please try again later."
+  }
+}
