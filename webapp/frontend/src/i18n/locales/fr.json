@@ -1,0 +1,59 @@
+{
+  "header": {
+    "homeLabel": "Manuscript AI, accueil",
+    "tagline": "Archives en mouvement",
+    "register": "Inscription",
+    "login": "Se connecter",
+    "dashboard": "Dashboard",
+    "logout": "Se déconnecter",
+    "language": "Langue"
+  },
+  "account": {
+    "dashboard": "Dashboard",
+    "documents": "Documents"
+  },
+  "landing": {
+    "title": "Donnez une nouvelle lecture aux manuscrits historiques",
+    "subtitle": "Reconnaître, analyser et comprendre des documents historiques grâce à l'intelligence artificielle.",
+    "myAccount": "Mon compte",
+    "createAccount": "Créer un compte",
+    "login": "Se connecter"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Bienvenue ! Les fonctionnalités d'analyse de documents seront bientôt disponibles.",
+    "welcomeName": "Bienvenue, {{name}} ! Les fonctionnalités d'analyse de documents seront bientôt disponibles."
+  },
+  "documents": {
+    "title": "Documents",
+    "empty": "Aucun document pour l'instant."
+  },
+  "login": {
+    "title": "Connexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "submitting": "Connexion…",
+    "noAccount": "Pas encore de compte ?",
+    "createAccount": "Créer un compte"
+  },
+  "register": {
+    "title": "Créer un compte",
+    "name": "Nom complet",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "submit": "S’inscrire",
+    "submitting": "Création…",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "login": "Se connecter"
+  },
+  "errors": {
+    "requiredFields": "Veuillez remplir tous les champs.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "invalidCredentials": "Email ou mot de passe incorrect.",
+    "invalidEmail": "Veuillez saisir une adresse email valide.",
+    "emailTaken": "Un compte existe déjà avec cette adresse email.",
+    "server": "Impossible de joindre le serveur. Réessayez plus tard."
+  }
+}

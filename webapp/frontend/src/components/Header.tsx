@@ -1,26 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { getProfile, isAuthenticated, logout } from '../api/auth'
+import LanguageSwitcher from './LanguageSwitcher'
 
 // Barre de navigation commune à toutes les pages.
 export default function Header() {
+  const { t } = useTranslation()
+
   return (
     <header className="header">
-      <Link to="/" className="brand" aria-label="Manuscript AI, accueil">
+      <Link to="/" className="brand" aria-label={t('header.homeLabel')}>
         <span className="logo-circle">A</span>
         <span>
           <strong>Manuscript AI</strong>
-          <small>Archives en mouvement</small>
+          <small>{t('header.tagline')}</small>
         </span>
       </Link>
       <nav className="header-nav">
+        <LanguageSwitcher />
         {isAuthenticated() ? (
           <ProfileMenu />
         ) : (
           <>
-            <Link to="/register">Inscription</Link>
-            <Link to="/login" className="button">Se connecter</Link>
+            <Link to="/register">{t('header.register')}</Link>
+            <Link to="/login" className="button">{t('header.login')}</Link>
           </>
         )}
       </nav>
@@ -30,6 +35,7 @@ export default function Header() {
 
 // Menu déroulant du compte connecté : email, accès à l'espace et déconnexion.
 function ProfileMenu() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const profile = getProfile()
   const [isOpen, setIsOpen] = useState(false)
@@ -85,9 +91,9 @@ function ProfileMenu() {
             {name && <strong>{name}</strong>}
             <span className="muted-small">{email}</span>
           </div>
-          <Link to="/app" role="menuitem" onClick={() => setIsOpen(false)}>Dashboard</Link>
+          <Link to="/app" role="menuitem" onClick={() => setIsOpen(false)}>{t('header.dashboard')}</Link>
           <button type="button" role="menuitem" className="profile-logout" onClick={handleLogout}>
-            Se déconnecter
+            {t('header.logout')}
           </button>
         </div>
       )}

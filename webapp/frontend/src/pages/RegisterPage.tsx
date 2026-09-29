@@ -1,6 +1,8 @@
 // Import des outils nécessaires au formulaire d'inscription et à la navigation.
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { ErrorKey } from '../i18n'
 
 import Header from '../components/Header'
 import { ApiError, register } from '../api/auth'
@@ -8,6 +10,7 @@ import { ApiError, register } from '../api/auth'
 // Page d'inscription de l'application.
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [formData, setFormData] = useState({
     name: '',
@@ -15,7 +18,7 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
   })
-  const [error, setError] = useState('')
+  const [error, setError] = useState<ErrorKey | ''>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (field: keyof typeof formData, value: string) => {
@@ -29,12 +32,12 @@ export default function RegisterPage() {
     const { name, email, password, confirmPassword } = formData
 
     if (!name || !email || !password || !confirmPassword) {
-      setError('Veuillez remplir tous les champs.')
+      setError('errors.requiredFields')
       return
     }
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.')
+      setError('errors.passwordMismatch')
       return
     }
 
@@ -47,11 +50,11 @@ export default function RegisterPage() {
       navigate('/app')
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        setError('Un compte existe déjà avec cette adresse email.')
+        setError('errors.emailTaken')
       } else if (err instanceof ApiError && err.status === 422) {
-        setError('Veuillez saisir une adresse email valide.')
+        setError('errors.invalidEmail')
       } else {
-        setError('Impossible de joindre le serveur. Réessayez plus tard.')
+        setError('errors.server')
       }
     } finally {
       setIsSubmitting(false)
@@ -62,26 +65,26 @@ export default function RegisterPage() {
     <div className="page">
       <Header />
       <main className="card">
-        <h1>Créer un compte</h1>
+        <h1>{t('register.title')}</h1>
 
         <form className="form" onSubmit={handleSubmit}>
           <label>
-            Nom complet
+            {t('register.name')}
             <input type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} />
           </label>
 
           <label>
-            Email
+            {t('register.email')}
             <input type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
           </label>
 
           <label>
-            Mot de passe
+            {t('register.password')}
             <input type="password" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} />
           </label>
 
           <label>
-            Confirmer le mot de passe
+            {t('register.confirmPassword')}
             <input
               type="password"
               value={formData.confirmPassword}
@@ -89,15 +92,15 @@ export default function RegisterPage() {
             />
           </label>
 
-          {error && <p className="error-text">{error}</p>}
+          {error && <p className="error-text">{t(error)}</p>}
 
           <button type="submit" className="button" disabled={isSubmitting}>
-            {isSubmitting ? 'Création…' : 'S’inscrire'}
+            {isSubmitting ? t('register.submitting') : t('register.submit')}
           </button>
         </form>
 
         <p className="muted">
-          Vous avez déjà un compte ? <Link to="/login">Se connecter</Link>
+          {t('register.hasAccount')} <Link to="/login">{t('register.login')}</Link>
         </p>
       </main>
     </div>

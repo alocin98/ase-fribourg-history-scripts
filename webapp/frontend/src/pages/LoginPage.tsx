@@ -1,6 +1,8 @@
 // Import des outils nécessaires pour gérer l'état du formulaire et la navigation.
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { ErrorKey } from '../i18n'
 
 import Header from '../components/Header'
 import { ApiError, login } from '../api/auth'
@@ -8,10 +10,11 @@ import { ApiError, login } from '../api/auth'
 // Page de connexion de l'application.
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [error, setError] = useState<ErrorKey | ''>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Vérifie les informations saisies puis les envoie au backend.
@@ -19,7 +22,7 @@ export default function LoginPage() {
     event.preventDefault()
 
     if (!email.trim() || !password.trim()) {
-      setError('Veuillez remplir tous les champs.')
+      setError('errors.requiredFields')
       return
     }
 
@@ -31,11 +34,11 @@ export default function LoginPage() {
       navigate('/app')
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setError('Email ou mot de passe incorrect.')
+        setError('errors.invalidCredentials')
       } else if (err instanceof ApiError && err.status === 422) {
-        setError('Veuillez saisir une adresse email valide.')
+        setError('errors.invalidEmail')
       } else {
-        setError('Impossible de joindre le serveur. Réessayez plus tard.')
+        setError('errors.server')
       }
     } finally {
       setIsSubmitting(false)
@@ -46,28 +49,28 @@ export default function LoginPage() {
     <div className="page">
       <Header />
       <main className="card">
-        <h1>Connexion</h1>
+        <h1>{t('login.title')}</h1>
 
         <form className="form" onSubmit={handleSubmit}>
           <label>
-            Email
+            {t('login.email')}
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
 
           <label>
-            Mot de passe
+            {t('login.password')}
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </label>
 
-          {error && <p className="error-text">{error}</p>}
+          {error && <p className="error-text">{t(error)}</p>}
 
           <button type="submit" className="button" disabled={isSubmitting}>
-            {isSubmitting ? 'Connexion…' : 'Se connecter'}
+            {isSubmitting ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
 
         <p className="muted">
-          Pas encore de compte ? <Link to="/register">Créer un compte</Link>
+          {t('login.noAccount')} <Link to="/register">{t('login.createAccount')}</Link>
         </p>
       </main>
     </div>

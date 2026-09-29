@@ -77,6 +77,36 @@
   color: var(--ase-ink);
 }
 
+/* Sélecteur de langue. */
+.lang-switch {
+  display: flex;
+  padding: 2px;
+  border: 1px solid var(--ase-line);
+  border-radius: 999px;
+  background: white;
+}
+
+.lang-switch button {
+  padding: 0.25rem 0.55rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ase-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lang-switch button:hover {
+  color: var(--ase-ink);
+}
+
+.lang-switch button[aria-pressed='true'] {
+  background: var(--ase-gradient);
+  color: white;
+}
+
 /* Menu déroulant du compte. */
 .profile {
   position: relative;
