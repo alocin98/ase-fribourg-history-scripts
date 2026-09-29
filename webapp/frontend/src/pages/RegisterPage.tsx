@@ -47,7 +47,7 @@ export default function RegisterPage() {
     try {
       // Crée le compte sur le backend puis connecte directement l'utilisateur.
       await register(name.trim(), email.trim(), password)
-      navigate('/app')
+      navigate('/dashboard')
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setError('errors.emailTaken')
@@ -92,7 +92,7 @@ export default function RegisterPage() {
             />
           </label>
 
-          {error && <p className="error-text">{t(error)}</p>}
+          {error && <p className="form-error">{t(error)}</p>}
 
           <button type="submit" className="button" disabled={isSubmitting}>
             {isSubmitting ? t('register.submitting') : t('register.submit')}

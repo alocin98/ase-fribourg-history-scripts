@@ -31,7 +31,7 @@ export default function LoginPage() {
 
     try {
       await login(email.trim(), password)
-      navigate('/app')
+      navigate('/dashboard')
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError('errors.invalidCredentials')
@@ -62,7 +62,7 @@ export default function LoginPage() {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </label>
 
-          {error && <p className="error-text">{t(error)}</p>}
+          {error && <p className="form-error">{t(error)}</p>}
 
           <button type="submit" className="button" disabled={isSubmitting}>
             {isSubmitting ? t('login.submitting') : t('login.submit')}
