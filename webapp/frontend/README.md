@@ -45,7 +45,7 @@ docker build -t ase-frontend .
 docker run -p 3000:80 ase-frontend
 ```
 
-L'application appelle l'API sur `/api` (même domaine). Sur Dokploy, le frontend et le backend partagent le même domaine : le backend reçoit le chemin `/api` (sans « strip path ») et le frontend le reste.
+L'application appelle l'API sur `/api` (même domaine). Sur Coolify, le frontend et le backend partagent le même domaine : le backend reçoit le chemin `/api` (sans « strip prefix ») et le frontend le reste.
 
 ## Structure principale
 
