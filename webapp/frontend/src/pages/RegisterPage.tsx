@@ -62,7 +62,6 @@ export default function RegisterPage() {
     <div className="page">
       <Header />
       <main className="card">
-        <p className="kicker">Commencer simplement</p>
         <h1>Créer un compte</h1>
 
         <form className="form" onSubmit={handleSubmit}>

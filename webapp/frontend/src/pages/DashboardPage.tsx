@@ -6,7 +6,6 @@ export default function DashboardPage() {
 
   return (
     <>
-      <p className="kicker">Bienvenue</p>
       <h1>Dashboard</h1>
       <p className="info">
         Bienvenue{profile?.firstName ? `, ${profile.firstName}` : ''} ! Les fonctionnalités d'analyse

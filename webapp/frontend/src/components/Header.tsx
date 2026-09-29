@@ -82,7 +82,6 @@ function ProfileMenu() {
       {isOpen && (
         <div className="profile-menu" role="menu">
           <div className="profile-menu-info">
-            <span className="profile-menu-label">Compte connecté</span>
             {name && <strong>{name}</strong>}
             <span className="muted-small">{email}</span>
           </div>

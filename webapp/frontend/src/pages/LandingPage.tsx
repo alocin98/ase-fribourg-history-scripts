@@ -9,7 +9,6 @@ export default function LandingPage() {
     <div className="page">
       <Header />
       <main className="landing">
-        <p className="kicker">Recherche · IA · Patrimoine</p>
         <h1>Donnez une nouvelle lecture aux manuscrits historiques</h1>
         <p>Reconnaître, analyser et comprendre des documents historiques grâce à l'intelligence artificielle.</p>
         <div className="actions">

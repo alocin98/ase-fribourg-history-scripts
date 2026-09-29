@@ -9,7 +9,6 @@ export default function AccountPage() {
       <Header />
       <div className="app-layout">
         <aside className="sidenav">
-          <p className="sidenav-heading">Espace de travail</p>
           <nav className="sidenav-menu">
             <NavLink to="/app" end>Dashboard</NavLink>
             <NavLink to="/app/documents">Documents</NavLink>

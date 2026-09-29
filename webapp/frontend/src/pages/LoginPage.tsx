@@ -46,7 +46,6 @@ export default function LoginPage() {
     <div className="page">
       <Header />
       <main className="card">
-        <p className="kicker">Bon retour</p>
         <h1>Connexion</h1>
 
         <form className="form" onSubmit={handleSubmit}>
