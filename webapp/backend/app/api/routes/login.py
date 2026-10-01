@@ -1,13 +1,84 @@
-from datetime import timedelta
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.user import UserLogin
+from app.api.deps import get_current_session
+from app.api.schemas.user import UserLogin, UserRead
 from app.core.config import settings
 from app.core.db import get_db
-from app.core.security import verify_password
+from app.core.security import create_csrf_token, verify_password
+from app.models.sessions import AuthSession
 from app.repositories.user import UserRepository
+from app.repositories.sessions import SessionRepository
 
-router = APIRouter(prefix="/login", tags=["login"])
+router = APIRouter(tags=["auth"])
+
+
+async def _authenticate(email: str, password: str, session: AsyncSession):
+    repository = UserRepository(session)
+    user = await repository.get_by_email(email)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    valid, updated_hash = verify_password(
+        password,
+        user.password_hash,
+    )
+
+    if not valid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    if updated_hash is not None:
+        user.password_hash = updated_hash
+        await session.commit()
+
+    return user
+
+
+@router.post("/login", response_model=UserRead)
+async def login(
+    data: UserLogin,
+    response: Response,
+    session: AsyncSession = Depends(get_db),
+):
+    user = await _authenticate(data.email, data.password, session)
+    _, token = await SessionRepository(session).create(user.id)
+    response.set_cookie(
+        key=settings.SESSION_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        max_age=settings.SESSION_EXPIRE_MINUTES * 60,
+    )
+    return user
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(
+    response: Response,
+    auth_session: AuthSession = Depends(get_current_session),
+    session: AsyncSession = Depends(get_db),
+):
+    await SessionRepository(session).revoke(auth_session)
+    response.delete_cookie(key=settings.SESSION_COOKIE_NAME)
+
+
+@router.get("/csrf-token")
+async def csrf_token(response: Response):
+    token = create_csrf_token()
+    response.set_cookie(
+        key=settings.CSRF_COOKIE_NAME,
+        value=token,
+        httponly=False,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        max_age=settings.SESSION_EXPIRE_MINUTES * 60,
+    )
+    return {"csrf_token": token}

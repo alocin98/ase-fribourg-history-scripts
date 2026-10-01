@@ -26,3 +26,4 @@ class UserRead(BaseModel):
     name: str
     created_at: datetime
     updated_at: datetime
+
