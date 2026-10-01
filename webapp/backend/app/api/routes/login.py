@@ -48,7 +48,12 @@ async def login(
     session: AsyncSession = Depends(get_db),
 ):
     user = await _authenticate(data.email, data.password, session)
-    _, token = await SessionRepository(session).create(user.id)
+
+    session_repository = SessionRepository(session)
+    # Revoke expired sessions for the user before creating a new one to avoid having an infinite number of sessions for a user in the database.
+    await session_repository.revoke_expired()
+    _, token = await session_repository.create(user.id)
+
     response.set_cookie(
         key=settings.SESSION_COOKIE_NAME,
         value=token,
