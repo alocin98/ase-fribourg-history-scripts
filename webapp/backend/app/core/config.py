@@ -10,8 +10,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str
     DB_ECHO: bool = False
-    SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+
     API_STR: str
     API_TITLE: str
     API_DESCRIPTION: str

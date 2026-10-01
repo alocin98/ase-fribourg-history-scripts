@@ -26,7 +26,3 @@ class UserRead(BaseModel):
     name: str
     created_at: datetime
     updated_at: datetime
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
