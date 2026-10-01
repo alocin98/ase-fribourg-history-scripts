@@ -37,7 +37,7 @@ For testing credentials, create a new account or contact nicolas.mueller2@gmail.
 **Commits**
 Commit messages follow this structure:
 
-<type>(<optional scope>): <description>
+`<type>(<optional scope>): <description>`
 
 with types:
 
