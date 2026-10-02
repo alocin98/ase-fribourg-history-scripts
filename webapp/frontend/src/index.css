@@ -1,89 +1,59 @@
 @import "tailwindcss";
 
-/* Palette, polices et animations de référence, reprises du logo. */
+/* Palette et police système de l'application. La scène de lecture est sombre pour faire ressortir les scans. */
 @theme {
-  --font-sans: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  --color-ase-blue: #2563eb;
-  --color-ase-violet: #7c3aed;
-  --color-ase-indigo: #4f46e5;
-  --color-ase-ink: #172033;
-  --color-ase-navy: #263a6b;
-  --color-ase-muted: #667085;
-  --color-ase-line: #e0e4ed;
-  --color-ase-surface: #f6f7fb;
-
-  --animate-ase-float: ase-float 5.4s ease-in-out infinite;
-
-  @keyframes ase-float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-14px);
-    }
-  }
+  --color-paper: #f6f7fb;
+  --color-ink: #172033;
+  --color-muted: #667085;
+  --color-line: #e0e4ed;
+  --color-accent: #4f46e5;
+  --color-accent-strong: #3730a3;
+  --color-accent-soft: #eef2ff;
+  --color-blue: #2563eb;
+  --color-violet: #7c3aed;
+  --color-stage: #172033;
 }
 
-/* Base commune à toutes les pages. */
 @layer base {
   html,
   body,
   #root {
-    min-height: 100vh;
+    height: 100%;
   }
 
   body {
-    background-color: var(--color-ase-surface);
-    color: var(--color-ase-ink);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
 
-  button:not(:disabled),
-  [role='button']:not(:disabled) {
+  button:not(:disabled) {
     cursor: pointer;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
 
-/* Dégradé bleu → violet du logo. */
-@utility bg-ase-gradient {
-  background-image: linear-gradient(120deg, var(--color-ase-blue), var(--color-ase-violet));
-}
-
-/* Carré du logo avec la lettre « A ». */
-@utility logo-mark {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background-image: linear-gradient(135deg, var(--color-ase-blue), var(--color-ase-violet));
-  color: white;
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-/* Bouton principal en dégradé. */
-@utility btn-primary {
+/* Bouton d'action principal. */
+@utility btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.1rem;
-  border-radius: 8px;
-  background-image: linear-gradient(120deg, var(--color-ase-blue), var(--color-ase-violet));
-  box-shadow: 0 10px 20px rgb(79 70 229 / 0.2);
+  padding: 0.5rem 0.9rem;
+  border-radius: 4px;
+  background-color: var(--color-accent);
   color: white;
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 22px rgb(79 70 229 / 0.26);
+    background-color: var(--color-accent-strong);
   }
 
   &:disabled {
@@ -92,42 +62,36 @@
   }
 }
 
-/* Carte blanche utilisée dans le tableau de bord. */
-@utility card-surface {
-  border: 1px solid var(--color-gray-200);
-  border-radius: 20px;
+/* Bouton secondaire, bordé. */
+@utility btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
   background-color: white;
-  box-shadow: 0 10px 40px rgb(15 23 42 / 0.04);
-}
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
 
-/* Petit libellé en majuscules placé au-dessus des titres. */
-@utility eyebrow {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  color: var(--color-ase-indigo);
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-/* Champ de saisie des formulaires de connexion et d'inscription. */
-@utility form-input {
-  padding: 0.7rem 0.8rem;
-  border: 1px solid #d5dee0;
-  border-radius: 8px;
-  background-color: white;
-  font-weight: 400;
-
-  &:focus {
-    border-color: var(--color-ase-indigo);
-    outline: 3px solid rgb(79 70 229 / 0.15);
+  &:hover:not(:disabled) {
+    border-color: var(--color-muted);
   }
 }
 
-/* Le menu du profil s'ouvre au survol, au focus clavier ou au clic (data-open). */
-@custom-variant menu-open {
-  &:where(.group:hover *, .group:focus-within *, .group[data-open] *) {
-    @slot;
+/* Champ de saisie des formulaires. */
+@utility form-input {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.95rem;
+  font-weight: 400;
+
+  &:focus-visible {
+    border-color: var(--color-accent);
+    outline: 1px solid var(--color-accent);
+    outline-offset: 0;
   }
 }
