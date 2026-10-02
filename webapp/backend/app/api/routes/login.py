@@ -1,20 +1,19 @@
-from datetime import timedelta
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.user import Token, UserLogin
+from app.api.deps import get_current_session, csrf_header
+from app.api.schemas.user import UserLogin, UserRead
 from app.core.config import settings
 from app.core.db import get_db
-from app.core.security import create_access_token, verify_password
+from app.core.security import create_csrf_token, verify_password
+from app.models.sessions import AuthSession
 from app.repositories.user import UserRepository
+from app.repositories.sessions import SessionRepository
 
-router = APIRouter(prefix="/login", tags=["login"])
+router = APIRouter(tags=["auth"])
 
 
-async def _authenticate(email: str, password: str, session: AsyncSession) -> Token:
+async def _authenticate(email: str, password: str, session: AsyncSession):
     repository = UserRepository(session)
     user = await repository.get_by_email(email)
 
@@ -22,7 +21,6 @@ async def _authenticate(email: str, password: str, session: AsyncSession) -> Tok
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     valid, updated_hash = verify_password(
@@ -34,35 +32,65 @@ async def _authenticate(email: str, password: str, session: AsyncSession) -> Tok
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     if updated_hash is not None:
         user.password_hash = updated_hash
         await session.commit()
 
-    access_token = create_access_token(
-        subject=str(user.id),
-        expires_delta=timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        ),
-    )
-
-    return Token(access_token=access_token)
+    return user
 
 
-@router.post("", response_model=Token)
+@router.post(
+    "/login",
+    response_model=UserRead,
+    dependencies=[Security(csrf_header)]
+)
 async def login(
     data: UserLogin,
+    response: Response,
     session: AsyncSession = Depends(get_db),
 ):
-    return await _authenticate(data.email, data.password, session)
+    user = await _authenticate(data.email, data.password, session)
+
+    session_repository = SessionRepository(session)
+    # Revoke expired sessions for the user before creating a new one to avoid having an infinite number of sessions for a user in the database.
+    await session_repository.revoke_expired()
+    _, token = await session_repository.create(user.id)
+
+    response.set_cookie(
+        key=settings.SESSION_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        max_age=settings.SESSION_EXPIRE_MINUTES * 60,
+    )
+    return user
 
 
-@router.post("/access-token", response_model=Token)
-async def login_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+@router.post(
+    "/logout",
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_204_NO_CONTENT)
+async def logout(
+    response: Response,
+    auth_session: AuthSession = Depends(get_current_session),
     session: AsyncSession = Depends(get_db),
 ):
-    """OAuth2 compatible login (form data), used by the Swagger UI. The username field is the email."""
-    return await _authenticate(form_data.username, form_data.password, session)
+    await SessionRepository(session).revoke(auth_session)
+    response.delete_cookie(key=settings.SESSION_COOKIE_NAME)
+
+
+@router.get("/csrf-token")
+async def csrf_token(response: Response):
+    token = create_csrf_token()
+    response.set_cookie(
+        key=settings.CSRF_COOKIE_NAME,
+        value=token,
+        httponly=False,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        max_age=settings.SESSION_EXPIRE_MINUTES * 60,
+    )
+    return {"csrf_token": token}

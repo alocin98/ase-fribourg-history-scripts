@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Security
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, csrf_header
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
 from app.core.db import get_db
 from app.models.user import User
@@ -14,6 +14,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.post(
     "/",
     response_model=UserRead,
+    dependencies=[Security(csrf_header)],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
@@ -38,7 +39,11 @@ async def create_user(
         )
 
 
-@router.patch("/me", response_model=UserRead)
+@router.patch(
+    "/me", 
+    response_model=UserRead,
+    dependencies=[Security(csrf_header)]
+)
 async def update_current_user(
     data: UserUpdate,
     current_user: User = Depends(get_current_user),

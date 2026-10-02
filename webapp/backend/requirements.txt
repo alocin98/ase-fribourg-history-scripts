@@ -6,4 +6,3 @@ asyncpg
 email-validator
 pwdlib[argon2]
 pwdlib[bcrypt]
-PyJWT

@@ -1,52 +1,51 @@
 from typing import Annotated
-from uuid import UUID
 
-import jwt
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.db import get_db
-from app.core.security import ALGORITHM
+from app.models.sessions import AuthSession
 from app.models.user import User
+from app.repositories.sessions import SessionRepository
 from app.repositories.user import UserRepository
 
-reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_STR}/login/access-token"
+csrf_header = APIKeyHeader(
+    name=settings.CSRF_HEADER_NAME,
+    scheme_name="CSRF token",
+    auto_error=False,
 )
 
-async def get_current_user(
-    token: Annotated[str, Depends(reusable_oauth2)],
+async def get_current_session(
+    request: Request,
     session: Annotated[AsyncSession, Depends(get_db)],
-) -> User:
+) -> AuthSession:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
     )
 
-    try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[ALGORITHM],
-        ) 
-
-        subject = payload.get("sub")
-        
-        if subject is None:
-            raise credentials_exception
-
-        user_id = UUID(subject)
-
-    except (jwt.InvalidTokenError, ValueError, TypeError):
+    token = request.cookies.get(settings.SESSION_COOKIE_NAME)
+    if not token:
         raise credentials_exception
 
-    repository = UserRepository(session)
-    user = await repository.get_by_id(user_id)
+    auth_session = await SessionRepository(session).get_valid_by_token(token)
+    if auth_session is None:
+        raise credentials_exception
+    return auth_session
+
+
+async def get_current_user(
+    auth_session: Annotated[AuthSession, Depends(get_current_session)],
+    session: Annotated[AsyncSession, Depends(get_db)],
+) -> User:
+    user = await UserRepository(session).get_by_id(auth_session.user_id)
 
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
 
     return user

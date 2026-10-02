@@ -3,11 +3,11 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, Security, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, csrf_header
 from app.api.schemas.documents import DocumentRead, DocumentUploadResponse, PageRead, PagePaginateRead, DocumentCreate
 from app.core.db import get_db
 from app.core.config import settings
@@ -27,7 +27,12 @@ def _safe_zip_path(name: str) -> PurePosixPath:
     return path
 
 
-@router.post("/", status_code=201, response_model=DocumentUploadResponse)
+@router.post(
+    "/",
+    response_model=DocumentUploadResponse,
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_201_CREATED
+)
 async def create_document(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
@@ -110,7 +115,11 @@ async def create_document(
         await file.close()
 
 
-@router.get("/me", response_model=list[DocumentRead])
+@router.get(
+    "/me",
+    response_model=list[DocumentRead],
+    dependencies=[Security(csrf_header)],   
+)
 async def list_user_documents(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
@@ -119,7 +128,11 @@ async def list_user_documents(
     return await repository.get_all(current_user.id)
 
 
-@router.get("/{document_id}/pages", response_model=list[PageRead])
+@router.get(
+    "/{document_id}/pages",
+    response_model=list[PageRead],
+    dependencies=[Security(csrf_header)],
+)
 async def list_document_pages(
     request: Request,
     document_id: UUID,
@@ -168,8 +181,11 @@ async def get_document_page(
         raise HTTPException(status_code=404, detail="Page not found")
     return FileResponse(page.image_path)
 
-
-@router.get("/{document_id}/download", name="download_document")
+@router.get(
+    "/{document_id}/download",
+    name="download_document",
+    dependencies=[Security(csrf_header)],
+)
 async def download_document(
     document_id: UUID,
     current_user: User = Depends(get_current_user),
