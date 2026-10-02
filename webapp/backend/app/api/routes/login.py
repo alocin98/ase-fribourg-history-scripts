@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_session
+from app.api.deps import get_current_session, csrf_header
 from app.api.schemas.user import UserLogin, UserRead
 from app.core.config import settings
 from app.core.db import get_db
@@ -41,7 +41,11 @@ async def _authenticate(email: str, password: str, session: AsyncSession):
     return user
 
 
-@router.post("/login", response_model=UserRead)
+@router.post(
+    "/login",
+    response_model=UserRead,
+    dependencies=[Security(csrf_header)]
+)
 async def login(
     data: UserLogin,
     response: Response,
@@ -65,7 +69,10 @@ async def login(
     return user
 
 
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@router.post(
+    "/logout",
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     response: Response,
     auth_session: AuthSession = Depends(get_current_session),
