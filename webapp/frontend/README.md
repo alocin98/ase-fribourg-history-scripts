@@ -4,13 +4,13 @@ Ce dossier contient l'interface utilisateur du projet ASE.
 
 ## Description
 
-C'est une application web simple créée avec React, TypeScript et Vite. Elle permet :
+C'est une application web simple créée avec React, TypeScript et Vite. Pour le MVP, elle permet :
 
-- de se connecter
-- de créer un compte
-- d'accéder à la page principale
-- de téléverser une image
-- de prévisualiser et de télécharger le fichier sélectionné
+- de présenter le projet sur la page d'accueil (`/`)
+- de se connecter et de créer un compte (l'application est sous `/app`)
+- de voir la liste de ses documents
+
+La lecture d'un document page par page, la création de documents, l'import d'images et la transcription ne sont pas encore développés.
 
 ## Technologies utilisées
 
@@ -49,10 +49,11 @@ L'application appelle l'API sur `/api` (même domaine). Sur Coolify, le frontend
 
 ## Structure principale
 
-- src/pages : contient les pages de connexion, inscription et accueil
-- src/components : contient les composants réutilisables
+- src/pages : page d'accueil (WelcomePage), connexion, inscription et liste des documents (HomePage)
+- src/components : cadre de l'application, cadre des pages de connexion et sélecteur de langue
+- src/api : client HTTP et appels au backend (authentification, documents)
 - src/App.tsx : gère la navigation globale
-- src/App.css : contient le style principal de l'application
+- src/index.css : importe Tailwind CSS v4 et définit le thème (couleurs `paper`, `ink`, `accent`…, police) et les utilitaires partagés (`btn`, `btn-quiet`, `form-input`). Le style des composants est écrit directement avec les classes Tailwind dans le JSX.
 
 ## Notes importantes
 

@@ -1,20 +1,47 @@
 {
-  "header": {
+  "front": {
+    "title": "Read historical manuscripts page by page",
+    "intro": "Manuscript AI keeps your scanned historical documents in one place, so you can browse their pages and, soon, transcribe them automatically. The site is under development",
+    "signIn": "Sign in",
+    "createAccount": "Create an account",
+    "openApp": "Open the app",
+    "inDevelopment": "In development",
+    "footer": "A group project for the Advanced Software Engineering course at the University of Fribourg, autumn 2026.",
+    "preview": {
+      "alt": "Illuminated manuscript page from 1464, with one line of text and a cannon drawn in the margin outlined",
+      "caption": "Deeds of Sir Gillion de Trazegnies, southern Netherlands, 1464. Public domain.",
+      "line": "Line {{number}}",
+      "cannon": "Cannon"
+    },
+    "stepsTitle": "How it works",
+    "steps": {
+      "upload": {
+        "title": "Add a document",
+        "text": "Upload the scanned pages of a document as a ZIP file of images."
+      },
+      "read": {
+        "title": "Browse its pages",
+        "text": "Open the document and move through its pages in a viewer built for reading scans."
+      },
+      "transcribe": {
+        "title": "Transcribe a page",
+        "text": "Turn the handwriting on a page into text with a machine learning model."
+      }
+    }
+  },
+  "nav": {
     "homeLabel": "Manuscript AI, home",
-    "tagline": "Archives in motion",
-    "register": "Sign up",
-    "login": "Log in",
-    "dashboard": "Dashboard",
-    "logout": "Log out",
+    "documents": "Documents",
+    "signOut": "Sign out",
     "language": "Language"
   },
   "login": {
-    "title": "Log in",
+    "title": "Sign in",
     "email": "Email",
     "password": "Password",
-    "submit": "Log in",
-    "submitting": "Logging in…",
-    "noAccount": "Don't have an account yet?",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "noAccount": "No account yet?",
     "createAccount": "Create an account"
   },
   "register": {
@@ -23,17 +50,25 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm password",
-    "submit": "Sign up",
-    "submitting": "Creating…",
+    "submit": "Create account",
+    "submitting": "Creating account…",
     "hasAccount": "Already have an account?",
-    "login": "Log in"
+    "login": "Sign in"
+  },
+  "documents": {
+    "title": "Documents",
+    "loading": "Loading documents…",
+    "empty": "You don't have any documents yet.",
+    "loadError": "Your documents couldn't be loaded. Check your connection and reload the page.",
+    "uploaded": "Uploaded {{date}}",
+    "creationPending": "Creating new documents is under development. For now, you can read the documents already in your account."
   },
   "errors": {
-    "requiredFields": "Please fill in all fields.",
-    "passwordMismatch": "The passwords do not match.",
-    "invalidCredentials": "Incorrect email or password.",
-    "invalidEmail": "Please enter a valid email address.",
-    "emailTaken": "An account with this email address already exists.",
-    "server": "Unable to reach the server. Please try again later."
+    "requiredFields": "Fill in all fields.",
+    "passwordMismatch": "The passwords don't match.",
+    "invalidCredentials": "The email or password is incorrect.",
+    "invalidEmail": "Enter a valid email address.",
+    "emailTaken": "An account with this email already exists.",
+    "server": "The server can't be reached. Try again later."
   }
 }

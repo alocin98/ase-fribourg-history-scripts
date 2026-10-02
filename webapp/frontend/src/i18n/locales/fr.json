@@ -1,11 +1,38 @@
 {
-  "header": {
+  "front": {
+    "title": "Lire des manuscrits historiques page par page",
+    "intro": "Manuscript AI réunit vos documents historiques numérisés pour que vous puissiez parcourir leurs pages et, bientôt, les transcrire automatiquement.",
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte",
+    "openApp": "Ouvrir l’application",
+    "inDevelopment": "En développement",
+    "footer": "Projet de groupe du cours Advanced Software Engineering à l’Université de Fribourg, automne 2026.",
+    "preview": {
+      "alt": "Page de manuscrit enluminé de 1464, avec une ligne de texte et un canon dessiné dans la marge encadrés",
+      "caption": "Faits de messire Gillion de Trazegnies, Pays-Bas méridionaux, 1464. Domaine public.",
+      "line": "Ligne {{number}}",
+      "cannon": "Canon"
+    },
+    "stepsTitle": "Comment ça marche",
+    "steps": {
+      "upload": {
+        "title": "Ajouter un document",
+        "text": "Importez les pages numérisées d’un document sous forme de fichier ZIP d’images."
+      },
+      "read": {
+        "title": "Parcourir ses pages",
+        "text": "Ouvrez le document et feuilletez ses pages dans une vue pensée pour lire les scans."
+      },
+      "transcribe": {
+        "title": "Transcrire une page",
+        "text": "Convertissez l’écriture manuscrite d’une page en texte grâce à un modèle d’apprentissage automatique."
+      }
+    }
+  },
+  "nav": {
     "homeLabel": "Manuscript AI, accueil",
-    "tagline": "Archives en mouvement",
-    "register": "Inscription",
-    "login": "Se connecter",
-    "dashboard": "Dashboard",
-    "logout": "Se déconnecter",
+    "documents": "Documents",
+    "signOut": "Se déconnecter",
     "language": "Langue"
   },
   "login": {
@@ -23,10 +50,18 @@
     "email": "Email",
     "password": "Mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
-    "submit": "S’inscrire",
+    "submit": "Créer le compte",
     "submitting": "Création…",
     "hasAccount": "Vous avez déjà un compte ?",
     "login": "Se connecter"
+  },
+  "documents": {
+    "title": "Documents",
+    "loading": "Chargement des documents…",
+    "empty": "Vous n’avez encore aucun document.",
+    "loadError": "Impossible de charger vos documents. Vérifiez votre connexion et rechargez la page.",
+    "uploaded": "Importé le {{date}}",
+    "creationPending": "La création de nouveaux documents est en cours de développement. Pour l’instant, vous pouvez lire les documents déjà présents dans votre compte."
   },
   "errors": {
     "requiredFields": "Veuillez remplir tous les champs.",

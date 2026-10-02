@@ -4,8 +4,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { ErrorKey } from '../i18n'
 
-import Header from '../components/Header'
-import { ApiError, register } from '../api/auth'
+import AuthFrame from '../components/AuthFrame'
+import { ApiError } from '../api/client'
+import { register } from '../api/auth'
 
 // Page d'inscription de l'application.
 export default function RegisterPage() {
@@ -47,7 +48,7 @@ export default function RegisterPage() {
     try {
       // Crée le compte sur le backend puis connecte directement l'utilisateur.
       await register(name.trim(), email.trim(), password)
-      navigate('/dashboard')
+      navigate('/app/documents')
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setError('errors.emailTaken')
@@ -62,47 +63,42 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="page">
-      <Header />
-      <main className="card">
-        <h1>{t('register.title')}</h1>
+    <AuthFrame title={t('register.title')}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
+          {t('register.name')}
+          <input className="form-input" type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} />
+        </label>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <label>
-            {t('register.name')}
-            <input type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} />
-          </label>
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
+          {t('register.email')}
+          <input className="form-input" type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
+        </label>
 
-          <label>
-            {t('register.email')}
-            <input type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
-          </label>
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
+          {t('register.password')}
+          <input className="form-input" type="password" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} />
+        </label>
 
-          <label>
-            {t('register.password')}
-            <input type="password" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} />
-          </label>
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
+          {t('register.confirmPassword')}
+          <input className="form-input"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={(e) => handleChange('confirmPassword', e.target.value)}
+          />
+        </label>
 
-          <label>
-            {t('register.confirmPassword')}
-            <input
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => handleChange('confirmPassword', e.target.value)}
-            />
-          </label>
+        {error && <p className="text-sm text-red-700">{t(error)}</p>}
 
-          {error && <p className="form-error">{t(error)}</p>}
+        <button type="submit" className="btn mt-2" disabled={isSubmitting}>
+          {isSubmitting ? t('register.submitting') : t('register.submit')}
+        </button>
+      </form>
 
-          <button type="submit" className="button" disabled={isSubmitting}>
-            {isSubmitting ? t('register.submitting') : t('register.submit')}
-          </button>
-        </form>
-
-        <p className="muted">
-          {t('register.hasAccount')} <Link to="/login">{t('register.login')}</Link>
-        </p>
-      </main>
-    </div>
+      <p className="mt-6 text-sm text-muted">
+        {t('register.hasAccount')} <Link to="/app/login" className="font-medium text-accent underline underline-offset-2">{t('register.login')}</Link>
+      </p>
+    </AuthFrame>
   )
 }
