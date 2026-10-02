@@ -8,10 +8,6 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { isAuthenticated } from './api/auth'
 
-// Import des fichiers de style : base commune, puis accueil et tableau de bord.
-import './App.css'
-import './manuscript.css'
-
 // Protège le tableau de bord et redirige les visiteurs non connectés.
 function ProtectedDashboard() {
   return isAuthenticated() ? <HomePage /> : <Navigate to="/login" replace />

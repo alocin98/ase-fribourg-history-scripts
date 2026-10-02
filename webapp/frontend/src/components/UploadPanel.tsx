@@ -23,25 +23,25 @@ export default function UploadPanel({
   const isFrench = language === 'fr'
 
   return (
-    <div className="panel upload-panel">
-      <div className="panel-header">
-        <h2>{isFrench ? 'Téléchargement' : 'Upload'}</h2>
+    <div className="card-surface p-4 text-gray-900">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-2xl font-bold">{isFrench ? 'Téléchargement' : 'Upload'}</h2>
       </div>
 
-      <label className="upload-box">
-        <input type="file" accept="image/*" onChange={onFileChange} />
+      <label className="mb-4 flex min-h-[120px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-indigo-200 bg-[#f8faff] p-4 text-center font-semibold text-gray-700">
+        <input className="hidden" type="file" accept="image/*" onChange={onFileChange} />
         <span>{selectedFile ? (isFrench ? 'Changer l’image' : 'Change image') : (isFrench ? 'Choisir une image' : 'Choose an image')}</span>
       </label>
 
       {previewUrl && (
-        <div className="preview-box">
-          <img src={previewUrl} alt={isFrench ? 'Aperçu du document sélectionné' : 'Preview of the selected document'} />
+        <div className="mb-4 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100">
+          <img className="max-h-[260px] w-full object-cover" src={previewUrl} alt={isFrench ? 'Aperçu du document sélectionné' : 'Preview of the selected document'} />
         </div>
       )}
 
       <button
         type="button"
-        className="primary-button full-width"
+        className="btn-primary w-full"
         onClick={onDownload}
         disabled={!selectedFile}
       >

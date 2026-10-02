@@ -62,45 +62,45 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="page">
+    <div className="mx-auto max-w-[1120px] px-4">
       <Header />
-      <main className="card">
-        <h1>{t('register.title')}</h1>
+      <main className="mx-auto my-12 max-w-[420px] rounded-2xl border border-ase-line bg-white p-9 shadow-[0_18px_40px_rgb(23_32_51/0.06)]">
+        <h1 className="mb-6 font-serif text-[2rem] font-medium text-ase-ink">{t('register.title')}</h1>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <label>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <label className="flex flex-col gap-1.5 text-[0.8rem] font-semibold">
             {t('register.name')}
-            <input type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} />
+            <input className="form-input" type="text" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} />
           </label>
 
-          <label>
+          <label className="flex flex-col gap-1.5 text-[0.8rem] font-semibold">
             {t('register.email')}
-            <input type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
+            <input className="form-input" type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
           </label>
 
-          <label>
+          <label className="flex flex-col gap-1.5 text-[0.8rem] font-semibold">
             {t('register.password')}
-            <input type="password" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} />
+            <input className="form-input" type="password" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} />
           </label>
 
-          <label>
+          <label className="flex flex-col gap-1.5 text-[0.8rem] font-semibold">
             {t('register.confirmPassword')}
-            <input
+            <input className="form-input"
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => handleChange('confirmPassword', e.target.value)}
             />
           </label>
 
-          {error && <p className="form-error">{t(error)}</p>}
+          {error && <p className="text-[0.85rem] text-red-600">{t(error)}</p>}
 
-          <button type="submit" className="button" disabled={isSubmitting}>
+          <button type="submit" className="btn-primary" disabled={isSubmitting}>
             {isSubmitting ? t('register.submitting') : t('register.submit')}
           </button>
         </form>
 
-        <p className="muted">
-          {t('register.hasAccount')} <Link to="/login">{t('register.login')}</Link>
+        <p className="mt-6 text-[0.85rem] text-ase-muted">
+          {t('register.hasAccount')} <Link to="/login" className="font-semibold text-ase-indigo underline">{t('register.login')}</Link>
         </p>
       </main>
     </div>

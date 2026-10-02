@@ -52,7 +52,7 @@ L'application appelle l'API sur `/api` (même domaine). Sur Coolify, le frontend
 - src/pages : contient les pages de connexion, inscription et accueil
 - src/components : contient les composants réutilisables
 - src/App.tsx : gère la navigation globale
-- src/App.css : contient le style principal de l'application
+- src/index.css : importe Tailwind CSS v4 et définit le thème (couleurs `ase-*`, polices) et les utilitaires partagés (`btn-primary`, `logo-mark`, `form-input`…). Le style des composants est écrit directement avec les classes Tailwind dans le JSX.
 
 ## Notes importantes
 

@@ -10,22 +10,22 @@ export default function Header() {
   const { t } = useTranslation()
 
   return (
-    <header className="header">
-      <Link to="/" className="brand" aria-label={t('header.homeLabel')}>
-        <span className="brand-logo">A</span>
+    <header className="flex items-center justify-between border-b border-ase-line py-5">
+      <Link to="/" className="flex items-center gap-2.5" aria-label={t('header.homeLabel')}>
+        <span className="logo-mark">A</span>
         <span>
-          <strong>Manuscript AI</strong>
-          <small>{t('header.tagline')}</small>
+          <strong className="block text-[0.95rem] tracking-[0.02em]">Manuscript AI</strong>
+          <small className="mt-0.5 block text-[0.65rem] text-ase-muted max-sm:hidden">{t('header.tagline')}</small>
         </span>
       </Link>
-      <nav className="header-nav">
+      <nav className="flex items-center gap-5 text-[0.85rem]">
         <LanguageSwitcher />
         {isAuthenticated() ? (
           <ProfileMenu />
         ) : (
           <>
-            <Link to="/register">{t('header.register')}</Link>
-            <Link to="/login" className="button">{t('header.login')}</Link>
+            <Link to="/register" className="font-bold text-ase-muted hover:text-ase-ink">{t('header.register')}</Link>
+            <Link to="/login" className="btn-primary">{t('header.login')}</Link>
           </>
         )}
       </nav>
@@ -72,27 +72,27 @@ function ProfileMenu() {
   }
 
   return (
-    <div className="account" ref={menuRef}>
+    <div className="relative" ref={menuRef}>
       <button
         type="button"
-        className="account-trigger"
+        className="flex items-center gap-2.5 rounded-full border border-ase-line bg-white py-1.5 pr-2.5 pl-1.5 text-ase-ink transition hover:border-indigo-200 hover:shadow-[0_6px_16px_rgb(79_70_229/0.12)] aria-expanded:border-indigo-200 aria-expanded:shadow-[0_6px_16px_rgb(79_70_229/0.12)]"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <span className="account-initials">{initials || '?'}</span>
-        <span className="account-email">{email}</span>
-        <span className="account-caret" aria-hidden="true">▾</span>
+        <span className="grid size-[30px] place-items-center rounded-full bg-ase-gradient text-xs font-extrabold text-white">{initials || '?'}</span>
+        <span className="text-[0.8rem] font-semibold max-sm:hidden">{email}</span>
+        <span className="text-[0.7rem] text-ase-muted" aria-hidden="true">▾</span>
       </button>
 
       {isOpen && (
-        <div className="account-menu" role="menu">
-          <div className="account-menu-info">
+        <div className="absolute top-[calc(100%+0.5rem)] right-0 z-10 flex min-w-60 flex-col rounded-xl border border-ase-line bg-white p-1.5 shadow-[0_18px_40px_rgb(23_32_51/0.12)]" role="menu">
+          <div className="mb-1 flex flex-col gap-0.5 border-b border-ase-line px-3 pt-2.5 pb-3">
             {name && <strong>{name}</strong>}
-            <span className="muted-small">{email}</span>
+            <span className="text-xs text-ase-muted">{email}</span>
           </div>
-          <Link to="/dashboard" role="menuitem" onClick={() => setIsOpen(false)}>{t('header.dashboard')}</Link>
-          <button type="button" role="menuitem" className="account-logout" onClick={handleLogout}>
+          <Link to="/dashboard" role="menuitem" className="rounded-lg px-3 py-2.5 text-[0.85rem] text-[#59627d] hover:bg-[#f1f0ff] hover:text-indigo-800" onClick={() => setIsOpen(false)}>{t('header.dashboard')}</Link>
+          <button type="button" role="menuitem" className="rounded-lg px-3 py-2.5 text-left text-[0.85rem] text-red-600 hover:bg-red-50" onClick={handleLogout}>
             {t('header.logout')}
           </button>
         </div>
