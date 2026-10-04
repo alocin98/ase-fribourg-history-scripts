@@ -1,3 +1,4 @@
+from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy import select
@@ -10,34 +11,51 @@ class DocumentRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, data: DocumentCreate) -> Document:
+    async def create_document(
+    self,
+    *,
+    document_id: UUID,
+    owner_id: UUID,
+    name: str,
+    description: str,
+    ) -> Document:
         document = Document(
-            id=data.id,
-            owner_id=data.owner_id,
-            original_filename=data.original_filename,
-            storage_path=data.storage_path,
+            id=document_id,
+            owner_id=owner_id,
+            name=name,
+            description=description,
         )
+    
         self.session.add(document)
-        await self.session.flush()
-
-        self.session.add_all(
-            Page(
-                document_id=document.id,
-                page_number=page_number,
-                image_path=str(image_path),
-            )
-            for page_number, image_path in enumerate(data.image_paths, start=1)
-        )
         await self.session.commit()
+        await self.session.refresh(document)
         return document
 
     async def get_all(self, owner_id: UUID) -> list[Document]:
         result = await self.session.scalars(
             select(Document)
             .where(Document.owner_id == owner_id)
-            .order_by(Document.uploaded_at.desc())
+            .order_by(Document.id.desc())
         )
         return list(result.all())
+
+    async def create_pages(
+        self,
+        document_id: UUID,
+        pages: list[dict[str, int | str | Path]],
+    ) -> None:
+        self.session.add_all(
+            Page(
+                document_id=document_id,
+                page_number=page["page_number"],
+                width=page["width"],
+                height=page["height"],
+                mime_type=page["mime_type"],
+                image_path=str(page["image_path"]),
+            )
+            for page in pages
+        )
+        await self.session.commit()
 
     async def get_document_by_id(
         self,
@@ -81,4 +99,3 @@ class DocumentRepository:
                 Document.owner_id == owner_id,
             )
         )
-
