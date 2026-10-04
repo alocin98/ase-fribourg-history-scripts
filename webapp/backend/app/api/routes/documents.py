@@ -26,14 +26,14 @@ def _safe_zip_path(name: str) -> PurePosixPath:
         raise HTTPException(status_code=400, detail="The ZIP contains an unsafe path")
     return path
 
-
 @router.post(
-    "/",
+    "/{document_id}",
     response_model=DocumentUploadResponse,
     dependencies=[Security(csrf_header)],
     status_code=status.HTTP_201_CREATED
 )
-async def create_document(
+async def upload_files_to_document(
+    document_id: UUID,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
