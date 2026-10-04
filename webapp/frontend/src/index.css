@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
-/* Palette et police système de l'application. La scène de lecture est sombre pour faire ressortir les scans. */
+@source "./pages";
+@source "./components";
+@source "./auth";
+@source "./App.tsx";
+
+/* Palette de l'application. Les pages utilisent surtout les classes Tailwind. */
 @theme {
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
+  --animate-float: float 5.4s ease-in-out infinite;
+  --animate-auth-in: auth-in 1.25s ease both;
+  --animate-auth-from-right: auth-from-right 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-auth-from-left: auth-from-left 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  @keyframes auth-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes auth-from-right {
+    from { opacity: 0; transform: translateX(36px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes auth-from-left {
+    from { opacity: 0; transform: translateX(-36px); }
+    to { opacity: 1; transform: none; }
+  }
 
   --color-paper: #f6f7fb;
   --color-ink: #172033;
-  --color-muted: #667085;
-  --color-line: #e0e4ed;
   --color-accent: #4f46e5;
-  --color-accent-strong: #3730a3;
-  --color-accent-soft: #eef2ff;
-  --color-blue: #2563eb;
-  --color-violet: #7c3aed;
-  --color-stage: #172033;
 }
 
 @layer base {
   html,
   body,
   #root {
-    height: 100%;
+    min-height: 100%;
   }
 
   body {
@@ -37,61 +59,5 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-  }
-}
-
-/* Bouton d'action principal. */
-@utility btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 0.9rem;
-  border-radius: 4px;
-  background-color: var(--color-accent);
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-
-  &:hover:not(:disabled) {
-    background-color: var(--color-accent-strong);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-/* Bouton secondaire, bordé. */
-@utility btn-quiet {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--color-line);
-  border-radius: 4px;
-  background-color: white;
-  color: var(--color-ink);
-  font-size: 0.875rem;
-  font-weight: 500;
-
-  &:hover:not(:disabled) {
-    border-color: var(--color-muted);
-  }
-}
-
-/* Champ de saisie des formulaires. */
-@utility form-input {
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--color-line);
-  border-radius: 4px;
-  background-color: white;
-  font-size: 0.95rem;
-  font-weight: 400;
-
-  &:focus-visible {
-    border-color: var(--color-accent);
-    outline: 1px solid var(--color-accent);
-    outline-offset: 0;
   }
 }

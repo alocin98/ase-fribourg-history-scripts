@@ -1,40 +1,69 @@
-// Import des modules nécessaires pour la navigation entre les pages.
+import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-import AppLayout from './components/AppLayout'
-import HomePage from './pages/HomePage'
-import WelcomePage from './pages/WelcomePage'
+import { AuthProvider, useAuth } from './auth/AuthProvider'
+import AccountPage from './pages/AccountPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import { isAuthenticated } from './api/auth'
+import WelcomePage from './pages/WelcomePage'
+import { AuthMotionLayout } from './pages/useAuthTransition'
 
-// Redirige les visiteurs non connectés vers la page de connexion.
-function RequireAuth() {
-  return isAuthenticated() ? <Outlet /> : <Navigate to="/app/login" replace />
+// Attend que la session soit connue, puis laisse passer ou redirige.
+function SessionGate({ children, redirectTo }: { children: ReactNode; redirectTo?: string }) {
+  const { ready } = useAuth()
+  const { t } = useTranslation()
+  if (!ready) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-[#f5f6fa] font-sans text-[#5d657c]">
+        {t('common.loading')}
+      </div>
+    )
+  }
+  if (redirectTo) return <Navigate to={redirectTo} replace />
+  return children
 }
 
-// Composant principal : la page publique sous /, l'application sous /app.
-function App() {
+// /app exige une session. Sinon, direction la connexion.
+function RequireAuth() {
+  const { user } = useAuth()
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/app">
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route element={<RequireAuth />}>
-            <Route element={<AppLayout />}>
-              <Route index element={<Navigate to="documents" replace />} />
-              <Route path="documents" element={<HomePage />} />
-            </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/app/documents" replace />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <SessionGate redirectTo={user ? undefined : '/login'}>
+      <Outlet />
+    </SessionGate>
   )
 }
 
-// Export du composant principal pour l'application.
+// Connexion et inscription sont réservées aux visiteurs sans session.
+function GuestOnly() {
+  const { user } = useAuth()
+  return (
+    <SessionGate redirectTo={user ? '/app' : undefined}>
+      <Outlet />
+    </SessionGate>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<WelcomePage />} />
+          <Route element={<GuestOnly />}>
+            <Route element={<AuthMotionLayout />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
+          </Route>
+          <Route element={<RequireAuth />}>
+            <Route path="/app" element={<AccountPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  )
+}
+
 export default App

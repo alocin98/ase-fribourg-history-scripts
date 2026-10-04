@@ -1,44 +1,78 @@
 {
-  "front": {
-    "title": "Lire des manuscrits historiques page par page",
-    "intro": "Manuscript AI réunit vos documents historiques numérisés pour que vous puissiez parcourir leurs pages et, bientôt, les transcrire automatiquement.",
-    "signIn": "Se connecter",
-    "createAccount": "Créer un compte",
-    "openApp": "Ouvrir l’application",
-    "inDevelopment": "En développement",
-    "footer": "Projet de groupe du cours Advanced Software Engineering à l’Université de Fribourg, automne 2026.",
-    "preview": {
-      "alt": "Page de manuscrit enluminé de 1464, avec une ligne de texte et un canon dessiné dans la marge encadrés",
-      "caption": "Faits de messire Gillion de Trazegnies, Pays-Bas méridionaux, 1464. Domaine public.",
-      "line": "Ligne {{number}}",
-      "cannon": "Canon"
-    },
-    "stepsTitle": "Comment ça marche",
-    "steps": {
-      "upload": {
-        "title": "Ajouter un document",
-        "text": "Importez les pages numérisées d’un document sous forme de fichier ZIP d’images."
-      },
-      "read": {
-        "title": "Parcourir ses pages",
-        "text": "Ouvrez le document et feuilletez ses pages dans une vue pensée pour lire les scans."
-      },
-      "transcribe": {
-        "title": "Transcrire une page",
-        "text": "Convertissez l’écriture manuscrite d’une page en texte grâce à un modèle d’apprentissage automatique."
-      }
-    }
+  "brand": {
+    "name": "Manuscript AI",
+    "tagline": "Archives en mouvement"
+  },
+  "common": {
+    "loading": "Chargement…"
   },
   "nav": {
-    "homeLabel": "Manuscript AI, accueil",
-    "documents": "Documents",
+    "home": "Accueil",
+    "signIn": "Se connecter",
     "signOut": "Se déconnecter",
-    "language": "Langue"
+    "language": "Choisir la langue",
+    "auth": "Authentification",
+    "main": "Navigation principale",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "home": {
+    "features": "Fonctionnalités",
+    "steps": "Étapes",
+    "about": "À propos",
+    "dashboard": "Dashboard",
+    "guestName": "Utilisateur",
+    "profileOf": "Profil de {{name}}",
+    "signedIn": "Compte connecté",
+    "kicker": "Recherche · IA · Patrimoine",
+    "titleLine1": "Donnez une nouvelle lecture aux",
+    "titleLine2": "manuscrits historiques",
+    "intro": "Une plateforme pour reconnaître, analyser et comprendre des documents historiques grâce à l’intelligence artificielle.",
+    "discover": "Découvrir la plateforme",
+    "seeSteps": "Voir comment ça marche",
+    "manuscriptAlt": "Page de manuscrit enluminé de 1464",
+    "line": "Ligne 06",
+    "cannon": "Canon",
+    "readingLabel": "Ce que la lecture montre",
+    "reading": "De l’image au sens, avec une approche claire et assistée par l’IA.",
+    "recognition": "Reconnaissance",
+    "analysis": "Analyse",
+    "understanding": "Compréhension",
+    "featuresLabel": "Autour du manuscrit",
+    "featuresTitle": "Une approche plus claire des documents anciens",
+    "recognize": "Reconnaître",
+    "recognizeText": "Identifier les caractères, les lignes et les structures d’un manuscrit.",
+    "analyze": "Analyser",
+    "analyzeText": "Explorer les éléments visuels et textuels d’un document numérisé.",
+    "understand": "Comprendre",
+    "understandText": "Faire émerger le contexte et les informations importantes.",
+    "transcribe": "Transcrire",
+    "transcribeText": "Rendre lisible le texte repéré dans le manuscrit.",
+    "stepsLabel": "Comment commencer",
+    "path": "Parcours",
+    "stepsTitle": "Comment ça marche",
+    "step1Title": "Importer un document",
+    "step1Text": "Partagez une image ou une numérisation de votre document.",
+    "step2Title": "Laisser l’IA l’examiner",
+    "step2Text": "Les structures, lignes et éléments remarquables sont repérés.",
+    "step3Title": "Explorer les résultats",
+    "step3Text": "Parcourez les informations utiles avec un regard renouvelé.",
+    "step4Title": "Conserver la lecture",
+    "step4Text": "Enregistrez le document et ses résultats pour les retrouver plus tard.",
+    "bannerTitle": "Commencez par regarder autrement",
+    "bannerText": "Découvrez une expérience pensée pour rapprocher l’histoire, l’image et l’intelligence artificielle.",
+    "explore": "Explorer le projet",
+    "learnMore": "En savoir plus",
+    "footer": "Reconnaître, analyser et comprendre les documents historiques",
+    "backToTop": "Remonter en haut de la page"
   },
   "login": {
     "title": "Connexion",
+    "hint": "Entrez votre email et votre mot de passe.",
     "email": "Email",
+    "emailPlaceholder": "nom@exemple.com",
     "password": "Mot de passe",
+    "passwordPlaceholder": "Votre mot de passe",
     "submit": "Se connecter",
     "submitting": "Connexion…",
     "noAccount": "Pas encore de compte ?",
@@ -46,22 +80,24 @@
   },
   "register": {
     "title": "Créer un compte",
+    "hint": "Renseignez les informations ci-dessous pour créer votre compte.",
     "name": "Nom complet",
+    "namePlaceholder": "Marie Dupont",
     "email": "Email",
+    "emailPlaceholder": "nom@exemple.com",
     "password": "Mot de passe",
+    "passwordPlaceholder": "Choisissez un mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
+    "confirmPlaceholder": "Répétez le mot de passe",
     "submit": "Créer le compte",
     "submitting": "Création…",
     "hasAccount": "Vous avez déjà un compte ?",
     "login": "Se connecter"
   },
-  "documents": {
-    "title": "Documents",
-    "loading": "Chargement des documents…",
-    "empty": "Vous n’avez encore aucun document.",
-    "loadError": "Impossible de charger vos documents. Vérifiez votre connexion et rechargez la page.",
-    "uploaded": "Importé le {{date}}",
-    "creationPending": "La création de nouveaux documents est en cours de développement. Pour l’instant, vous pouvez lire les documents déjà présents dans votre compte."
+  "account": {
+    "kicker": "Compte",
+    "hello": "Bonjour, {{name}}.",
+    "text": "Voici la page de votre compte. La lecture des manuscrits page par page et la transcription automatique sont en cours d’intégration ici."
   },
   "errors": {
     "requiredFields": "Veuillez remplir tous les champs.",

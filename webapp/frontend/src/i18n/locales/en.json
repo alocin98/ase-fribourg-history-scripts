@@ -1,44 +1,78 @@
 {
-  "front": {
-    "title": "Read historical manuscripts page by page",
-    "intro": "Manuscript AI keeps your scanned historical documents in one place, so you can browse their pages and, soon, transcribe them automatically. The site is under development",
-    "signIn": "Sign in",
-    "createAccount": "Create an account",
-    "openApp": "Open the app",
-    "inDevelopment": "In development",
-    "footer": "A group project for the Advanced Software Engineering course at the University of Fribourg, autumn 2026.",
-    "preview": {
-      "alt": "Illuminated manuscript page from 1464, with one line of text and a cannon drawn in the margin outlined",
-      "caption": "Deeds of Sir Gillion de Trazegnies, southern Netherlands, 1464. Public domain.",
-      "line": "Line {{number}}",
-      "cannon": "Cannon"
-    },
-    "stepsTitle": "How it works",
-    "steps": {
-      "upload": {
-        "title": "Add a document",
-        "text": "Upload the scanned pages of a document as a ZIP file of images."
-      },
-      "read": {
-        "title": "Browse its pages",
-        "text": "Open the document and move through its pages in a viewer built for reading scans."
-      },
-      "transcribe": {
-        "title": "Transcribe a page",
-        "text": "Turn the handwriting on a page into text with a machine learning model."
-      }
-    }
+  "brand": {
+    "name": "Manuscript AI",
+    "tagline": "Archives in motion"
+  },
+  "common": {
+    "loading": "Loading…"
   },
   "nav": {
-    "homeLabel": "Manuscript AI, home",
-    "documents": "Documents",
+    "home": "Home",
+    "signIn": "Sign in",
     "signOut": "Sign out",
-    "language": "Language"
+    "language": "Choose a language",
+    "auth": "Authentication",
+    "main": "Main navigation",
+    "openMenu": "Open the menu",
+    "closeMenu": "Close the menu"
+  },
+  "home": {
+    "features": "Features",
+    "steps": "Steps",
+    "about": "About",
+    "dashboard": "Dashboard",
+    "guestName": "User",
+    "profileOf": "Profile of {{name}}",
+    "signedIn": "Signed-in account",
+    "kicker": "Research · AI · Heritage",
+    "titleLine1": "Give historical manuscripts",
+    "titleLine2": "a new reading",
+    "intro": "A platform to recognize, analyze, and understand historical documents through artificial intelligence.",
+    "discover": "Discover the platform",
+    "seeSteps": "See how it works",
+    "manuscriptAlt": "Illuminated manuscript page from 1464",
+    "line": "Line 06",
+    "cannon": "Cannon",
+    "readingLabel": "What the reading shows",
+    "reading": "From image to meaning, with a clear approach assisted by AI.",
+    "recognition": "Recognition",
+    "analysis": "Analysis",
+    "understanding": "Understanding",
+    "featuresLabel": "Around the manuscript",
+    "featuresTitle": "A clearer approach to old documents",
+    "recognize": "Recognize",
+    "recognizeText": "Identify the characters, lines, and structures of a manuscript.",
+    "analyze": "Analyze",
+    "analyzeText": "Explore the visual and textual elements of a digitized document.",
+    "understand": "Understand",
+    "understandText": "Bring out the context and the important information.",
+    "transcribe": "Transcribe",
+    "transcribeText": "Make the text found in the manuscript easier to read.",
+    "stepsLabel": "How to begin",
+    "path": "Path",
+    "stepsTitle": "How it works",
+    "step1Title": "Import a document",
+    "step1Text": "Share an image or a scan of your document.",
+    "step2Title": "Let the AI examine it",
+    "step2Text": "Structures, lines, and notable elements are picked out.",
+    "step3Title": "Explore the results",
+    "step3Text": "Browse the useful information with a fresh look.",
+    "step4Title": "Keep the reading",
+    "step4Text": "Save the document and its results so you can find them again later.",
+    "bannerTitle": "Start by looking differently",
+    "bannerText": "Discover an experience designed to bring history, the image, and artificial intelligence closer.",
+    "explore": "Explore the project",
+    "learnMore": "Learn more",
+    "footer": "Recognize, analyze, and understand historical documents",
+    "backToTop": "Back to top"
   },
   "login": {
     "title": "Sign in",
+    "hint": "Enter your email and password.",
     "email": "Email",
+    "emailPlaceholder": "name@example.com",
     "password": "Password",
+    "passwordPlaceholder": "Your password",
     "submit": "Sign in",
     "submitting": "Signing in…",
     "noAccount": "No account yet?",
@@ -46,22 +80,24 @@
   },
   "register": {
     "title": "Create an account",
+    "hint": "Enter the details below to create your account.",
     "name": "Full name",
+    "namePlaceholder": "Jane Smith",
     "email": "Email",
+    "emailPlaceholder": "name@example.com",
     "password": "Password",
+    "passwordPlaceholder": "Choose a password",
     "confirmPassword": "Confirm password",
+    "confirmPlaceholder": "Repeat the password",
     "submit": "Create account",
     "submitting": "Creating account…",
     "hasAccount": "Already have an account?",
     "login": "Sign in"
   },
-  "documents": {
-    "title": "Documents",
-    "loading": "Loading documents…",
-    "empty": "You don't have any documents yet.",
-    "loadError": "Your documents couldn't be loaded. Check your connection and reload the page.",
-    "uploaded": "Uploaded {{date}}",
-    "creationPending": "Creating new documents is under development. For now, you can read the documents already in your account."
+  "account": {
+    "kicker": "Account",
+    "hello": "Hello, {{name}}.",
+    "text": "This is your account page. Reading manuscripts page by page and automatic transcription are being integrated here."
   },
   "errors": {
     "requiredFields": "Fill in all fields.",
