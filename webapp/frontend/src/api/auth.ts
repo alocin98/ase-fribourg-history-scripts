@@ -34,3 +34,15 @@ export async function register(name: string, email: string, password: string): P
 export function logout(): Promise<void> {
   return request<void>('/logout', { method: 'POST' })
 }
+
+export function updateCurrentUser(body: { name: string; email: string; password?: string }): Promise<User> {
+  return request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body) })
+}
+
+export function deactivateAccount(): Promise<void> {
+  return request<void>('/users/me/deactivate', { method: 'POST' })
+}
+
+export function deleteAccount(): Promise<void> {
+  return request<void>('/users/me', { method: 'DELETE' })
+}

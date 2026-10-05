@@ -3,11 +3,15 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom
 import { useTranslation } from 'react-i18next'
 
 import { AuthProvider, useAuth } from './auth/AuthProvider'
-import AccountPage from './pages/AccountPage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
+import DocumentOverviewPage from './pages/Dashboard/DocumentOverviewPage'
+import EditDocumentPage from './pages/Dashboard/EditDocumentPage'
+import DocumentsPage from './pages/Dashboard/DocumentsPage'
+import NewDocumentPage from './pages/Dashboard/NewDocumentPage'
+import ProfilePage from './pages/Dashboard/ProfilePage'
+import LoginPage from './pages/auth/LoginPage'
+import RegisterPage from './pages/auth/RegisterPage'
 import WelcomePage from './pages/WelcomePage'
-import { AuthMotionLayout } from './pages/useAuthTransition'
+import { AuthMotionLayout } from './pages/auth/useAuthTransition'
 
 // Attend que la session soit connue, puis laisse passer ou redirige.
 function SessionGate({ children, redirectTo }: { children: ReactNode; redirectTo?: string }) {
@@ -38,7 +42,7 @@ function RequireAuth() {
 function GuestOnly() {
   const { user } = useAuth()
   return (
-    <SessionGate redirectTo={user ? '/app' : undefined}>
+    <SessionGate redirectTo={user ? '/app/documents' : undefined}>
       <Outlet />
     </SessionGate>
   )
@@ -57,7 +61,12 @@ function App() {
             </Route>
           </Route>
           <Route element={<RequireAuth />}>
-            <Route path="/app" element={<AccountPage />} />
+            <Route path="/app" element={<Navigate to="/app/documents" replace />} />
+            <Route path="/app/documents" element={<DocumentsPage />} />
+            <Route path="/app/documents/new" element={<NewDocumentPage />} />
+            <Route path="/app/documents/:documentId/edit" element={<EditDocumentPage />} />
+            <Route path="/app/profile" element={<ProfilePage />} />
+            <Route path="/app/documents/:documentId/overview" element={<DocumentOverviewPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

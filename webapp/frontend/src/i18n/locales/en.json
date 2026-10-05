@@ -94,10 +94,55 @@
     "hasAccount": "Already have an account?",
     "login": "Sign in"
   },
-  "account": {
-    "kicker": "Account",
-    "hello": "Hello, {{name}}.",
-    "text": "This is your account page. Reading manuscripts page by page and automatic transcription are being integrated here."
+  "documents": {
+    "nav": "My documents",
+    "title": "My documents",
+    "intro": "Each document gathers the manuscripts you will analyze together.",
+    "create": "New document",
+    "createHint": "A title and a description are enough to find it later.",
+    "empty": "No documents yet.",
+    "display": "Display",
+    "actions": "Actions",
+    "asTable": "Table",
+    "asIcons": "Icons",
+    "range": "{{from}}–{{to}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "name": "Title",
+    "description": "Description",
+    "save": "Save",
+    "cancel": "Cancel",
+    "view": "View",
+    "edit": "Edit",
+    "editTitle": "Edit document",
+    "remove": "Delete",
+    "confirmDelete": "Delete this document?",
+    "missing": "This document could not be found.",
+    "upload": "Import",
+    "uploading": "Importing…",
+    "drop": "Drop a single ZIP file",
+    "dropHint": "A new file replaces the one already chosen.",
+    "images": "Images",
+    "image": "Image {{n}}",
+    "noImages": "No images yet."
+  },
+  "profile": {
+    "nav": "Profile",
+    "title": "Profile",
+    "hint": "Update your name, email or password.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "passwordHint": "Leave this empty to keep the current password.",
+    "saved": "Profile saved.",
+    "account": "Account",
+    "deactivate": "Deactivate account",
+    "deactivateHint": "You will no longer be able to sign in with this account.",
+    "edit": "Edit",
+    "deleteAccount": "Permanently delete your account",
+    "deleteHint": "The account and its documents are removed.",
+    "confirm": "Confirm"
   },
   "errors": {
     "requiredFields": "Fill in all fields.",
@@ -105,6 +150,10 @@
     "invalidCredentials": "The email or password is incorrect.",
     "invalidEmail": "Enter a valid email address.",
     "emailTaken": "An account with this email already exists.",
-    "server": "The server can't be reached. Try again later."
+    "server": "The server can't be reached. Try again later.",
+    "zipOnly": "Only ZIP files are accepted.",
+    "invalidZip": "This ZIP file is not valid.",
+    "deleteFailed": "This document could not be deleted.",
+    "accountDisabled": "This account is deactivated."
   }
 }

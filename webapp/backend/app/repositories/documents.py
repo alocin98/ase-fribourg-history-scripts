@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.schemas.documents import DocumentCreate, PagePaginateRead
 from app.models.documents import Document, Page
@@ -38,6 +38,21 @@ class DocumentRepository:
             .order_by(Document.uploaded_at.desc())
         )
         return list(result.all())
+
+    async def delete(self, document: Document) -> None:
+        await self.session.execute(delete(Page).where(Page.document_id == document.id))
+        await self.session.delete(document)
+        await self.session.commit()
+
+    async def delete_all_for_owner(self, owner_id: UUID) -> list[tuple[UUID, str]]:
+        documents = await self.get_all(owner_id)
+        stored = [(document.id, document.storage_path) for document in documents]
+        for document in documents:
+            await self.session.execute(delete(Page).where(Page.document_id == document.id))
+            await self.session.delete(document)
+        if documents:
+            await self.session.commit()
+        return stored
 
     async def get_document_by_id(
         self,

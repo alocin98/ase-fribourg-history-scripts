@@ -52,7 +52,7 @@ export default function WelcomePage() {
   }
 
   const menuLinkClass = 'inline-flex h-10 items-center font-sans text-[0.82rem] font-bold whitespace-nowrap text-[#5d657c] no-underline hover:text-[#6d28d9] max-[1100px]:h-auto max-[1100px]:rounded-lg max-[1100px]:px-3 max-[1100px]:py-[0.7rem]'
-  const pageWidth = 'mx-auto w-[min(1120px,calc(100%-3rem))] max-[860px]:w-[min(100%-2rem,680px)]'
+  const pageWidth = 'mx-auto w-[min(1120px,calc(100%-3rem))] max-[860px]:w-[min(680px,calc(100%-2rem))]'
   const sectionLabelClass = 'm-0 mb-4 font-sans text-[0.72rem] font-extrabold tracking-[0.15em] text-[#6d28d9] uppercase'
   const sectionTitleClass = 'm-0 font-sans text-[clamp(1.7rem,2.5vw,2.15rem)] leading-[1.15] font-bold tracking-[-0.035em] text-[#171c33] max-[860px]:text-[clamp(1.7rem,6vw,2.2rem)] max-[860px]:whitespace-normal max-[480px]:text-[1.2rem] xl:whitespace-nowrap'
   const featureCardClass = 'rounded-xl border border-[#e3e0ef] bg-white p-7 shadow-[0_8px_20px_rgba(49,46,129,0.035)]'
@@ -63,7 +63,8 @@ export default function WelcomePage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#f5f6fa] font-sans text-[#172033]">
       {/* Barre du haut : logo, menu, langue, connexion ou profil. */}
-      <header className={`relative flex items-center justify-between gap-4 py-5 ${pageWidth}`}>
+      <header className="w-full">
+      <div className="relative flex w-full items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-10">
         <Brand />
 
         <button
@@ -83,12 +84,13 @@ export default function WelcomePage() {
           <a className={menuLinkClass} href="#fonctionnalites" onClick={() => setIsMenuOpen(false)}>{t('home.features')}</a>
           <a className={menuLinkClass} href="#comment-ca-marche" onClick={() => setIsMenuOpen(false)}>{t('home.steps')}</a>
           <a className={menuLinkClass} href="#apropos" onClick={() => setIsMenuOpen(false)}>{t('home.about')}</a>
+          <div className="flex items-center gap-1.5 max-[1100px]:w-full max-[1100px]:flex-col max-[1100px]:items-stretch">
           {isSignedIn && (
-            <Link to="/app" className="rounded-lg border border-[#d9ddf5] bg-[#f2f1ff] px-[0.9rem] py-[0.65rem] font-sans text-[0.75rem] font-extrabold text-[#4338a8] no-underline hover:-translate-y-0.5 hover:bg-[#4f46e5] hover:text-white" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/app" className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]" onClick={() => setIsMenuOpen(false)}>
               {t('home.dashboard')} <span aria-hidden="true">↗</span>
             </Link>
           )}
-          <LanguageSwitcher className="max-[1100px]:mx-3 max-[1100px]:my-[0.35rem] max-[1100px]:h-auto max-[1100px]:self-start" />
+          <LanguageSwitcher compact className="max-[1100px]:mx-3 max-[1100px]:my-[0.35rem] max-[1100px]:h-auto max-[1100px]:self-start" />
           {!isSignedIn && (
             <Link to="/login" className="inline-flex h-10 shrink-0 items-center justify-center gap-1 rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]" onClick={() => setIsMenuOpen(false)}>
               {t('nav.signIn')} <span aria-hidden="true">↗</span>
@@ -98,13 +100,13 @@ export default function WelcomePage() {
             <div className="group relative">
               <button
                 type="button"
-                className={`flex cursor-pointer items-center rounded-full border border-transparent p-1 ${isProfileOpen ? 'border-[#dbe1f4] bg-[#f5f6ff]' : 'hover:border-[#dbe1f4] hover:bg-[#f5f6ff]'}`}
+                className={`flex cursor-pointer items-center rounded-full border border-transparent p-0 ${isProfileOpen ? 'border-[#dbe1f4] bg-[#f5f6ff]' : 'hover:border-[#dbe1f4] hover:bg-[#f5f6ff]'}`}
                 aria-label={t('home.profileOf', { name: `${firstName} ${lastName}`.trim() })}
                 aria-haspopup="true"
                 aria-expanded={isProfileOpen}
                 onClick={() => setIsProfileOpen((isOpen) => !isOpen)}
               >
-                <span className="grid size-[2.55rem] place-items-center rounded-full border-2 border-white bg-gradient-to-br from-[#2563eb] to-[#4f46e5] font-sans text-[0.76rem] font-extrabold text-white shadow-[0_0_0_1px_#c7d2fe]">{initials}</span>
+                <span className="grid size-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br from-[#2563eb] to-[#4f46e5] font-sans text-[0.62rem] font-extrabold text-white shadow-[0_0_0_1px_#c7d2fe]">{initials}</span>
               </button>
               <div className={`${isProfileOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-[0.98] opacity-0'} absolute top-[calc(100%+0.7rem)] right-0 z-[80] flex w-[min(290px,calc(100vw-2rem))] origin-top-right flex-col rounded-xl border border-[#dbe1f4] bg-white p-4 shadow-[0_18px_42px_rgba(33,41,86,0.16)] transition group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:scale-100 group-focus-within:opacity-100`} role="menu">
                 <span className="mb-[0.65rem] font-sans text-[0.62rem] font-bold tracking-[0.08em] text-[#747b92] uppercase">{t('home.signedIn')}</span>
@@ -116,7 +118,9 @@ export default function WelcomePage() {
               </div>
             </div>
           )}
+          </div>
         </nav>
+      </div>
       </header>
 
       <main>

@@ -94,10 +94,55 @@
     "hasAccount": "Vous avez déjà un compte ?",
     "login": "Se connecter"
   },
-  "account": {
-    "kicker": "Compte",
-    "hello": "Bonjour, {{name}}.",
-    "text": "Voici la page de votre compte. La lecture des manuscrits page par page et la transcription automatique sont en cours d’intégration ici."
+  "documents": {
+    "nav": "Mes documents",
+    "title": "Mes documents",
+    "intro": "Chaque document rassemble les manuscrits que vous analyserez ensemble.",
+    "create": "Nouveau document",
+    "createHint": "Un titre et une description suffisent pour le retrouver ensuite.",
+    "empty": "Aucun document pour le moment.",
+    "display": "Affichage",
+    "actions": "Actions",
+    "asTable": "Tableau",
+    "asIcons": "Icônes",
+    "range": "{{from}}–{{to}} sur {{total}}",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "name": "Titre",
+    "description": "Description",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "view": "Voir",
+    "edit": "Modifier",
+    "editTitle": "Modifier le document",
+    "remove": "Supprimer",
+    "confirmDelete": "Supprimer ce document ?",
+    "missing": "Ce document est introuvable.",
+    "upload": "Importer",
+    "uploading": "Import…",
+    "drop": "Déposez un seul fichier ZIP",
+    "dropHint": "Un nouveau fichier remplace celui déjà choisi.",
+    "images": "Images",
+    "image": "Image {{n}}",
+    "noImages": "Aucune image pour le moment."
+  },
+  "profile": {
+    "nav": "Profil",
+    "title": "Profil",
+    "hint": "Modifiez votre nom, votre email ou votre mot de passe.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "passwordHint": "Laissez vide pour conserver le mot de passe actuel.",
+    "saved": "Profil enregistré.",
+    "account": "Compte",
+    "deactivate": "Désactiver le compte",
+    "deactivateHint": "Vous ne pourrez plus vous connecter avec ce compte.",
+    "edit": "Modifier",
+    "deleteAccount": "Supprimer définitivement votre compte",
+    "deleteHint": "Le compte et ses documents sont effacés.",
+    "confirm": "Confirmer"
   },
   "errors": {
     "requiredFields": "Veuillez remplir tous les champs.",
@@ -105,6 +150,10 @@
     "invalidCredentials": "Email ou mot de passe incorrect.",
     "invalidEmail": "Veuillez saisir une adresse email valide.",
     "emailTaken": "Un compte existe déjà avec cette adresse email.",
-    "server": "Impossible de joindre le serveur. Réessayez plus tard."
+    "server": "Impossible de joindre le serveur. Réessayez plus tard.",
+    "zipOnly": "Seuls les fichiers ZIP sont acceptés.",
+    "invalidZip": "Ce fichier ZIP n’est pas valide.",
+    "deleteFailed": "Impossible de supprimer ce document.",
+    "accountDisabled": "Ce compte est désactivé."
   }
 }
