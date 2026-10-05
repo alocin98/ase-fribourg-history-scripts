@@ -15,6 +15,8 @@ router = APIRouter(prefix="/users", tags=["users"])
     "/",
     response_model=UserRead,
     dependencies=[Security(csrf_header)],
+    name="Create User",
+    description="Create a new user in the system (E.g. signup). This endpoint is typically used for user registration.",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
@@ -42,7 +44,10 @@ async def create_user(
 @router.patch(
     "/me", 
     response_model=UserRead,
-    dependencies=[Security(csrf_header)]
+    dependencies=[Security(csrf_header)],
+    name="Update Current User",
+    description="Update the current user's information. This endpoint allows users to update their own profile information",
+    status_code=status.HTTP_200_OK
 )
 async def update_current_user(
     data: UserUpdate,
@@ -72,7 +77,13 @@ async def update_current_user(
             detail="User update violates a database constraint",
         )
 
-@router.get("/me", response_model=UserRead)
+@router.get(
+    "/me",
+    response_model=UserRead,
+    name="Read Current User",
+    description="Read the current user's information.",
+    status_code=status.HTTP_200_OK
+)
 async def read_current_user(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),

@@ -6,7 +6,12 @@ from app.core.db import get_db
 
 router = APIRouter(prefix="/utils", tags=["utils"])
 
-@router.get("/health-check", summary="Health Check", description="Check the health of the API")
+@router.get(
+    "/health-check",
+    name="Health Check",
+    description="Check the health of the API",
+    status_code=status.HTTP_200_OK
+)
 async def health_check(
     session: AsyncSession = Depends(get_db),
 ) -> bool:

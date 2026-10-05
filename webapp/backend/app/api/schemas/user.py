@@ -27,3 +27,5 @@ class UserRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+class CSRFTokenResponse(BaseModel):
+    csrf_token: str

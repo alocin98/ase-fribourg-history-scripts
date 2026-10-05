@@ -20,13 +20,8 @@ class Document(Base):
         PostgreSQLUUID(as_uuid=True),
         ForeignKey("users.id"),
     )
-    original_filename: Mapped[str] = mapped_column(String(255))
-    storage_path: Mapped[str] = mapped_column(String(500))
-    uploaded_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-    )
-
+    name: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str] = mapped_column(String(500))
 
 class Page(Base):
     __tablename__ = "pages"
@@ -40,5 +35,8 @@ class Page(Base):
         PostgreSQLUUID(as_uuid=True),
         ForeignKey("documents.id", ondelete="CASCADE"),
     )
+    width: Mapped[int]
+    height: Mapped[int]
+    mime_type: Mapped[str] = mapped_column(String(100))
     page_number: Mapped[int]
     image_path: Mapped[str] = mapped_column(String(500))
