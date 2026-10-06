@@ -1,5 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+
+import { getLocalDocument, type LocalDocument } from '../../api/documents'
+import { useAuth } from '../../auth/AuthProvider'
+import DocumentDialog from './DocumentDialog'
 
 const iconButton = 'inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] no-underline hover:border-[#c9cdf8]'
 const dangerButton = 'inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#f3d0d0] bg-white text-[#dc2626] hover:border-[#dc2626]'
@@ -16,18 +21,26 @@ function Trash() {
   return <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M5 7h14" /><path d="M9 7V5h6v2" /><path d="M8 7l1 12h6l1-12" /></svg>
 }
 
-export default function DocumentActions({ id, editable, onRemove }: {
+export default function DocumentActions({ id, editable, onRemove, onEdited }: {
   id: string
   editable: boolean
   onRemove: () => void
+  onEdited?: () => void
 }) {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const [editing, setEditing] = useState<LocalDocument | null>(null)
 
   return (
     <div className="flex flex-nowrap items-center gap-1.5">
       <Link className={iconButton} to={`/app/documents/${id}/overview`} aria-label={t('documents.view')} title={t('documents.view')}><Eye /></Link>
-      {editable && <Link className={iconButton} to={`/app/documents/${id}/edit`} aria-label={t('documents.edit')} title={t('documents.edit')}><Pencil /></Link>}
+      {editable && (
+        <button type="button" className={iconButton} aria-label={t('documents.edit')} title={t('documents.edit')} onClick={() => setEditing(user ? getLocalDocument(user.id, id) : null)}>
+          <Pencil />
+        </button>
+      )}
       <button type="button" className={dangerButton} aria-label={t('documents.remove')} title={t('documents.remove')} onClick={onRemove}><Trash /></button>
+      {editing && <DocumentDialog document={editing} onClose={() => setEditing(null)} onSaved={onEdited} />}
     </div>
   )
 }

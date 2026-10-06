@@ -99,9 +99,6 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
             <NavLink to="/app/documents" end className={({ isActive }) => `mt-1 ${isActive ? rowActiveClass : rowClass}`}>
               {t('documents.nav')}
             </NavLink>
-            <NavLink to="/app/documents/new" className={({ isActive }) => `mt-1 ${isActive ? rowActiveClass : rowClass}`}>
-              {t('documents.create')}
-            </NavLink>
             <NavLink to="/app/profile" className={({ isActive }) => `mt-auto border-t border-[#eef0f6] pt-3 ${isActive ? rowActiveClass : rowClass}`}>
               {t('profile.nav')}
             </NavLink>
