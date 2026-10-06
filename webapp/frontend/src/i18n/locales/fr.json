@@ -137,8 +137,6 @@
     "passwordHint": "Laissez vide pour conserver le mot de passe actuel.",
     "saved": "Profil enregistré.",
     "account": "Compte",
-    "deactivate": "Désactiver le compte",
-    "deactivateHint": "Vous ne pourrez plus vous connecter avec ce compte.",
     "edit": "Modifier",
     "deleteAccount": "Supprimer définitivement votre compte",
     "deleteHint": "Le compte et ses documents sont effacés.",
@@ -153,7 +151,6 @@
     "server": "Impossible de joindre le serveur. Réessayez plus tard.",
     "zipOnly": "Seuls les fichiers ZIP sont acceptés.",
     "invalidZip": "Ce fichier ZIP n’est pas valide.",
-    "deleteFailed": "Impossible de supprimer ce document.",
-    "accountDisabled": "Ce compte est désactivé."
+    "deleteFailed": "Impossible de supprimer ce document."
   }
 }

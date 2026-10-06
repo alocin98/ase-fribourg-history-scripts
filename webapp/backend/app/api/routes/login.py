@@ -34,12 +34,6 @@ async def _authenticate(email: str, password: str, session: AsyncSession):
             detail="Invalid email or password",
         )
 
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account disabled",
-        )
-
     if updated_hash is not None:
         user.password_hash = updated_hash
         await session.commit()

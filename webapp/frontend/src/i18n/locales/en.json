@@ -137,8 +137,6 @@
     "passwordHint": "Leave this empty to keep the current password.",
     "saved": "Profile saved.",
     "account": "Account",
-    "deactivate": "Deactivate account",
-    "deactivateHint": "You will no longer be able to sign in with this account.",
     "edit": "Edit",
     "deleteAccount": "Permanently delete your account",
     "deleteHint": "The account and its documents are removed.",
@@ -153,7 +151,6 @@
     "server": "The server can't be reached. Try again later.",
     "zipOnly": "Only ZIP files are accepted.",
     "invalidZip": "This ZIP file is not valid.",
-    "deleteFailed": "This document could not be deleted.",
-    "accountDisabled": "This account is deactivated."
+    "deleteFailed": "This document could not be deleted."
   }
 }
