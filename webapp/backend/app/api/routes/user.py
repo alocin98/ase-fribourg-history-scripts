@@ -23,6 +23,8 @@ router = APIRouter(prefix="/users", tags=["users"])
     "/",
     response_model=UserRead,
     dependencies=[Security(csrf_header)],
+    name="Create User",
+    description="Create a new user in the system (E.g. signup). This endpoint is typically used for user registration.",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
@@ -50,7 +52,10 @@ async def create_user(
 @router.patch(
     "/me", 
     response_model=UserRead,
-    dependencies=[Security(csrf_header)]
+    dependencies=[Security(csrf_header)],
+    name="Update Current User",
+    description="Update the current user's information. This endpoint allows users to update their own profile information",
+    status_code=status.HTTP_200_OK
 )
 async def update_current_user(
     data: UserUpdate,
@@ -80,7 +85,13 @@ async def update_current_user(
             detail="User update violates a database constraint",
         )
 
-@router.get("/me", response_model=UserRead)
+@router.get(
+    "/me",
+    response_model=UserRead,
+    name="Read Current User",
+    description="Read the current user's information.",
+    status_code=status.HTTP_200_OK
+)
 async def read_current_user(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
@@ -97,14 +108,10 @@ async def read_current_user(
     return user
 
 
-def _remove_storage(storage_path: str, document_id: UUID) -> None:
+def _remove_storage(document_id: UUID) -> None:
     root = Path(settings.STORAGE_ROOT).resolve()
-    folder = Path(storage_path).resolve().parent
-    try:
-        folder.relative_to(root)
-    except ValueError:
-        return
-    if folder.name != str(document_id):
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
         return
     shutil.rmtree(folder, ignore_errors=True)
 
@@ -136,7 +143,7 @@ async def delete_current_user(
     session: AsyncSession = Depends(get_db),
 ) -> None:
     stored = await DocumentRepository(session).delete_all_for_owner(current_user.id)
-    for document_id, storage_path in stored:
-        _remove_storage(storage_path, document_id)
+    for document_id in stored:
+        _remove_storage(document_id)
     await UserRepository(session).delete(current_user)
     response.delete_cookie(key=settings.SESSION_COOKIE_NAME)
