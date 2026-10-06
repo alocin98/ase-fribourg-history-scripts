@@ -11,14 +11,13 @@ import LanguageSwitcher from '../components/LanguageSwitcher'
 export default function WelcomePage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { user, logout: closeSession } = useAuth()
+  const { user } = useAuth()
   const isSignedIn = Boolean(user)
   const nameParts = (user?.name ?? '').trim().split(/\s+/).filter(Boolean)
   const firstName = nameParts[0] || t('home.guestName')
   const lastName = nameParts.slice(1).join(' ')
   const email = user?.email?.trim() || ''
   const initials = `${firstName.charAt(0)}${lastName.charAt(0) || email.charAt(0)}`.toUpperCase()
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
 
@@ -35,16 +34,6 @@ export default function WelcomePage() {
       window.removeEventListener('scroll', onScroll)
     }
   }, [])
-
-  // Ferme la session. Si le serveur refuse, le profil reste ouvert.
-  const signOut = async () => {
-    setIsProfileOpen(false)
-    try {
-      await closeSession()
-    } catch {
-      setIsProfileOpen(true)
-    }
-  }
 
   // Le bouton principal ouvre le compte si la session existe, sinon la connexion.
   const openAccount = () => {
@@ -96,26 +85,14 @@ export default function WelcomePage() {
             </Link>
           )}
           {isSignedIn && (
-            <div className="group relative">
-              <button
-                type="button"
-                className={`flex cursor-pointer items-center rounded-full border border-transparent p-0 ${isProfileOpen ? 'border-[#dbe1f4] bg-[#f5f6ff]' : 'hover:border-[#dbe1f4] hover:bg-[#f5f6ff]'}`}
-                aria-label={t('home.profileOf', { name: `${firstName} ${lastName}`.trim() })}
-                aria-haspopup="true"
-                aria-expanded={isProfileOpen}
-                onClick={() => setIsProfileOpen((isOpen) => !isOpen)}
-              >
-                <span className="grid size-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br from-[#2563eb] to-[#4f46e5] font-sans text-[0.62rem] font-extrabold text-white shadow-[0_0_0_1px_#c7d2fe]">{initials}</span>
-              </button>
-              <div className={`${isProfileOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-[0.98] opacity-0'} absolute top-[calc(100%+0.7rem)] right-0 z-[80] flex w-[min(290px,calc(100vw-2rem))] origin-top-right flex-col rounded-xl border border-[#dbe1f4] bg-white p-4 shadow-[0_18px_42px_rgba(33,41,86,0.16)] transition group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:scale-100 group-focus-within:opacity-100`} role="menu">
-                <span className="mb-[0.65rem] font-sans text-[0.62rem] font-bold tracking-[0.08em] text-[#747b92] uppercase">{t('home.signedIn')}</span>
-                <strong className="text-base text-[#263a6b]">{firstName} {lastName}</strong>
-                <span className="mt-[0.3rem] font-sans text-[0.76rem] break-words text-[#747b92]">{email}</span>
-                <button type="button" className="mt-4 cursor-pointer rounded-full border border-[#d9ddf5] bg-white px-4 py-[0.7rem] text-left font-sans text-[0.78rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white" onClick={signOut} role="menuitem">
-                  {t('nav.signOut')}
-                </button>
-              </div>
-            </div>
+            <Link
+              to="/app"
+              className="flex items-center rounded-full border border-transparent p-0 no-underline hover:border-[#dbe1f4] hover:bg-[#f5f6ff]"
+              aria-label={t('home.profileOf', { name: `${firstName} ${lastName}`.trim() })}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="grid size-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br from-[#2563eb] to-[#4f46e5] font-sans text-[0.62rem] font-extrabold text-white shadow-[0_0_0_1px_#c7d2fe]">{initials}</span>
+            </Link>
           )}
           </div>
         </nav>

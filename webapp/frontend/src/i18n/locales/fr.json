@@ -115,6 +115,7 @@
     "editTitle": "Modifier le document",
     "remove": "Supprimer",
     "confirmDelete": "Supprimer ce document ?",
+    "confirmDeleteHint": "Le document et ses images sont effacés. Cette action est irréversible.",
     "missing": "Ce document est introuvable.",
     "upload": "Importer",
     "uploading": "Import…",
@@ -138,6 +139,7 @@
     "edit": "Modifier",
     "deleteAccount": "Supprimer définitivement votre compte",
     "deleteHint": "Le compte et ses documents sont effacés.",
+    "confirmDelete": "Supprimer votre compte ?",
     "confirm": "Confirmer"
   },
   "errors": {

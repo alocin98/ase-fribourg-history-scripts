@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { getLocalDocument, type LocalDocument } from '../../api/documents'
 import { useAuth } from '../../auth/AuthProvider'
+import ConfirmDialog from '../../components/ConfirmDialog'
 import DocumentDialog from './DocumentDialog'
 
 const iconButton = 'inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] no-underline hover:border-[#c9cdf8]'
@@ -30,6 +31,7 @@ export default function DocumentActions({ id, editable, onRemove, onEdited }: {
   const { t } = useTranslation()
   const { user } = useAuth()
   const [editing, setEditing] = useState<LocalDocument | null>(null)
+  const [confirming, setConfirming] = useState(false)
 
   return (
     <div className="flex flex-nowrap items-center gap-1.5">
@@ -39,8 +41,20 @@ export default function DocumentActions({ id, editable, onRemove, onEdited }: {
           <Pencil />
         </button>
       )}
-      <button type="button" className={dangerButton} aria-label={t('documents.remove')} title={t('documents.remove')} onClick={onRemove}><Trash /></button>
+      <button type="button" className={dangerButton} aria-label={t('documents.remove')} title={t('documents.remove')} onClick={() => setConfirming(true)}><Trash /></button>
       {editing && <DocumentDialog document={editing} onClose={() => setEditing(null)} onSaved={onEdited} />}
+      {confirming && (
+        <ConfirmDialog
+          title={t('documents.confirmDelete')}
+          message={t('documents.confirmDeleteHint')}
+          confirmLabel={t('documents.remove')}
+          onConfirm={() => {
+            setConfirming(false)
+            onRemove()
+          }}
+          onClose={() => setConfirming(false)}
+        />
+      )}
     </div>
   )
 }

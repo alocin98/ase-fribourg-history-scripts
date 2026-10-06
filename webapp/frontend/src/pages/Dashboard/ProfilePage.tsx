@@ -6,6 +6,7 @@ import type { ErrorKey } from '../../i18n'
 import { deleteAccount, updateCurrentUser } from '../../api/auth'
 import { ApiError } from '../../api/client'
 import { useAuth } from '../../auth/AuthProvider'
+import ConfirmDialog from '../../components/ConfirmDialog'
 import DocumentsFrame from './DocumentsFrame'
 
 const fieldClass = 'mt-1 w-full rounded-lg border border-[#d4d8e6] bg-[#fafafe] px-3 py-2 font-sans text-[0.95rem] font-normal text-[#172033] outline-none placeholder:text-[#98a2b3] focus:border-[#4f46e5] focus:bg-white focus:shadow-[0_0_0_3px_rgba(79,70,229,0.12)]'
@@ -145,21 +146,25 @@ export default function ProfilePage() {
           <section className="flex flex-col rounded-2xl border border-[#e6e8f2] bg-white p-4 sm:p-5">
             <p className="m-0 font-sans text-[0.92rem] leading-6 text-[#5d657c]">{t('profile.deleteHint')}</p>
             <div className="mt-3">
-              {confirmDelete ? (
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" className="inline-flex h-10 cursor-pointer items-center rounded-full bg-[#dc2626] px-4 font-sans text-[0.82rem] font-bold text-white disabled:opacity-60" disabled={isClosing} onClick={() => { void removeAccount() }}>{t('profile.confirm')}</button>
-                  <button type="button" className={neutralButton} onClick={() => setConfirmDelete(false)}>{t('documents.cancel')}</button>
-                </div>
-              ) : (
-                <button type="button" className="cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[0.92rem] font-semibold text-[#dc2626] underline decoration-[#f3d0d0] underline-offset-4" onClick={() => setConfirmDelete(true)}>
-                  {t('profile.deleteAccount')}
-                </button>
-              )}
+              <button type="button" className="cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[0.92rem] font-semibold text-[#dc2626] underline decoration-[#f3d0d0] underline-offset-4" onClick={() => { setError(''); setConfirmDelete(true) }}>
+                {t('profile.deleteAccount')}
+              </button>
               {!isEditing && error && <p className="mt-3 mb-0 text-[0.85rem] text-[#dc2626]" role="alert">{t(error)}</p>}
             </div>
           </section>
         </div>
       </main>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title={t('profile.confirmDelete')}
+          message={t('profile.deleteHint')}
+          confirmLabel={t('profile.confirm')}
+          busy={isClosing}
+          onConfirm={() => { void removeAccount() }}
+          onClose={() => setConfirmDelete(false)}
+        />
+      )}
     </DocumentsFrame>
   )
 }

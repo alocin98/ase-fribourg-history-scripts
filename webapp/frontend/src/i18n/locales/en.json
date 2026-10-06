@@ -115,6 +115,7 @@
     "editTitle": "Edit document",
     "remove": "Delete",
     "confirmDelete": "Delete this document?",
+    "confirmDeleteHint": "The document and its images are removed. This cannot be undone.",
     "missing": "This document could not be found.",
     "upload": "Import",
     "uploading": "Importing…",
@@ -138,6 +139,7 @@
     "edit": "Edit",
     "deleteAccount": "Permanently delete your account",
     "deleteHint": "The account and its documents are removed.",
+    "confirmDelete": "Delete your account?",
     "confirm": "Confirm"
   },
   "errors": {
