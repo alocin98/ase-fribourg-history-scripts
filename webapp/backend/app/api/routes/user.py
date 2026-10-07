@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Security
+import shutil
+from pathlib import Path
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, csrf_header
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
+from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
+from app.repositories.documents import DocumentRepository
 from app.repositories.user import UserRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -98,3 +104,28 @@ async def read_current_user(
         )
 
     return user
+
+
+def _remove_storage(document_id: UUID) -> None:
+    root = Path(settings.STORAGE_ROOT).resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
+
+
+@router.delete(
+    "/me",
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_current_user(
+    response: Response,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> None:
+    stored = await DocumentRepository(session).delete_all_for_owner(current_user.id)
+    for document_id in stored:
+        _remove_storage(document_id)
+    await UserRepository(session).delete(current_user)
+    response.delete_cookie(key=settings.SESSION_COOKIE_NAME)

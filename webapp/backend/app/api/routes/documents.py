@@ -161,6 +161,32 @@ async def upload_files_to_document(
         await file.close()
 
 
+def _remove_storage(document_id: UUID) -> None:
+    root = STORAGE_ROOT.resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
+
+
+@router.delete(
+    "/{document_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Security(csrf_header)],
+)
+async def delete_document(
+    document_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> None:
+    repository = DocumentRepository(session)
+    document = await repository.get_document_by_id(document_id, current_user.id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    await repository.delete(document)
+    _remove_storage(document_id)
+
+
 @router.get(
     "/me",
     response_model=list[DocumentRead],
