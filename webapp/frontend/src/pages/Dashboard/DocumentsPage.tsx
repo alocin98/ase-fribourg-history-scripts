@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { deleteStoredDocument } from '../../api/documents'
-import { useAuth } from '../../auth/AuthProvider'
+import { deleteDocument, type StoredDocument } from '../../api/documents'
 import DocumentActions from './DocumentActions'
-import DocumentsFrame, { useDocuments, type MenuDocument } from './DocumentsFrame'
+import DocumentsFrame, { useDocuments } from './DocumentsFrame'
 import DocumentDialog from './DocumentDialog'
 
 type Display = 'icons' | 'table'
@@ -19,7 +18,6 @@ function readDisplay(): Display {
 
 function DocumentsContent() {
   const { t } = useTranslation()
-  const { user } = useAuth()
   const documents = useDocuments()
   const [display, setDisplay] = useState<Display>(readDisplay)
   const [page, setPage] = useState(1)
@@ -34,11 +32,11 @@ function DocumentsContent() {
   }
 
   const remove = async (documentId: string) => {
-    if (!user || goneIds.includes(documentId)) return
+    if (goneIds.includes(documentId)) return
     setRemoveError(false)
     setGoneIds((ids) => [...ids, documentId])
     try {
-      await deleteStoredDocument(user.id, documentId)
+      await deleteDocument(documentId)
     } catch {
       setGoneIds((ids) => ids.filter((id) => id !== documentId))
       setRemoveError(true)
@@ -52,10 +50,9 @@ function DocumentsContent() {
   const current = Math.min(page, pageCount)
   const start = (current - 1) * pageSize
   const visible = listed?.slice(start, start + pageSize) ?? []
-  const actionsFor = (document: MenuDocument) => (
+  const actionsFor = (document: StoredDocument) => (
     <DocumentActions
       id={document.id}
-      editable={document.editable}
       onRemove={() => { void remove(document.id) }}
     />
   )
@@ -106,7 +103,7 @@ function DocumentsContent() {
             <tbody>
               {visible.map((document) => (
                 <tr key={document.id} className="border-b border-[#f3f4fb] last:border-0">
-                  <td className="px-4 py-3 font-sans text-[0.95rem] font-semibold break-words text-[#171c33]">{document.label}</td>
+                  <td className="px-4 py-3 font-sans text-[0.95rem] font-semibold break-words text-[#171c33]">{document.name}</td>
                   <td className="overflow-hidden px-4 py-3 font-sans text-[0.9rem] text-[#5d657c]"><span className="line-clamp-2 break-all">{document.description}</span></td>
                   <td className="w-px px-4 py-3 whitespace-nowrap"><div className="flex justify-end">{actionsFor(document)}</div></td>
                 </tr>
@@ -120,7 +117,7 @@ function DocumentsContent() {
         <ul className="mt-8 mb-0 grid list-none grid-cols-2 gap-3 p-0 min-[700px]:grid-cols-4 min-[1100px]:grid-cols-6">
           {visible.map((document) => (
             <li key={document.id} className="flex min-h-28 flex-col rounded-xl border border-[#e6e8f2] bg-white p-3">
-              <span className="block truncate font-sans text-[0.86rem] font-semibold text-[#171c33]">{document.label}</span>
+              <span className="block truncate font-sans text-[0.86rem] font-semibold text-[#171c33]">{document.name}</span>
               <div className="mt-auto pt-3">{actionsFor(document)}</div>
             </li>
           ))}

@@ -4,16 +4,13 @@ import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
 import {
-  deleteStoredDocument,
-  getLocalDocument,
-  listDocuments,
+  deleteDocument,
+  getDocument,
   listPages,
-  rememberUpload,
   uploadDocument,
   type DocumentPage,
-  type LocalDocument,
+  type StoredDocument,
 } from '../../api/documents'
-import { useAuth } from '../../auth/AuthProvider'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
 
@@ -22,10 +19,9 @@ export default function DocumentOverviewPage() {
   const { t } = useTranslation()
   const { documentId = '' } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
   const fileInput = useRef<HTMLInputElement>(null)
-  const [document, setDocument] = useState<LocalDocument | null | undefined>(undefined)
-  const [remoteName, setRemoteName] = useState<string | null>(null)
+  // undefined : en chargement, null : introuvable.
+  const [document, setDocument] = useState<StoredDocument | null | undefined>(undefined)
   const [pages, setPages] = useState<DocumentPage[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -34,48 +30,24 @@ export default function DocumentOverviewPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState(false)
 
-  const loadPages = async (uploadId: string | null) => {
-    if (!uploadId) {
-      setPages([])
-      return
-    }
-    setPages(await listPages(uploadId))
-  }
-
   useEffect(() => {
     let cancelled = false
     setDocument(undefined)
-    setRemoteName(null)
     setPages([])
-    const local = user ? getLocalDocument(user.id, documentId) : null
-    if (local) {
-      setDocument(local)
-      loadPages(local.uploadId).catch(() => {
-        if (!cancelled) setPages([])
-      })
-      return () => {
-        cancelled = true
-      }
-    }
-    listDocuments()
-      .then(async (items) => {
-        const found = items.find((item) => item.id === documentId) ?? null
+    getDocument(documentId)
+      .then(async (found) => {
         if (cancelled) return
-        setDocument(null)
-        setRemoteName(found?.original_filename ?? null)
-        if (!found) return
-        setPages(await listPages(found.id))
+        setDocument(found)
+        const items = await listPages(found.id)
+        if (!cancelled) setPages(items)
       })
       .catch(() => {
-        if (!cancelled) {
-          setDocument(null)
-          setRemoteName(null)
-        }
+        if (!cancelled) setDocument((current) => current === undefined ? null : current)
       })
     return () => {
       cancelled = true
     }
-  }, [documentId, user])
+  }, [documentId])
 
   const takeFile = (next: File | null) => {
     setFile(next)
@@ -105,16 +77,9 @@ export default function DocumentOverviewPage() {
     setIsSaving(true)
     setFormError(null)
     try {
-      const created = await uploadDocument(file)
-      if (user && document) {
-        rememberUpload(user.id, document.id, created.id)
-        setDocument({ ...document, uploadId: created.id })
-        await loadPages(created.id)
-        closeDialog()
-        return
-      }
+      await uploadDocument(documentId, file)
+      setPages(await listPages(documentId))
       closeDialog()
-      navigate(`/app/documents/${created.id}/overview`)
     } catch (error) {
       const invalid = error instanceof ApiError && (error.status === 400 || error.status === 413)
       setFormError(t(invalid ? 'errors.invalidZip' : 'errors.server'))
@@ -122,36 +87,28 @@ export default function DocumentOverviewPage() {
     }
   }
 
-  const title = document?.title ?? remoteName
-  const missing = document === null && remoteName === null && document !== undefined
-
   return (
     <DocumentsFrame>
       <main className="flex min-h-full flex-col px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
-        {document === undefined && remoteName === null ? (
+        {document === undefined ? (
           <p className="m-0 font-sans text-[1rem] text-[#5d657c]">{t('common.loading')}</p>
-        ) : missing ? (
+        ) : document === null ? (
           <p className="m-0 font-sans text-[1rem] text-[#5d657c]">{t('documents.missing')}</p>
         ) : (
           <>
             <div className="flex w-full min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
-                <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">{title}</h1>
-                {document?.description && (
+                <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">{document.name}</h1>
+                {document.description && (
                   <p className="mt-2 mb-0 max-w-full min-w-0 font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c]">{document.description}</p>
                 )}
               </div>
               <div className="flex w-full shrink-0 flex-nowrap items-center gap-2 sm:w-auto sm:justify-end">
                 <DocumentActions
                   id={documentId}
-                  editable={Boolean(document)}
-                  onEdited={() => {
-                    if (user) setDocument(getLocalDocument(user.id, documentId))
-                  }}
                   onRemove={() => {
-                    if (!user) return
                     setDeleteError(false)
-                    void deleteStoredDocument(user.id, documentId)
+                    void deleteDocument(documentId)
                       .then(() => navigate('/app/documents'))
                       .catch(() => setDeleteError(true))
                   }}
