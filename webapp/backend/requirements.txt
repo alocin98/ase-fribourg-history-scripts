@@ -4,6 +4,6 @@ alembic
 pydantic-settings
 asyncpg
 email-validator
+pillow
 pwdlib[argon2]
 pwdlib[bcrypt]
-PyJWT

@@ -8,20 +8,20 @@ class DocumentRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    original_filename: str
-    uploaded_at: datetime
+    name: str
+    description: str
 
 class DocumentCreate(BaseModel):
-    id: UUID
-    owner_id: UUID
-    original_filename: str
-    storage_path: str
-    image_paths: list[str]
+    name: str
+    description: str
 
 class PageRead(BaseModel):
     id: UUID
     page_number: int
     image_url: str
+    height: int | None = None
+    width: int | None = None
+    mime_type: str | None = None
 
 class PagePaginateRead(BaseModel):
     document_id: UUID

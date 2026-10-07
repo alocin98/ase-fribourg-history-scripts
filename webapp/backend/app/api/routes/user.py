@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import shutil
+from pathlib import Path
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, csrf_header
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
+from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
+from app.repositories.documents import DocumentRepository
 from app.repositories.user import UserRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -14,6 +20,9 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.post(
     "/",
     response_model=UserRead,
+    dependencies=[Security(csrf_header)],
+    name="Create User",
+    description="Create a new user in the system (E.g. signup). This endpoint is typically used for user registration.",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
@@ -38,7 +47,14 @@ async def create_user(
         )
 
 
-@router.patch("/me", response_model=UserRead)
+@router.patch(
+    "/me", 
+    response_model=UserRead,
+    dependencies=[Security(csrf_header)],
+    name="Update Current User",
+    description="Update the current user's information. This endpoint allows users to update their own profile information",
+    status_code=status.HTTP_200_OK
+)
 async def update_current_user(
     data: UserUpdate,
     current_user: User = Depends(get_current_user),
@@ -67,7 +83,13 @@ async def update_current_user(
             detail="User update violates a database constraint",
         )
 
-@router.get("/me", response_model=UserRead)
+@router.get(
+    "/me",
+    response_model=UserRead,
+    name="Read Current User",
+    description="Read the current user's information.",
+    status_code=status.HTTP_200_OK
+)
 async def read_current_user(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
@@ -82,3 +104,28 @@ async def read_current_user(
         )
 
     return user
+
+
+def _remove_storage(document_id: UUID) -> None:
+    root = Path(settings.STORAGE_ROOT).resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
+
+
+@router.delete(
+    "/me",
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_current_user(
+    response: Response,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> None:
+    stored = await DocumentRepository(session).delete_all_for_owner(current_user.id)
+    for document_id in stored:
+        _remove_storage(document_id)
+    await UserRepository(session).delete(current_user)
+    response.delete_cookie(key=settings.SESSION_COOKIE_NAME)

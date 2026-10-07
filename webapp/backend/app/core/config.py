@@ -10,19 +10,21 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str
     DB_ECHO: bool = False
-    SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
     API_STR: str
     API_TITLE: str
     API_DESCRIPTION: str
     API_VERSION: str
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
 
+    SESSION_EXPIRE_MINUTES: int = 10080
+    SESSION_COOKIE_NAME: str = "ase_session"
+    SESSION_COOKIE_SECURE: bool = False
+    SESSION_COOKIE_SAMESITE: str = "lax"
+    CSRF_COOKIE_NAME: str = "ase_csrf"
+    CSRF_HEADER_NAME: str = "X-CSRF-Token"
+
     MAX_UPLOAD_SIZE: int
     STORAGE_ROOT: str
-    
-    DEFAULT_USER: str
-    DEFAULT_PASSWORD: str
 
 
 settings = Settings()

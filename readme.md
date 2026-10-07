@@ -18,10 +18,10 @@ This repo contains the code for group 6 of the group project in Advanced Softwar
 The frontend is deployed to:
 
 main branch:
-[https://manuscript-ai.coffee-journal.com/app](https://manuscript-ai.coffee-journal.com/app)
+[https://manuscript-ai.coffee-journal.com/app](https://manuscript-ai.coffee-journal.com)
 
 dev branch:
-[https://manuscript-ai-dev.coffee-journal.com/app](https://manuscript-ai-dev.coffee-journal.com/app)
+[https://manuscript-ai-dev.coffee-journal.com/app](https://manuscript-ai-dev.coffee-journal.com)
 
 For testing credentials, create a new account or contact nicolas.mueller2@gmail.com
 

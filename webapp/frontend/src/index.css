@@ -1,42 +1,57 @@
-/* Réinitialisation générale pour que toutes les pages partagent la même base. */
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-  min-height: 100vh;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  background: #f6f7fb;
-  color: #172033;
+@import "tailwindcss";
+
+@source "./pages";
+@source "./components";
+@source "./auth";
+@source "./App.tsx";
+
+/* Palette de l'application. Les pages utilisent surtout les classes Tailwind. */
+@theme {
+  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
+  --animate-auth-in: auth-in 1.25s ease both;
+  --animate-auth-from-right: auth-from-right 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-auth-from-left: auth-from-left 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes auth-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes auth-from-right {
+    from { opacity: 0; transform: translateX(36px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes auth-from-left {
+    from { opacity: 0; transform: translateX(-36px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  --color-paper: #f6f7fb;
+  --color-ink: #172033;
+  --color-accent: #4f46e5;
 }
 
-/* Tous les éléments calculent leur largeur en incluant leurs bordures et marges internes. */
-* {
-  box-sizing: border-box;
-}
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
 
-/* Les liens héritent de la couleur définie par chaque composant. */
-a {
-  color: inherit;
-}
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
 
-/* Les contrôles utilisent la même police que le reste de l'application. */
-button,
-input {
-  font: inherit;
-}
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 
-/* Les images restent toujours contenues dans leur parent. */
-img {
-  max-width: 100%;
-  display: block;
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
-
-/* Les titres et paragraphes sont normalisés avant l'application des styles de page. */
-h1,
-h2,
-h3,
-p {
-  margin: 0;
-}
-

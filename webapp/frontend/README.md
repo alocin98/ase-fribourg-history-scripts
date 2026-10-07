@@ -1,61 +1,73 @@
-# Frontend ASE Project
+# Frontend — Manuscript AI
 
-Ce dossier contient l'interface utilisateur du projet ASE.
+Interface du projet ASE, dans `webapp/frontend`. Le site se lance ici. Il n’y a pas de dossier `frontend` à la racine du dépôt.
 
-## Description
+React, TypeScript, Vite et Tailwind CSS v4. La navigation utilise React Router. Les textes de toutes les pages passent par i18next (anglais par défaut, français disponible).
 
-C'est une application web simple créée avec React, TypeScript et Vite. Elle permet :
+## Pages
 
-- de se connecter
-- de créer un compte
-- d'accéder à la page principale
-- de téléverser une image
-- de prévisualiser et de télécharger le fichier sélectionné
+| Adresse | Fichier | Rôle |
+| --- | --- | --- |
+| `/` | `src/pages/WelcomePage.tsx` | Accueil : présentation, hero avec le manuscrit de 1464, cartes, étapes, bandeau et retour en haut |
+| `/login` | `src/pages/LoginPage.tsx` | Connexion avec l’email et le mot de passe |
+| `/register` | `src/pages/RegisterPage.tsx` | Création du compte : nom et email sur une ligne, les deux mots de passe sur la suivante |
+| `/app` | `src/pages/AccountPage.tsx` | Page du compte. Un court texte indique que la lecture et la transcription sont encore en cours |
 
-## Technologies utilisées
+Une adresse inconnue renvoie vers `/`. Sans session, `/app` renvoie vers `/login`. Une session déjà ouverte renvoie `/login` et `/register` vers `/app`. La déconnexion est visible et ramène à l’accueil.
 
-- React
-- TypeScript
-- Vite
-- React Router DOM
+Entre `/login` et `/register`, la carte glisse (vers la droite pour l’inscription, vers la gauche pour revenir).
 
-## Démarrer le projet
+## Session
 
-Ouvrez un terminal dans ce dossier puis exécutez :
+L’authentification est celle du backend : cookie HTTP-only `ase_session`, et jeton CSRF `ase_csrf` envoyé dans l’en-tête `X-CSRF-Token`. Le frontend n’enregistre ni JWT ni session dans `localStorage`. Seule la langue choisie y est gardée, sous la clé `ase_lang`.
+
+En développement, Vite proxyfie `/api` vers `http://127.0.0.1:8000`.
+
+## Organisation des fichiers
+
+```
+src/
+  main.tsx                 point d'entrée
+  App.tsx                  routes et garde des pages
+  index.css                Tailwind, police, couleurs, animations
+  api/
+    client.ts              requêtes, cookie de session, CSRF
+    auth.ts                connexion, inscription, déconnexion, utilisateur courant
+  auth/
+    AuthProvider.tsx       état de session pour toute l'application
+  components/
+    Brand.tsx              logo
+    LanguageSwitcher.tsx   FR / EN
+  i18n/                    textes FR et EN de toutes les pages
+  pages/                   les quatre pages, plus le glissement login ↔ inscription
+  assets/
+    gillion-de-trazegnies-1464.jpg
+public/
+  favicon.svg
+```
+
+La police de l’interface est Segoe UI, avec Trebuchet MS en repli. Le dégradé du site va du bleu `#2563eb` au violet `#7c3aed`. Les boutons des formulaires partent du violet intermédiaire `#514fec`.
+
+## Démarrer
 
 ```bash
 npm install
-npm run dev -- --host 0.0.0.0
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-## Vérifier le projet
-
-Pour vérifier que le code compile correctement :
+Le backend doit répondre sur le port 8000, sinon la connexion affiche que le serveur est injoignable.
 
 ```bash
 npm run build
 ```
 
-## Déploiement avec Docker
+## Docker
 
-L'image compile l'application puis la sert avec nginx (port 80).
+L’image compile l’application puis la sert avec nginx (port 80).
 
 ```bash
 docker build -t ase-frontend .
 docker run -p 3000:80 ase-frontend
 ```
 
-L'application appelle l'API sur `/api` (même domaine). Sur Coolify, le frontend et le backend partagent le même domaine : le backend reçoit le chemin `/api` (sans « strip prefix ») et le frontend le reste.
-
-## Structure principale
-
-- src/pages : contient les pages de connexion, inscription et accueil
-- src/components : contient les composants réutilisables
-- src/App.tsx : gère la navigation globale
-- src/App.css : contient le style principal de l'application
-
-## Notes importantes
-
-Ce frontend est une version simple et pédagogique du projet. Il permet de montrer la logique principale et la mise en page sans dépendre d'un backend complexe.
-
-Le code est volontairement clair et facile à comprendre pour un débutant.
+L’application appelle l’API sur `/api`, sur le même domaine.

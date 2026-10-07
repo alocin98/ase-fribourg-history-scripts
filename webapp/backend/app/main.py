@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
-
+from app.core.middleware import CSRFMiddleware
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
@@ -16,6 +16,8 @@ app = FastAPI(
     version=f"{settings.API_VERSION}",
     generate_unique_id_function=custom_generate_unique_id,
 )
+
+app.add_middleware(CSRFMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

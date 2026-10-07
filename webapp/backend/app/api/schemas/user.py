@@ -27,6 +27,5 @@ class UserRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+class CSRFTokenResponse(BaseModel):
+    csrf_token: str
