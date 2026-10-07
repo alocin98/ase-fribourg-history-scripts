@@ -145,6 +145,9 @@ export default function DocumentOverviewPage() {
                 <DocumentActions
                   id={documentId}
                   editable={Boolean(document)}
+                  onEdited={() => {
+                    if (user) setDocument(getLocalDocument(user.id, documentId))
+                  }}
                   onRemove={() => {
                     if (!user) return
                     setDeleteError(false)

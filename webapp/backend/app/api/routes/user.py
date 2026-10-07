@@ -3,7 +3,6 @@ from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
-from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,7 +10,6 @@ from app.api.deps import get_current_user, csrf_header
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
 from app.core.config import settings
 from app.core.db import get_db
-from app.models.sessions import AuthSession
 from app.models.user import User
 from app.repositories.documents import DocumentRepository
 from app.repositories.user import UserRepository
@@ -114,22 +112,6 @@ def _remove_storage(document_id: UUID) -> None:
     if folder.parent != root:
         return
     shutil.rmtree(folder, ignore_errors=True)
-
-
-@router.post(
-    "/me/deactivate",
-    dependencies=[Security(csrf_header)],
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def deactivate_current_user(
-    response: Response,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
-) -> None:
-    current_user.is_active = False
-    await session.execute(delete(AuthSession).where(AuthSession.user_id == current_user.id))
-    await session.commit()
-    response.delete_cookie(key=settings.SESSION_COOKIE_NAME)
 
 
 @router.delete(

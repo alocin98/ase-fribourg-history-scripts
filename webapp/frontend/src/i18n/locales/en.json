@@ -24,7 +24,6 @@
     "guestName": "User",
     "profileOf": "Profile of {{name}}",
     "signedIn": "Signed-in account",
-    "kicker": "Research · AI · Heritage",
     "titleLine1": "Give historical manuscripts",
     "titleLine2": "a new reading",
     "intro": "A platform to recognize, analyze, and understand historical documents through artificial intelligence.",
@@ -49,7 +48,6 @@
     "transcribe": "Transcribe",
     "transcribeText": "Make the text found in the manuscript easier to read.",
     "stepsLabel": "How to begin",
-    "path": "Path",
     "stepsTitle": "How it works",
     "step1Title": "Import a document",
     "step1Text": "Share an image or a scan of your document.",
@@ -117,6 +115,7 @@
     "editTitle": "Edit document",
     "remove": "Delete",
     "confirmDelete": "Delete this document?",
+    "confirmDeleteHint": "The document and its images are removed. This cannot be undone.",
     "missing": "This document could not be found.",
     "upload": "Import",
     "uploading": "Importing…",
@@ -137,11 +136,10 @@
     "passwordHint": "Leave this empty to keep the current password.",
     "saved": "Profile saved.",
     "account": "Account",
-    "deactivate": "Deactivate account",
-    "deactivateHint": "You will no longer be able to sign in with this account.",
     "edit": "Edit",
     "deleteAccount": "Permanently delete your account",
     "deleteHint": "The account and its documents are removed.",
+    "confirmDelete": "Delete your account?",
     "confirm": "Confirm"
   },
   "errors": {
@@ -153,7 +151,6 @@
     "server": "The server can't be reached. Try again later.",
     "zipOnly": "Only ZIP files are accepted.",
     "invalidZip": "This ZIP file is not valid.",
-    "deleteFailed": "This document could not be deleted.",
-    "accountDisabled": "This account is deactivated."
+    "deleteFailed": "This document could not be deleted."
   }
 }

@@ -24,7 +24,6 @@
     "guestName": "Utilisateur",
     "profileOf": "Profil de {{name}}",
     "signedIn": "Compte connecté",
-    "kicker": "Recherche · IA · Patrimoine",
     "titleLine1": "Donnez une nouvelle lecture aux",
     "titleLine2": "manuscrits historiques",
     "intro": "Une plateforme pour reconnaître, analyser et comprendre des documents historiques grâce à l’intelligence artificielle.",
@@ -49,7 +48,6 @@
     "transcribe": "Transcrire",
     "transcribeText": "Rendre lisible le texte repéré dans le manuscrit.",
     "stepsLabel": "Comment commencer",
-    "path": "Parcours",
     "stepsTitle": "Comment ça marche",
     "step1Title": "Importer un document",
     "step1Text": "Partagez une image ou une numérisation de votre document.",
@@ -117,6 +115,7 @@
     "editTitle": "Modifier le document",
     "remove": "Supprimer",
     "confirmDelete": "Supprimer ce document ?",
+    "confirmDeleteHint": "Le document et ses images sont effacés. Cette action est irréversible.",
     "missing": "Ce document est introuvable.",
     "upload": "Importer",
     "uploading": "Import…",
@@ -137,11 +136,10 @@
     "passwordHint": "Laissez vide pour conserver le mot de passe actuel.",
     "saved": "Profil enregistré.",
     "account": "Compte",
-    "deactivate": "Désactiver le compte",
-    "deactivateHint": "Vous ne pourrez plus vous connecter avec ce compte.",
     "edit": "Modifier",
     "deleteAccount": "Supprimer définitivement votre compte",
     "deleteHint": "Le compte et ses documents sont effacés.",
+    "confirmDelete": "Supprimer votre compte ?",
     "confirm": "Confirmer"
   },
   "errors": {
@@ -153,7 +151,6 @@
     "server": "Impossible de joindre le serveur. Réessayez plus tard.",
     "zipOnly": "Seuls les fichiers ZIP sont acceptés.",
     "invalidZip": "Ce fichier ZIP n’est pas valide.",
-    "deleteFailed": "Impossible de supprimer ce document.",
-    "accountDisabled": "Ce compte est désactivé."
+    "deleteFailed": "Impossible de supprimer ce document."
   }
 }

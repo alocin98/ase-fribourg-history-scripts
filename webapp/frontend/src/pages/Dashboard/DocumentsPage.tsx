@@ -5,6 +5,7 @@ import { deleteStoredDocument } from '../../api/documents'
 import { useAuth } from '../../auth/AuthProvider'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame, { useDocuments, type MenuDocument } from './DocumentsFrame'
+import DocumentDialog from './DocumentDialog'
 
 type Display = 'icons' | 'table'
 
@@ -24,6 +25,7 @@ function DocumentsContent() {
   const [page, setPage] = useState(1)
   const [goneIds, setGoneIds] = useState<string[]>([])
   const [removeError, setRemoveError] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   const choose = (next: Display) => {
     setDisplay(next)
@@ -65,18 +67,23 @@ function DocumentsContent() {
           <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] text-[#171c33]">{t('documents.title')}</h1>
           <p className="mt-2 mb-0 max-w-xl font-sans text-[0.98rem] leading-7 text-[#5d657c]">{t('documents.intro')}</p>
         </div>
-        <div className="flex w-fit max-w-full flex-wrap items-center gap-5" role="group" aria-label={t('documents.display')}>
-          {(['table', 'icons'] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              aria-pressed={display === mode}
-              className={`cursor-pointer border-0 border-b-2 bg-transparent px-0.5 pb-1 font-sans text-[0.82rem] font-bold ${display === mode ? 'border-[#514fec] text-[#312e81]' : 'border-transparent text-[#5d657c] hover:text-[#312e81]'}`}
-              onClick={() => choose(mode)}
-            >
-              {t(mode === 'table' ? 'documents.asTable' : 'documents.asIcons')}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-5">
+          <div className="flex w-fit max-w-full flex-wrap items-center gap-5" role="group" aria-label={t('documents.display')}>
+            {(['table', 'icons'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={display === mode}
+                className={`cursor-pointer border-0 border-b-2 bg-transparent px-0.5 pb-1 font-sans text-[0.82rem] font-bold ${display === mode ? 'border-[#514fec] text-[#312e81]' : 'border-transparent text-[#5d657c] hover:text-[#312e81]'}`}
+                onClick={() => choose(mode)}
+              >
+                {t(mode === 'table' ? 'documents.asTable' : 'documents.asIcons')}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border-0 bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.85rem] font-bold text-white" onClick={() => setIsCreating(true)}>
+            {t('documents.create')}
+          </button>
         </div>
       </div>
 
@@ -129,6 +136,8 @@ function DocumentsContent() {
           </div>
         </div>
       )}
+
+      {isCreating && <DocumentDialog onClose={() => setIsCreating(false)} />}
     </main>
   )
 }

@@ -42,8 +42,7 @@ export default function LoginPage() {
       navigate('/app/documents')
     } catch (err) {
       const status = err instanceof ApiError ? err.status : 0
-      if (status === 403 && err instanceof ApiError && err.message === 'Account disabled') setError('errors.accountDisabled')
-      else if (status === 401) setError('errors.invalidCredentials')
+      if (status === 401) setError('errors.invalidCredentials')
       else if (status === 422) setError('errors.invalidEmail')
       else setError('errors.server')
     } finally {

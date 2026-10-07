@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { ErrorKey } from '../../i18n'
 
-import { deactivateAccount, deleteAccount, updateCurrentUser } from '../../api/auth'
+import { deleteAccount, updateCurrentUser } from '../../api/auth'
 import { ApiError } from '../../api/client'
 import { useAuth } from '../../auth/AuthProvider'
+import ConfirmDialog from '../../components/ConfirmDialog'
 import DocumentsFrame from './DocumentsFrame'
 
 const fieldClass = 'mt-1 w-full rounded-lg border border-[#d4d8e6] bg-[#fafafe] px-3 py-2 font-sans text-[0.95rem] font-normal text-[#172033] outline-none placeholder:text-[#98a2b3] focus:border-[#4f46e5] focus:bg-white focus:shadow-[0_0_0_3px_rgba(79,70,229,0.12)]'
@@ -24,7 +25,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<ErrorKey | ''>('')
   const [saved, setSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [pending, setPending] = useState<'off' | 'delete' | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
 
   useEffect(() => {
@@ -79,16 +80,15 @@ export default function ProfilePage() {
     }
   }
 
-  const closeAccount = async (action: 'off' | 'delete') => {
+  const removeAccount = async () => {
     setIsClosing(true)
     try {
-      if (action === 'off') await deactivateAccount()
-      else await deleteAccount()
+      await deleteAccount()
       forgetUser()
       navigate('/')
     } catch {
       setError('errors.server')
-      setPending(null)
+      setConfirmDelete(false)
     } finally {
       setIsClosing(false)
     }
@@ -144,33 +144,27 @@ export default function ProfilePage() {
           </section>
 
           <section className="flex flex-col rounded-2xl border border-[#e6e8f2] bg-white p-4 sm:p-5">
-            <div>
-              <p className="m-0 font-sans text-[0.92rem] leading-6 text-[#5d657c]">{t('profile.deactivateHint')}</p>
-              {pending === 'off' ? (
-                <div className="mt-3 flex gap-2">
-                  <button type="button" className="inline-flex h-10 cursor-pointer items-center rounded-full border border-[#dc2626] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#dc2626] disabled:opacity-60" disabled={isClosing} onClick={() => { void closeAccount('off') }}>{t('profile.confirm')}</button>
-                  <button type="button" className={neutralButton} onClick={() => setPending(null)}>{t('documents.cancel')}</button>
-                </div>
-              ) : (
-                <button type="button" className={`${neutralButton} mt-3`} onClick={() => setPending('off')}>{t('profile.deactivate')}</button>
-              )}
-            </div>
-            <div className="mt-auto border-t border-[#f3f4fb] pt-4">
-              {pending === 'delete' ? (
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" className="inline-flex h-10 cursor-pointer items-center rounded-full bg-[#dc2626] px-4 font-sans text-[0.82rem] font-bold text-white disabled:opacity-60" disabled={isClosing} onClick={() => { void closeAccount('delete') }}>{t('profile.confirm')}</button>
-                  <button type="button" className={neutralButton} onClick={() => setPending(null)}>{t('documents.cancel')}</button>
-                </div>
-              ) : (
-                <button type="button" className="cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[0.92rem] font-semibold text-[#dc2626] underline decoration-[#f3d0d0] underline-offset-4" onClick={() => setPending('delete')}>
-                  {t('profile.deleteAccount')}
-                </button>
-              )}
+            <p className="m-0 font-sans text-[0.92rem] leading-6 text-[#5d657c]">{t('profile.deleteHint')}</p>
+            <div className="mt-3">
+              <button type="button" className="cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[0.92rem] font-semibold text-[#dc2626] underline decoration-[#f3d0d0] underline-offset-4" onClick={() => { setError(''); setConfirmDelete(true) }}>
+                {t('profile.deleteAccount')}
+              </button>
               {!isEditing && error && <p className="mt-3 mb-0 text-[0.85rem] text-[#dc2626]" role="alert">{t(error)}</p>}
             </div>
           </section>
         </div>
       </main>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title={t('profile.confirmDelete')}
+          message={t('profile.deleteHint')}
+          confirmLabel={t('profile.confirm')}
+          busy={isClosing}
+          onConfirm={() => { void removeAccount() }}
+          onClose={() => setConfirmDelete(false)}
+        />
+      )}
     </DocumentsFrame>
   )
 }

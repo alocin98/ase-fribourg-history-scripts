@@ -11,14 +11,13 @@ import LanguageSwitcher from '../components/LanguageSwitcher'
 export default function WelcomePage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { user, logout: closeSession } = useAuth()
+  const { user } = useAuth()
   const isSignedIn = Boolean(user)
   const nameParts = (user?.name ?? '').trim().split(/\s+/).filter(Boolean)
   const firstName = nameParts[0] || t('home.guestName')
   const lastName = nameParts.slice(1).join(' ')
   const email = user?.email?.trim() || ''
   const initials = `${firstName.charAt(0)}${lastName.charAt(0) || email.charAt(0)}`.toUpperCase()
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
 
@@ -36,16 +35,6 @@ export default function WelcomePage() {
     }
   }, [])
 
-  // Ferme la session. Si le serveur refuse, le profil reste ouvert.
-  const signOut = async () => {
-    setIsProfileOpen(false)
-    try {
-      await closeSession()
-    } catch {
-      setIsProfileOpen(true)
-    }
-  }
-
   // Le bouton principal ouvre le compte si la session existe, sinon la connexion.
   const openAccount = () => {
     navigate(isSignedIn ? '/app' : '/login')
@@ -53,7 +42,6 @@ export default function WelcomePage() {
 
   const menuLinkClass = 'inline-flex h-10 items-center font-sans text-[0.82rem] font-bold whitespace-nowrap text-[#5d657c] no-underline hover:text-[#6d28d9] max-[1100px]:h-auto max-[1100px]:rounded-lg max-[1100px]:px-3 max-[1100px]:py-[0.7rem]'
   const pageWidth = 'mx-auto w-[min(1120px,calc(100%-3rem))] max-[860px]:w-[min(680px,calc(100%-2rem))]'
-  const sectionLabelClass = 'm-0 mb-4 font-sans text-[0.72rem] font-extrabold tracking-[0.15em] text-[#6d28d9] uppercase'
   const sectionTitleClass = 'm-0 font-sans text-[clamp(1.7rem,2.5vw,2.15rem)] leading-[1.15] font-bold tracking-[-0.035em] text-[#171c33] max-[860px]:text-[clamp(1.7rem,6vw,2.2rem)] max-[860px]:whitespace-normal max-[480px]:text-[1.2rem] xl:whitespace-nowrap'
   const featureCardClass = 'rounded-xl border border-[#e3e0ef] bg-white p-7 shadow-[0_8px_20px_rgba(49,46,129,0.035)]'
   const cardTitleClass = 'm-0 font-sans text-[1.05rem] font-bold whitespace-nowrap text-[#1e1b4b] max-[860px]:whitespace-normal'
@@ -97,26 +85,14 @@ export default function WelcomePage() {
             </Link>
           )}
           {isSignedIn && (
-            <div className="group relative">
-              <button
-                type="button"
-                className={`flex cursor-pointer items-center rounded-full border border-transparent p-0 ${isProfileOpen ? 'border-[#dbe1f4] bg-[#f5f6ff]' : 'hover:border-[#dbe1f4] hover:bg-[#f5f6ff]'}`}
-                aria-label={t('home.profileOf', { name: `${firstName} ${lastName}`.trim() })}
-                aria-haspopup="true"
-                aria-expanded={isProfileOpen}
-                onClick={() => setIsProfileOpen((isOpen) => !isOpen)}
-              >
-                <span className="grid size-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br from-[#2563eb] to-[#4f46e5] font-sans text-[0.62rem] font-extrabold text-white shadow-[0_0_0_1px_#c7d2fe]">{initials}</span>
-              </button>
-              <div className={`${isProfileOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-[0.98] opacity-0'} absolute top-[calc(100%+0.7rem)] right-0 z-[80] flex w-[min(290px,calc(100vw-2rem))] origin-top-right flex-col rounded-xl border border-[#dbe1f4] bg-white p-4 shadow-[0_18px_42px_rgba(33,41,86,0.16)] transition group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:scale-100 group-focus-within:opacity-100`} role="menu">
-                <span className="mb-[0.65rem] font-sans text-[0.62rem] font-bold tracking-[0.08em] text-[#747b92] uppercase">{t('home.signedIn')}</span>
-                <strong className="text-base text-[#263a6b]">{firstName} {lastName}</strong>
-                <span className="mt-[0.3rem] font-sans text-[0.76rem] break-words text-[#747b92]">{email}</span>
-                <button type="button" className="mt-4 cursor-pointer rounded-full border border-[#d9ddf5] bg-white px-4 py-[0.7rem] text-left font-sans text-[0.78rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white" onClick={signOut} role="menuitem">
-                  {t('nav.signOut')}
-                </button>
-              </div>
-            </div>
+            <Link
+              to="/app"
+              className="flex items-center rounded-full border border-transparent p-0 no-underline hover:border-[#dbe1f4] hover:bg-[#f5f6ff]"
+              aria-label={t('home.profileOf', { name: `${firstName} ${lastName}`.trim() })}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="grid size-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br from-[#2563eb] to-[#4f46e5] font-sans text-[0.62rem] font-extrabold text-white shadow-[0_0_0_1px_#c7d2fe]">{initials}</span>
+            </Link>
           )}
           </div>
         </nav>
@@ -127,7 +103,6 @@ export default function WelcomePage() {
         {/* Titre et manuscrit de l'exemple. */}
         <section className={`${pageWidth} grid grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)] items-center gap-12 py-16 pb-[5.5rem] text-[#1c2440] max-[860px]:grid-cols-1 max-[860px]:gap-[1.6rem]`} id="accueil">
           <div>
-            <p className={sectionLabelClass}>{t('home.kicker')}</p>
             <h1 className="m-0 font-sans text-[clamp(1.85rem,2.3vw,2.05rem)] leading-[1.08] font-bold tracking-[-0.045em] text-[#171c33] max-[860px]:text-[clamp(1.7rem,6vw,2.2rem)] max-[480px]:text-[1.35rem] max-[480px]:leading-[1.2]">
               {t('home.titleLine1')}<br />{t('home.titleLine2')}
             </h1>
@@ -142,12 +117,13 @@ export default function WelcomePage() {
             </div>
           </div>
 
-          <figure className="relative m-0 min-h-[420px] w-full animate-float overflow-hidden rounded-[18px] border border-[#d4d0ea] bg-[#e8e6f2] shadow-[0_20px_46px_rgba(49,46,129,0.14)] motion-reduce:animate-none after:pointer-events-none after:absolute after:inset-0 after:z-[2] after:bg-[linear-gradient(135deg,rgba(37,99,235,0.14),transparent_46%,rgba(124,58,237,0.18))] after:content-[''] max-[860px]:min-h-[320px]" aria-label={t('home.manuscriptAlt')}>
-            <img className="absolute inset-0 h-full w-full object-cover object-[center_22%]" src={manuscriptPage} alt={t('home.manuscriptAlt')} />
-            <span className="absolute top-[17%] left-[13%] z-[3] h-[18%] w-[58%] rounded border-[1.5px] border-[#2563eb] bg-[rgba(37,99,235,0.08)] before:absolute before:top-[-4px] before:right-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']" aria-hidden="true" />
-            <span className="absolute top-[47%] right-[10%] z-[3] h-[22%] w-[42%] rounded border-[1.5px] border-[#7c3aed] bg-[rgba(37,99,235,0.08)] before:absolute before:bottom-[-4px] before:left-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']" aria-hidden="true" />
-            <span className="absolute top-[16%] left-[16%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.6rem] py-[0.45rem] font-sans text-[0.68rem] font-bold tracking-[0.11em] text-white uppercase">{t('home.line')}</span>
-            <span className="absolute right-[8%] bottom-[11%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.6rem] py-[0.45rem] font-sans text-[0.68rem] font-bold tracking-[0.11em] text-white uppercase">{t('home.cannon')}</span>
+          <figure className="relative m-0 w-full max-w-[320px] justify-self-center overflow-hidden rounded-[18px] border border-[#d4d0ea] bg-[#e8e6f2] shadow-[0_20px_46px_rgba(49,46,129,0.14)] after:pointer-events-none after:absolute after:inset-0 after:z-[2] after:bg-[linear-gradient(135deg,rgba(37,99,235,0.14),transparent_46%,rgba(124,58,237,0.18))] after:content-['']" aria-label={t('home.manuscriptAlt')}>
+            <img className="block h-auto w-full" src={manuscriptPage} alt={t('home.manuscriptAlt')} />
+            {/* Positions en % de l'image : 6e ligne du texte et canon dans la bordure du bas. */}
+            <span className="absolute top-[56.2%] left-[8.5%] z-[3] h-[3%] w-[70%] rounded border-[1.5px] border-[#2563eb] bg-[rgba(37,99,235,0.08)] before:absolute before:top-[-4px] before:right-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']" aria-hidden="true" />
+            <span className="absolute top-[80.5%] left-[46%] z-[3] h-[13.5%] w-[14%] rounded border-[1.5px] border-[#7c3aed] bg-[rgba(37,99,235,0.08)] before:absolute before:bottom-[-4px] before:left-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']" aria-hidden="true" />
+            <span className="absolute top-[51.6%] left-[8.5%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.45rem] py-[0.3rem] font-sans text-[0.6rem] font-bold tracking-[0.11em] text-white uppercase">{t('home.line')}</span>
+            <span className="absolute top-[85%] left-[62%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.45rem] py-[0.3rem] font-sans text-[0.6rem] font-bold tracking-[0.11em] text-white uppercase">{t('home.cannon')}</span>
           </figure>
         </section>
       </main>
@@ -167,7 +143,6 @@ export default function WelcomePage() {
       <section className="scroll-mt-5 py-20 pb-[6.5rem]" id="fonctionnalites" aria-label={t('home.featuresLabel')}>
         <div className={pageWidth}>
           <div className="max-w-[670px]">
-            <p className={sectionLabelClass}>{t('home.features')}</p>
             <h2 className={sectionTitleClass}>{t('home.featuresTitle')}</h2>
           </div>
           <div className="mt-12 grid grid-cols-4 gap-4 max-[980px]:grid-cols-2 max-[480px]:grid-cols-1">
@@ -207,7 +182,6 @@ export default function WelcomePage() {
       <section className="scroll-mt-5 border-y border-[#e3e0ef] bg-white py-20 pb-[6.5rem]" id="comment-ca-marche" aria-label={t('home.stepsLabel')}>
         <div className={pageWidth}>
           <div className="max-w-[670px]">
-            <p className={sectionLabelClass}>{t('home.path')}</p>
             <h2 className={sectionTitleClass}>{t('home.stepsTitle')}</h2>
           </div>
           <ol className="relative mt-14 grid grid-cols-4 gap-10 before:absolute before:top-6 before:right-[12.5%] before:left-[12.5%] before:h-px before:bg-[#d4d0ea] before:content-[''] max-[980px]:grid-cols-2 max-[980px]:before:hidden max-[480px]:grid-cols-1">
@@ -239,7 +213,6 @@ export default function WelcomePage() {
       <section className="scroll-mt-5 py-20 pb-[6.5rem]" id="apropos">
         <div className={pageWidth}>
           <div className="rounded-2xl bg-[linear-gradient(145deg,#1e1b4b_0%,#312e81_55%,#4c1d95_100%)] px-14 py-12 text-white shadow-[0_20px_40px_rgba(49,46,129,0.18)] max-[860px]:px-[1.4rem] max-[860px]:py-8">
-            <p className="m-0 mb-4 font-sans text-[0.72rem] font-extrabold tracking-[0.15em] text-[#e0e7ff] uppercase">{t('brand.name')}</p>
             <h2 className="m-0 font-sans text-[clamp(1.7rem,2.5vw,2.15rem)] leading-[1.15] font-bold tracking-[-0.035em] text-white max-[860px]:text-[clamp(1.7rem,6vw,2.2rem)] max-[480px]:text-[1.2rem]">{t('home.bannerTitle')}</h2>
             <p className="mt-5 mb-0 max-w-[520px] font-sans text-[1.05rem] leading-[1.75] text-[#eef2ff]">{t('home.bannerText')}</p>
             <div className="mt-8 flex flex-wrap items-center gap-5">

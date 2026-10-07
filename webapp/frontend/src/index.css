@@ -8,15 +8,9 @@
 /* Palette de l'application. Les pages utilisent surtout les classes Tailwind. */
 @theme {
   --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
-  --animate-float: float 5.4s ease-in-out infinite;
   --animate-auth-in: auth-in 1.25s ease both;
   --animate-auth-from-right: auth-from-right 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-auth-from-left: auth-from-left 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-14px); }
-  }
 
   @keyframes auth-in {
     from { opacity: 0; transform: translateY(10px); }

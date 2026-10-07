@@ -39,10 +39,6 @@ export function updateCurrentUser(body: { name: string; email: string; password?
   return request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body) })
 }
 
-export function deactivateAccount(): Promise<void> {
-  return request<void>('/users/me/deactivate', { method: 'POST' })
-}
-
 export function deleteAccount(): Promise<void> {
   return request<void>('/users/me', { method: 'DELETE' })
 }
