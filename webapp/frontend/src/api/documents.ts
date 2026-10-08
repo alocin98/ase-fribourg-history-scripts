@@ -1,6 +1,6 @@
 // Documents enregistrés par l'API : un document est créé d'abord (nom, description),
 // puis un ZIP d'images y est importé.
-// Il n'existe pas encore de route de transcription.
+// La transcription d'une page passe par le backend, qui appelle le service ML.
 
 import { ApiError, request } from './client'
 
@@ -60,6 +60,18 @@ export function uploadDocument(documentId: string, file: File): Promise<{ id: st
 
 export function pageImageUrl(documentId: string, pageId: string): string {
   return `${API_URL}/documents/${documentId}/pages/${pageId}`
+}
+
+// Le backend n'expose pas encore cette route. Le texte est lu dès qu'elle répond.
+export async function transcribePage(documentId: string, pageId: string): Promise<string> {
+  const payload = await request<unknown>(`/documents/${documentId}/pages/${pageId}/transcription`, { method: 'POST' })
+  if (typeof payload === 'string') return payload
+  if (payload && typeof payload === 'object') {
+    const record = payload as { text?: unknown; transcription?: unknown }
+    if (typeof record.text === 'string') return record.text
+    if (typeof record.transcription === 'string') return record.transcription
+  }
+  return ''
 }
 
 export async function listPages(documentId: string): Promise<DocumentPage[]> {
