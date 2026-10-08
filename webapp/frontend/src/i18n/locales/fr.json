@@ -108,6 +108,8 @@
     "next": "Suivant",
     "name": "Titre",
     "description": "Description",
+    "expandDescription": "Afficher toute la description",
+    "collapseDescription": "Réduire la description",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "view": "Voir",
