@@ -61,7 +61,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-[#f5f6fa] font-sans text-[#172033]">
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f5f6fa] font-sans text-[#172033]">
       <nav className={navigationClass} aria-label={t('nav.auth')}>
         <Brand />
         <div className="flex flex-wrap items-center gap-1.5">
@@ -72,8 +72,8 @@ export default function RegisterPage() {
       </nav>
 
       {/* Nom et email sur la première ligne, les deux mots de passe sur la seconde. */}
-      <main className={`mx-auto mt-8 w-[min(760px,calc(100%-3rem))] pb-10 max-[760px]:mt-6 max-[760px]:w-[min(680px,calc(100%-2rem))] ${enterAnimation}`}>
-        <div className="overflow-hidden rounded-2xl border border-[#d5d9e8] bg-white bg-[radial-gradient(16px_16px_at_0_0,rgba(81,79,236,0.7),transparent_72%),radial-gradient(16px_16px_at_100%_100%,rgba(81,79,236,0.7),transparent_72%)] px-7 py-7 shadow-[0_10px_28px_rgba(49,46,129,0.06)] max-[640px]:px-5 max-[480px]:px-4">
+      <main className={`mx-auto flex min-h-0 w-full max-w-[760px] flex-1 items-center px-5 py-4 sm:px-8 ${enterAnimation}`}>
+        <div className="w-full overflow-hidden rounded-2xl border border-[#d5d9e8] bg-white bg-[radial-gradient(16px_16px_at_0_0,rgba(81,79,236,0.7),transparent_72%),radial-gradient(16px_16px_at_100%_100%,rgba(81,79,236,0.7),transparent_72%)] px-7 py-7 shadow-[0_10px_28px_rgba(49,46,129,0.06)] max-[640px]:px-5 max-[480px]:px-4">
           <h1 className="m-0 font-sans text-[1.6rem] leading-[1.2] font-bold tracking-[-0.03em] text-[#171c33]">{t('register.title')}</h1>
           <p className="mt-2 mb-5 font-sans text-base leading-[1.6] text-[#5d657c]">{t('register.hint')}</p>
 

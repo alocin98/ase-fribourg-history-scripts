@@ -123,7 +123,11 @@
     "dropHint": "A new file replaces the one already chosen.",
     "images": "Images",
     "image": "Image {{n}}",
-    "noImages": "No images yet."
+    "noImages": "No images yet.",
+    "transcription": "Transcription",
+    "transcribe": "Transcribe",
+    "transcribing": "Transcribing…",
+    "transcriptionEmpty": "The text of the displayed image will appear here."
   },
   "profile": {
     "nav": "Profile",
@@ -151,6 +155,7 @@
     "server": "The server can't be reached. Try again later.",
     "zipOnly": "Only ZIP files are accepted.",
     "invalidZip": "This ZIP file is not valid.",
-    "deleteFailed": "This document could not be deleted."
+    "deleteFailed": "This document could not be deleted.",
+    "transcriptionFailed": "The transcription could not be retrieved."
   }
 }
