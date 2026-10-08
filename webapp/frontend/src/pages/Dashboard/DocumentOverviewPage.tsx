@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -37,6 +37,9 @@ export default function DocumentOverviewPage() {
   const [texts, setTexts] = useState<Record<string, string>>({})
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [transcriptionError, setTranscriptionError] = useState(false)
+  const descriptionRef = useRef<HTMLParagraphElement>(null)
+  const [descriptionOpen, setDescriptionOpen] = useState(false)
+  const [descriptionOverflows, setDescriptionOverflows] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -45,6 +48,8 @@ export default function DocumentOverviewPage() {
     setSelectedId(null)
     setTexts({})
     setTranscriptionError(false)
+    setDescriptionOpen(false)
+    setDescriptionOverflows(false)
     getDocument(documentId)
       .then(async (found) => {
         if (cancelled) return
@@ -61,6 +66,34 @@ export default function DocumentOverviewPage() {
       cancelled = true
     }
   }, [documentId])
+
+  // line-clamp masque la hauteur réelle : on mesure une copie sans limite.
+  useLayoutEffect(() => {
+    const node = descriptionRef.current
+    if (!node || descriptionOpen) return
+    const measure = () => {
+      const probe = node.cloneNode(true) as HTMLParagraphElement
+      probe.classList.remove('line-clamp-2')
+      probe.style.position = 'absolute'
+      probe.style.visibility = 'hidden'
+      probe.style.pointerEvents = 'none'
+      probe.style.height = 'auto'
+      probe.style.maxHeight = 'none'
+      probe.style.overflow = 'visible'
+      probe.style.display = 'block'
+      probe.style.webkitLineClamp = 'unset'
+      probe.style.width = `${node.clientWidth}px`
+      node.parentElement?.appendChild(probe)
+      const lineHeight = Number.parseFloat(getComputedStyle(node).lineHeight) || 28
+      const overflows = probe.offsetHeight > lineHeight * 2 + 1
+      probe.remove()
+      setDescriptionOverflows(overflows)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [document?.description, descriptionOpen])
 
   const takeFile = (next: File | null) => {
     setFile(next)
@@ -131,7 +164,22 @@ export default function DocumentOverviewPage() {
               <div className="min-w-0 flex-1">
                 <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">{document.name}</h1>
                 {document.description && (
-                  <p className="mt-2 mb-0 max-w-full min-w-0 font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c]">{document.description}</p>
+                  <div className="relative mt-2 min-w-0">
+                    <p ref={descriptionRef} className={`mb-0 max-w-full font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c] ${descriptionOpen ? '' : 'line-clamp-2'} ${!descriptionOpen && descriptionOverflows ? 'pr-7' : ''}`}>{document.description}</p>
+                    {descriptionOverflows && (
+                      <button
+                        type="button"
+                        className={`grid size-6 cursor-pointer place-items-center rounded-full bg-[#f5f6fa] text-[#171c33] ${descriptionOpen ? 'mt-1' : 'absolute right-0 bottom-0'}`}
+                        aria-expanded={descriptionOpen}
+                        aria-label={t(descriptionOpen ? 'documents.collapseDescription' : 'documents.expandDescription')}
+                        onClick={() => setDescriptionOpen((open) => !open)}
+                      >
+                        <svg className={`size-4 ${descriptionOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.25" aria-hidden="true">
+                          <path d="M5 7.5 L10 12.5 L15 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               <div className="flex w-full shrink-0 flex-nowrap items-center gap-2 sm:w-auto sm:justify-end">
