@@ -31,17 +31,24 @@ def _mime_type_for_extension(extension: str) -> str:
         ".tiff": "image/tiff",
     }[extension.lower()]
 
-
 def _remove_upload_files(archive_path: Path, pages_dir: Path) -> None:
     archive_path.unlink(missing_ok=True)
     shutil.rmtree(pages_dir, ignore_errors=True)
 
+def _remove_storage(document_id: UUID) -> None:
+    root = STORAGE_ROOT.resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
 
 def _safe_zip_path(name: str) -> PurePosixPath:
     path = PurePosixPath(name)
     if path.is_absolute() or ".." in path.parts:
         raise HTTPException(status_code=400, detail="The ZIP contains an unsafe path")
     return path
+
+
 
 @router.post(
     "/",
@@ -160,15 +167,6 @@ async def upload_files_to_document(
     finally:
         await file.close()
 
-
-def _remove_storage(document_id: UUID) -> None:
-    root = STORAGE_ROOT.resolve()
-    folder = (root / str(document_id)).resolve()
-    if folder.parent != root:
-        return
-    shutil.rmtree(folder, ignore_errors=True)
-
-
 @router.delete(
     "/{document_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -186,7 +184,6 @@ async def delete_document(
     await repository.delete(document)
     _remove_storage(document_id)
 
-
 @router.get(
     "/me",
     response_model=list[DocumentRead],
@@ -201,7 +198,6 @@ async def list_user_documents(
 ):
     repository = DocumentRepository(session)
     return await repository.get_all(current_user.id)
-
 
 @router.get(
     "/{document_id}/pages",
@@ -243,7 +239,6 @@ async def list_document_pages(
         )
         for item in pages
     ]
-
 
 @router.get(
     "/{document_id}/pages/{page_id}",

@@ -31,29 +31,6 @@ class DocumentRepository:
         await self.session.refresh(document)
         return document
 
-    async def get_all(self, owner_id: UUID) -> list[Document]:
-        result = await self.session.scalars(
-            select(Document)
-            .where(Document.owner_id == owner_id)
-            .order_by(Document.id.desc())
-        )
-        return list(result.all())
-
-    async def delete(self, document: Document) -> None:
-        await self.session.execute(delete(Page).where(Page.document_id == document.id))
-        await self.session.delete(document)
-        await self.session.commit()
-
-    async def delete_all_for_owner(self, owner_id: UUID) -> list[UUID]:
-        documents = await self.get_all(owner_id)
-        stored = [document.id for document in documents]
-        for document in documents:
-            await self.session.execute(delete(Page).where(Page.document_id == document.id))
-            await self.session.delete(document)
-        if documents:
-            await self.session.commit()
-        return stored
-
     async def create_pages(
         self,
         document_id: UUID,
@@ -71,6 +48,14 @@ class DocumentRepository:
             for page in pages
         )
         await self.session.commit()
+
+    async def get_all(self, owner_id: UUID) -> list[Document]:
+        result = await self.session.scalars(
+            select(Document)
+            .where(Document.owner_id == owner_id)
+            .order_by(Document.id.desc())
+        )
+        return list(result.all())
 
     async def get_document_by_id(
         self,
@@ -114,3 +99,18 @@ class DocumentRepository:
                 Document.owner_id == owner_id,
             )
         )
+
+    async def delete(self, document: Document) -> None:
+        await self.session.execute(delete(Page).where(Page.document_id == document.id))
+        await self.session.delete(document)
+        await self.session.commit()
+
+    async def delete_all_for_owner(self, owner_id: UUID) -> list[UUID]:
+        documents = await self.get_all(owner_id)
+        stored = [document.id for document in documents]
+        for document in documents:
+            await self.session.execute(delete(Page).where(Page.document_id == document.id))
+            await self.session.delete(document)
+        if documents:
+            await self.session.commit()
+        return stored
