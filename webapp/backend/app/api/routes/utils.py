@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from app.core.db import get_db
 
-router = APIRouter(prefix="/", tags=["utils"])
+router = APIRouter(tags=["utils"])
 
 @router.get(
     "/utils/health-check",

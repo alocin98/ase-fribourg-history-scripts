@@ -12,12 +12,12 @@ class DocumentRepository:
         self.session = session
 
     async def create_document(
-    self,
-    *,
-    document_id: UUID,
-    owner_id: UUID,
-    name: str,
-    description: str,
+        self,
+        *,
+        document_id: UUID,
+        owner_id: UUID,
+        name: str,
+        description: str,
     ) -> Document:
         document = Document(
             id=document_id,
@@ -83,6 +83,22 @@ class DocumentRepository:
             .order_by(Page.page_number)
             .offset(parameters.offset)
             .limit(parameters.limit)
+        )
+        return list(result.all())
+    
+    async def get_all_pages_by_document_id(
+        self,
+        document_id: UUID,
+        owner_id: UUID,
+    ) -> list[Page]:
+        result = await self.session.scalars(
+            select(Page)
+            .join(Document)
+            .where(
+                Page.document_id == document_id,
+                Document.owner_id == owner_id,
+            )
+            .order_by(Page.page_number)
         )
         return list(result.all())
 

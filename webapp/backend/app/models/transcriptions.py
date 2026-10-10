@@ -25,6 +25,10 @@ class TranscriptionJob(Base):
         ForeignKey("pages.id", ondelete="CASCADE"),
         nullable=True,
     )
+    owner_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+    )
     status: Mapped[str] = mapped_column(String(20), default="queued")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     started_at: Mapped[datetime | None]
