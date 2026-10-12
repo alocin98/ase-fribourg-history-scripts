@@ -96,7 +96,7 @@ export default function ProfilePage() {
 
   return (
     <DocumentsFrame>
-      <main className="px-5 py-6 sm:px-8 lg:px-10">
+      <main className="h-full overflow-auto px-5 py-6 sm:px-8 lg:px-10">
         <div className="flex items-center justify-between gap-4">
           <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] text-[#171c33]">{t('profile.title')}</h1>
           <button type="button" className={neutralButton} onClick={() => { setIsEditing((open) => !open); setError(''); setSaved(false) }}>

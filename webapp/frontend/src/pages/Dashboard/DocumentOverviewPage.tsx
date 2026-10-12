@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -7,6 +7,8 @@ import {
   deleteDocument,
   getDocument,
   listPages,
+  pageImageUrl,
+  transcribePage,
   uploadDocument,
   type DocumentPage,
   type StoredDocument,
@@ -14,7 +16,9 @@ import {
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
 
-// Liste des images à gauche. La colonne de droite reste vide pour la transcription.
+const panelClass = 'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_10px_28px_rgba(23,28,51,0.06)]'
+
+// Trois colonnes : noms des images, image choisie, transcription.
 export default function DocumentOverviewPage() {
   const { t } = useTranslation()
   const { documentId = '' } = useParams()
@@ -23,23 +27,37 @@ export default function DocumentOverviewPage() {
   // undefined : en chargement, null : introuvable.
   const [document, setDocument] = useState<StoredDocument | null | undefined>(undefined)
   const [pages, setPages] = useState<DocumentPage[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [isOver, setIsOver] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState(false)
+  const [texts, setTexts] = useState<Record<string, string>>({})
+  const [isTranscribing, setIsTranscribing] = useState(false)
+  const [transcriptionError, setTranscriptionError] = useState(false)
+  const descriptionRef = useRef<HTMLParagraphElement>(null)
+  const [descriptionOpen, setDescriptionOpen] = useState(false)
+  const [descriptionOverflows, setDescriptionOverflows] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     setDocument(undefined)
     setPages([])
+    setSelectedId(null)
+    setTexts({})
+    setTranscriptionError(false)
+    setDescriptionOpen(false)
+    setDescriptionOverflows(false)
     getDocument(documentId)
       .then(async (found) => {
         if (cancelled) return
         setDocument(found)
         const items = await listPages(found.id)
-        if (!cancelled) setPages(items)
+        if (cancelled) return
+        setPages(items)
+        setSelectedId(items[0]?.id ?? null)
       })
       .catch(() => {
         if (!cancelled) setDocument((current) => current === undefined ? null : current)
@@ -48,6 +66,34 @@ export default function DocumentOverviewPage() {
       cancelled = true
     }
   }, [documentId])
+
+  // line-clamp masque la hauteur réelle : on mesure une copie sans limite.
+  useLayoutEffect(() => {
+    const node = descriptionRef.current
+    if (!node || descriptionOpen) return
+    const measure = () => {
+      const probe = node.cloneNode(true) as HTMLParagraphElement
+      probe.classList.remove('line-clamp-2')
+      probe.style.position = 'absolute'
+      probe.style.visibility = 'hidden'
+      probe.style.pointerEvents = 'none'
+      probe.style.height = 'auto'
+      probe.style.maxHeight = 'none'
+      probe.style.overflow = 'visible'
+      probe.style.display = 'block'
+      probe.style.webkitLineClamp = 'unset'
+      probe.style.width = `${node.clientWidth}px`
+      node.parentElement?.appendChild(probe)
+      const lineHeight = Number.parseFloat(getComputedStyle(node).lineHeight) || 28
+      const overflows = probe.offsetHeight > lineHeight * 2 + 1
+      probe.remove()
+      setDescriptionOverflows(overflows)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [document?.description, descriptionOpen])
 
   const takeFile = (next: File | null) => {
     setFile(next)
@@ -78,7 +124,9 @@ export default function DocumentOverviewPage() {
     setFormError(null)
     try {
       await uploadDocument(documentId, file)
-      setPages(await listPages(documentId))
+      const items = await listPages(documentId)
+      setPages(items)
+      setSelectedId(items[0]?.id ?? null)
       closeDialog()
     } catch (error) {
       const invalid = error instanceof ApiError && (error.status === 400 || error.status === 413)
@@ -87,9 +135,25 @@ export default function DocumentOverviewPage() {
     }
   }
 
+  const transcribe = async () => {
+    if (!selectedId || isTranscribing) return
+    setIsTranscribing(true)
+    setTranscriptionError(false)
+    try {
+      const text = await transcribePage(documentId, selectedId)
+      setTexts((current) => ({ ...current, [selectedId]: text }))
+    } catch {
+      setTranscriptionError(true)
+    } finally {
+      setIsTranscribing(false)
+    }
+  }
+
+  const shownText = selectedId ? texts[selectedId] : undefined
+
   return (
     <DocumentsFrame>
-      <main className="flex min-h-full flex-col px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+      <main className="flex h-full min-h-0 flex-col overflow-hidden px-5 py-6 sm:px-8 lg:px-10">
         {document === undefined ? (
           <p className="m-0 font-sans text-[1rem] text-[#5d657c]">{t('common.loading')}</p>
         ) : document === null ? (
@@ -100,7 +164,22 @@ export default function DocumentOverviewPage() {
               <div className="min-w-0 flex-1">
                 <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">{document.name}</h1>
                 {document.description && (
-                  <p className="mt-2 mb-0 max-w-full min-w-0 font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c]">{document.description}</p>
+                  <div className="relative mt-2 min-w-0">
+                    <p ref={descriptionRef} className={`mb-0 max-w-full font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c] ${descriptionOpen ? '' : 'line-clamp-2'} ${!descriptionOpen && descriptionOverflows ? 'pr-7' : ''}`}>{document.description}</p>
+                    {descriptionOverflows && (
+                      <button
+                        type="button"
+                        className={`grid size-6 cursor-pointer place-items-center rounded-full bg-[#f5f6fa] text-[#171c33] ${descriptionOpen ? 'mt-1' : 'absolute right-0 bottom-0'}`}
+                        aria-expanded={descriptionOpen}
+                        aria-label={t(descriptionOpen ? 'documents.collapseDescription' : 'documents.expandDescription')}
+                        onClick={() => setDescriptionOpen((open) => !open)}
+                      >
+                        <svg className={`size-4 ${descriptionOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.25" aria-hidden="true">
+                          <path d="M5 7.5 L10 12.5 L15 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               <div className="flex w-full shrink-0 flex-nowrap items-center gap-2 sm:w-auto sm:justify-end">
@@ -123,23 +202,72 @@ export default function DocumentOverviewPage() {
               </div>
             </div>
             {deleteError && <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">{t('errors.deleteFailed')}</p>}
-            <div className="mt-8 grid min-h-80 flex-1 grid-cols-1 items-stretch gap-4 min-[700px]:grid-cols-[minmax(16rem,0.85fr)_minmax(0,1.15fr)]">
-              <section className="rounded-2xl border border-[#e6e8f2] bg-white p-4 sm:p-5">
-                <h2 className="m-0 font-sans text-[0.95rem] font-semibold text-[#171c33]">{t('documents.images')}</h2>
+            <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 overflow-hidden min-[900px]:grid-cols-[10.5rem_minmax(0,1fr)_minmax(0,1.45fr)]">
+              <section className={`${panelClass} p-3`}>
+                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">{t('documents.images')}</h2>
                 {pages.length === 0 ? (
-                  <p className="mt-4 mb-0 font-sans text-[0.95rem] leading-6 text-[#5d657c]">{t('documents.noImages')}</p>
+                  <p className="mt-3 mb-0 font-sans text-[0.8rem] leading-5 text-[#71717a]">{t('documents.noImages')}</p>
                 ) : (
-                  <ol className="mt-3 mb-0 grid list-none gap-2 p-0">
-                    {pages.map((page) => (
-                      <li key={page.id} className="flex items-center gap-3 rounded-xl bg-[#f5f6fa] px-3 py-2.5 font-sans text-[0.95rem] text-[#3d4663]">
-                        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.8rem] font-semibold text-[#4338a8]">{page.page_number}</span>
-                        {t('documents.image', { n: page.page_number })}
-                      </li>
-                    ))}
+                  <ol className="mt-3 mb-0 grid min-h-0 flex-1 list-none gap-1.5 overflow-y-auto p-0">
+                    {pages.map((page) => {
+                      const label = t('documents.image', { n: page.page_number })
+                      const selected = page.id === selectedId
+                      return (
+                        <li key={page.id}>
+                          <button
+                            type="button"
+                            className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-left font-sans text-[0.8rem] ${selected ? 'bg-[#f4f4f5] font-semibold text-[#18181b] shadow-[inset_0_0_0_1px_#e4e4e7]' : 'text-[#3f3f46] hover:bg-[#fafafa]'}`}
+                            aria-pressed={selected}
+                            onClick={() => {
+                              setSelectedId(page.id)
+                              setTranscriptionError(false)
+                            }}
+                          >
+                            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">{page.page_number}</span>
+                            {label}
+                          </button>
+                        </li>
+                      )
+                    })}
                   </ol>
                 )}
               </section>
-              <section className="min-h-56 rounded-2xl border border-[#e6e8f2] bg-white" />
+              <section className={`${panelClass} p-3`}>
+                <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-white">
+                  {selectedId && (
+                    <img
+                      className="h-full w-full object-contain"
+                      src={pageImageUrl(documentId, selectedId)}
+                      alt={t('documents.image', { n: pages.find((page) => page.id === selectedId)?.page_number ?? '' })}
+                    />
+                  )}
+                </div>
+              </section>
+              <section className={`${panelClass} p-5`}>
+                <div className="flex shrink-0 items-center justify-between gap-3">
+                  <h2 className="m-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">{t('documents.transcription')}</h2>
+                  <button
+                    type="button"
+                    className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full border border-[#e4e4e7] bg-[#fafafa] px-3.5 font-sans text-[0.78rem] font-semibold text-[#27272a] shadow-[0_1px_2px_rgba(23,28,51,0.04)] hover:bg-white hover:shadow-[0_6px_16px_rgba(23,28,51,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => { void transcribe() }}
+                    disabled={!selectedId || isTranscribing}
+                  >
+                    {isTranscribing && <span className="size-3.5 animate-spin rounded-full border-2 border-[#e4e4e7] border-t-[#3f3f46]" aria-hidden="true" />}
+                    {isTranscribing ? t('documents.transcribing') : t('documents.transcribe')}
+                  </button>
+                </div>
+                <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#27272a]">
+                  {isTranscribing && shownText === undefined ? (
+                    <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>
+                  ) : transcriptionError ? (
+                    <p className="m-0 text-[#71717a]" role="alert">{t('errors.transcriptionFailed')}</p>
+                  ) : shownText ? (
+                    shownText
+                  ) : (
+                    <p className="m-0 text-[#a1a1aa]">{t('documents.transcriptionEmpty')}</p>
+                  )}
+                </div>
+              </section>
             </div>
           </>
         )}
