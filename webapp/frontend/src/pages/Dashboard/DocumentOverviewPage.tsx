@@ -242,20 +242,20 @@ export default function DocumentOverviewPage() {
                     />
                   )}
                 </div>
-              </section>
-              <section className={`${panelClass} p-5`}>
-                <div className="flex shrink-0 items-center justify-between gap-3">
-                  <h2 className="m-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">{t('documents.transcription')}</h2>
+                <div className="mt-3 flex shrink-0 justify-center">
                   <button
                     type="button"
-                    className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full border border-[#e4e4e7] bg-[#fafafa] px-3.5 font-sans text-[0.78rem] font-semibold text-[#27272a] shadow-[0_1px_2px_rgba(23,28,51,0.04)] hover:bg-white hover:shadow-[0_6px_16px_rgba(23,28,51,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.8rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={() => { void transcribe() }}
                     disabled={!selectedId || isTranscribing}
                   >
-                    {isTranscribing && <span className="size-3.5 animate-spin rounded-full border-2 border-[#e4e4e7] border-t-[#3f3f46]" aria-hidden="true" />}
+                    {isTranscribing && <span className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />}
                     {isTranscribing ? t('documents.transcribing') : t('documents.transcribe')}
                   </button>
                 </div>
+              </section>
+              <section className={`${panelClass} p-5`}>
+                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">{t('documents.transcription')}</h2>
                 <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#27272a]">
                   {isTranscribing && shownText === undefined ? (
                     <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>

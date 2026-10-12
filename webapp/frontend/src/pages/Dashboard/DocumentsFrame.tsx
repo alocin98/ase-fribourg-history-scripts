@@ -23,15 +23,6 @@ function MenuGlyph({ children }: { children: ReactNode }) {
   )
 }
 
-function HomeIcon() {
-  return (
-    <MenuGlyph>
-      <path d="M4 10.5 12 4l8 6.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M7 10.2V19h10v-8.8" strokeLinecap="round" strokeLinejoin="round" />
-    </MenuGlyph>
-  )
-}
-
 function DocumentsIcon() {
   return (
     <MenuGlyph>
@@ -153,8 +144,7 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
               </button>
           </div>
           <nav className={`flex min-h-0 flex-1 overflow-auto ${isMenuOpen ? 'flex-col px-3 pb-4 pt-1' : 'flex-col items-center gap-1 px-2 pb-3 pt-2 max-[800px]:flex-row max-[800px]:justify-center max-[800px]:px-2 max-[800px]:py-2'}`} aria-label={t('nav.main')}>
-            <MenuEntry to="/" label={t('nav.home')} icon={<HomeIcon />} collapsed={!isMenuOpen} end />
-            <MenuEntry to="/app/documents" label={t('documents.nav')} icon={<DocumentsIcon />} collapsed={!isMenuOpen} end className={isMenuOpen ? 'mt-1' : ''} />
+            <MenuEntry to="/app/documents" label={t('documents.nav')} icon={<DocumentsIcon />} collapsed={!isMenuOpen} end />
             <MenuEntry to="/app/profile" label={t('profile.nav')} icon={<ProfileIcon />} collapsed={!isMenuOpen} className={isMenuOpen ? 'mt-auto border-t border-[#eef0f6] pt-3' : 'mt-auto max-[800px]:mt-0'} />
           </nav>
         </aside>
