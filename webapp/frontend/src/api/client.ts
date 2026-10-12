@@ -52,7 +52,8 @@ function isUnsafe(method: string): boolean {
 async function send(path: string, init: RequestInit = {}, retry = true): Promise<Response> {
   const method = (init.method ?? 'GET').toUpperCase()
   const headers = new Headers(init.headers)
-  if (init.body) headers.set('Content-Type', 'application/json')
+  // Le navigateur définit lui-même le Content-Type multipart (avec la boundary) pour un FormData.
+  if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json')
   if (isUnsafe(method)) headers.set(CSRF_HEADER, await ensureCsrf())
 
   let response: Response

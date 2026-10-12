@@ -2,18 +2,16 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { listDocuments, listHiddenDocuments, listLocalDocuments, type StoredDocument } from '../../api/documents'
+import { listDocuments, type StoredDocument } from '../../api/documents'
 import { useAuth } from '../../auth/AuthProvider'
 import Brand from '../../components/Brand'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
 
 type ShellLocationState = { logoutFailed?: boolean }
 
-export type MenuDocument = { id: string; label: string; description: string; editable: boolean }
+const DocumentsContext = createContext<StoredDocument[] | null>(null)
 
-const DocumentsContext = createContext<MenuDocument[] | null>(null)
-
-export function useDocuments(): MenuDocument[] | null {
+export function useDocuments(): StoredDocument[] | null {
   return useContext(DocumentsContext)
 }
 
@@ -26,7 +24,7 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
-  const [documents, setDocuments] = useState<MenuDocument[] | null>(null)
+  const [documents, setDocuments] = useState<StoredDocument[] | null>(null)
   const [revision, setRevision] = useState(0)
   const [isLeaving, setIsLeaving] = useState(false)
   const logoutFailed = Boolean((location.state as ShellLocationState | null)?.logoutFailed)
@@ -40,21 +38,12 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return
     let cancelled = false
-    const local = listLocalDocuments(user.id)
-    const hidden = new Set(listHiddenDocuments(user.id))
-    const linked = new Set(local.flatMap((item) => item.uploadId ? [item.uploadId] : []))
     listDocuments()
-      .then((remote: StoredDocument[]) => {
-        if (cancelled) return
-        setDocuments([
-          ...local.map((item) => ({ id: item.id, label: item.title, description: item.description, editable: true })),
-          ...remote
-            .filter((item) => !linked.has(item.id) && !hidden.has(item.id))
-            .map((item) => ({ id: item.id, label: item.original_filename, description: '', editable: false })),
-        ])
+      .then((items) => {
+        if (!cancelled) setDocuments(items)
       })
       .catch(() => {
-        if (!cancelled) setDocuments(local.map((item) => ({ id: item.id, label: item.title, description: item.description, editable: true })))
+        if (!cancelled) setDocuments([])
       })
     return () => {
       cancelled = true
