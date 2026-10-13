@@ -11,6 +11,7 @@ This repo contains the code for group 6 of the group project in Advanced Softwar
   |
   |- frontend: code for frontend
   |- backend: code for backend
+  |- ml-backend: segmentation + text recognition service called by the backend
 ```
 
 ## Deployment
