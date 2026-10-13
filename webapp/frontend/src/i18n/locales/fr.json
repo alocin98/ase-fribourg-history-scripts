@@ -108,6 +108,8 @@
     "next": "Suivant",
     "name": "Titre",
     "description": "Description",
+    "expandDescription": "Afficher toute la description",
+    "collapseDescription": "Réduire la description",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "view": "Voir",
@@ -123,7 +125,11 @@
     "dropHint": "Un nouveau fichier remplace celui déjà choisi.",
     "images": "Images",
     "image": "Image {{n}}",
-    "noImages": "Aucune image pour le moment."
+    "noImages": "Aucune image pour le moment.",
+    "transcription": "Transcription",
+    "transcribe": "Transcrire",
+    "transcribing": "Transcription…",
+    "transcriptionEmpty": "Le texte de l’image affichée apparaîtra ici."
   },
   "profile": {
     "nav": "Profil",
@@ -151,6 +157,7 @@
     "server": "Impossible de joindre le serveur. Réessayez plus tard.",
     "zipOnly": "Seuls les fichiers ZIP sont acceptés.",
     "invalidZip": "Ce fichier ZIP n’est pas valide.",
-    "deleteFailed": "Impossible de supprimer ce document."
+    "deleteFailed": "Impossible de supprimer ce document.",
+    "transcriptionFailed": "La transcription n’a pas pu être obtenue."
   }
 }
