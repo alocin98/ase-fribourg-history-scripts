@@ -14,6 +14,7 @@ from app.core.db import get_db
 from app.core.config import settings
 from app.models.user import User
 from app.repositories.documents import DocumentRepository
+from app.repositories.transcriptions import TranscriptionRepository
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 STORAGE_ROOT = Path(settings.STORAGE_ROOT)
@@ -261,6 +262,29 @@ async def get_document_page(
     if page is None or not Path(page.image_path).is_file():
         raise HTTPException(status_code=404, detail="Page not found")
     return FileResponse(page.image_path)
+
+@router.get(
+    "/{document_id}/pages/{page_id}/transcription",
+    name="get_page_transcription",
+    description="Get the transcription of a specific page of a document owned by the current user.",
+    status_code=status.HTTP_200_OK
+)
+async def get_page_transcription(
+    document_id: UUID,
+    page_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    document_repository = DocumentRepository(session)
+    document = await document_repository.get_document_by_id(document_id, current_user.id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    repository = TranscriptionRepository(session)
+    transcription = await repository.get_page_transcription_by_page_id(page_id)
+    if transcription is None:
+        raise HTTPException(status_code=404, detail="Transcription not found")
+    return transcription
 
 @router.get(
     "/{document_id}/download",
