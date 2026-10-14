@@ -16,6 +16,12 @@ from app.repositories.user import UserRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+def _remove_storage(document_id: UUID) -> None:
+    root = Path(settings.STORAGE_ROOT).resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
 
 @router.post(
     "/",
@@ -45,7 +51,6 @@ async def create_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="A user with this email already exists",
         )
-
 
 @router.patch(
     "/me", 
@@ -104,15 +109,6 @@ async def read_current_user(
         )
 
     return user
-
-
-def _remove_storage(document_id: UUID) -> None:
-    root = Path(settings.STORAGE_ROOT).resolve()
-    folder = (root / str(document_id)).resolve()
-    if folder.parent != root:
-        return
-    shutil.rmtree(folder, ignore_errors=True)
-
 
 @router.delete(
     "/me",
