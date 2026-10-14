@@ -1,10 +1,10 @@
-from pathlib import Path
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.transcriptions import TranscriptionJob, PageTranscription
+
+from app.models.transcriptions import PageTranscription, TranscriptionJob
 
 
 class TranscriptionRepository:
@@ -47,8 +47,7 @@ class TranscriptionRepository:
 
     async def start_transcription_job(self, job_id: UUID):
         result = await self.session.scalars(
-            select(TranscriptionJob)
-            .where(TranscriptionJob.id == job_id)
+            select(TranscriptionJob).where(TranscriptionJob.id == job_id)
         )
         transcription_job = result.one_or_none()
         if transcription_job:
@@ -61,8 +60,7 @@ class TranscriptionRepository:
 
     async def complete_transcription_job(self, job_id: UUID):
         result = await self.session.scalars(
-            select(TranscriptionJob)
-            .where(TranscriptionJob.id == job_id)
+            select(TranscriptionJob).where(TranscriptionJob.id == job_id)
         )
         transcription_job = result.one_or_none()
         if transcription_job:
@@ -99,7 +97,7 @@ class TranscriptionRepository:
             select(TranscriptionJob).where(TranscriptionJob.page_id == page_id)
         )
         return result.scalars().all()
-    
+
     ## Page Transcription
 
     async def create_page_transcription(

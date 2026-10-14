@@ -1,8 +1,9 @@
-from app.core.security import csrf_tokens_match
-from app.core.config import settings
-
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
+
+from app.core.config import settings
+from app.core.security import csrf_tokens_match
+
 
 class CSRFMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):

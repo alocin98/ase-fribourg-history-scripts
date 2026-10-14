@@ -38,7 +38,9 @@ async def transcribe_document(job_id: UUID) -> None:
         )
 
         for page in pages:
-            existing = await transcription_repository.get_page_transcription_by_page_id(page.id)
+            existing = await transcription_repository.get_page_transcription_by_page_id(
+                page.id
+            )
             if existing is not None:
                 await transcription_repository.complete_transcription_job(job_id)
                 return
@@ -62,7 +64,9 @@ async def transcribe_page(job_id: UUID) -> None:
         if job is None:
             return
 
-        existing = await transcription_repository.get_page_transcription_by_page_id(job.page_id)
+        existing = await transcription_repository.get_page_transcription_by_page_id(
+            job.page_id
+        )
         if existing is not None:
             await transcription_repository.complete_transcription_job(job_id)
             return

@@ -3,7 +3,8 @@ from uuid import UUID
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.api.schemas.documents import DocumentCreate, PagePaginateRead
+
+from app.api.schemas.documents import PagePaginateRead
 from app.models.documents import Document, Page
 
 
@@ -25,7 +26,7 @@ class DocumentRepository:
             name=name,
             description=description,
         )
-    
+
         self.session.add(document)
         await self.session.commit()
         await self.session.refresh(document)
@@ -69,10 +70,7 @@ class DocumentRepository:
             )
         )
 
-    async def get_pages(
-        self,
-        parameters: PagePaginateRead
-    ) -> list[Page]:
+    async def get_pages(self, parameters: PagePaginateRead) -> list[Page]:
         result = await self.session.scalars(
             select(Page)
             .join(Document)
@@ -85,7 +83,7 @@ class DocumentRepository:
             .limit(parameters.limit)
         )
         return list(result.all())
-    
+
     async def get_all_pages_by_document_id(
         self,
         document_id: UUID,
@@ -109,7 +107,9 @@ class DocumentRepository:
         owner_id: UUID,
     ) -> Page | None:
         return await self.session.scalar(
-            select(Page).join(Document).where(
+            select(Page)
+            .join(Document)
+            .where(
                 Page.id == page_id,
                 Page.document_id == document_id,
                 Document.owner_id == owner_id,
@@ -125,7 +125,9 @@ class DocumentRepository:
         documents = await self.get_all(owner_id)
         stored = [document.id for document in documents]
         for document in documents:
-            await self.session.execute(delete(Page).where(Page.document_id == document.id))
+            await self.session.execute(
+                delete(Page).where(Page.document_id == document.id)
+            )
             await self.session.delete(document)
         if documents:
             await self.session.commit()

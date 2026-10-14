@@ -1,4 +1,3 @@
-from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -11,9 +10,11 @@ class DocumentRead(BaseModel):
     name: str
     description: str
 
+
 class DocumentCreate(BaseModel):
     name: str
     description: str
+
 
 class PageRead(BaseModel):
     id: UUID
@@ -23,11 +24,13 @@ class PageRead(BaseModel):
     width: int | None = None
     mime_type: str | None = None
 
+
 class PagePaginateRead(BaseModel):
     document_id: UUID
     owner_id: UUID
     offset: int
     limit: int
+
 
 class DocumentUploadResponse(BaseModel):
     id: UUID
