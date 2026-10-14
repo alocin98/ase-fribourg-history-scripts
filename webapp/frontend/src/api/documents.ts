@@ -64,7 +64,9 @@ export function pageImageUrl(documentId: string, pageId: string): string {
 
 // Le backend n'expose pas encore cette route. Le texte est lu dès qu'elle répond.
 export async function transcribePage(documentId: string, pageId: string): Promise<string> {
-  const payload = await request<unknown>(`/documents/${documentId}/pages/${pageId}/transcription`, { method: 'POST' })
+  const payload = await request<unknown>(`/documents/${documentId}/pages/${pageId}/transcription`, {
+    method: 'POST',
+  })
   if (typeof payload === 'string') return payload
   if (payload && typeof payload === 'object') {
     const record = payload as { text?: unknown; transcription?: unknown }
@@ -78,7 +80,9 @@ export async function listPages(documentId: string): Promise<DocumentPage[]> {
   const pages: DocumentPage[] = []
   let page = 1
   while (page < 20) {
-    const batch = await request<DocumentPage[]>(`/documents/${documentId}/pages?page=${page}&page_size=100`)
+    const batch = await request<DocumentPage[]>(
+      `/documents/${documentId}/pages?page=${page}&page_size=100`,
+    )
     pages.push(...batch)
     if (batch.length < 100) break
     page += 1

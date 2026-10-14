@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy import ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -12,9 +12,7 @@ class TranscriptionJob(Base):
     __tablename__ = "transcription_jobs"
 
     id: Mapped[UUID] = mapped_column(
-        PostgreSQLUUID(as_uuid=True),
-        primary_key=True,
-        default=uuid4
+        PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
     )
     document_id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
@@ -39,9 +37,7 @@ class PageTranscription(Base):
     __tablename__ = "page_transcriptions"
 
     id: Mapped[UUID] = mapped_column(
-        PostgreSQLUUID(as_uuid=True),
-        primary_key=True,
-        default=uuid4
+        PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
     )
     page_id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
@@ -49,4 +45,6 @@ class PageTranscription(Base):
     )
     text: Mapped[str | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )
