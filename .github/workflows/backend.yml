@@ -21,7 +21,7 @@ defaults:
 
 jobs:
   check:
-    name: Format, lint & test
+    name: "Backend: Format, lint, test"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -47,7 +47,7 @@ jobs:
         run: pytest
 
   docker:
-    name: Build Docker image
+    name: "Backend: Build docker image"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

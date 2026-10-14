@@ -21,7 +21,7 @@ defaults:
 
 jobs:
   check:
-    name: Format, lint, typecheck & test
+    name: "Frontend: Format, lint, test"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -49,7 +49,7 @@ jobs:
 
   # Runs `npm run build` (tsc + vite) inside the production image.
   docker:
-    name: Build Docker image
+    name: "Frontend: Build docker image"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
