@@ -44,7 +44,7 @@ class DocumentRepository:
                 width=page["width"],
                 height=page["height"],
                 mime_type=page["mime_type"],
-                image_path=str(page["image_path"]),
+                image_key=str(page["image_key"]),
             )
             for page in pages
         )

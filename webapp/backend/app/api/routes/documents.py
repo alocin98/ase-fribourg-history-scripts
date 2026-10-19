@@ -169,7 +169,9 @@ async def upload_files_to_document(
                         "width": width,
                         "height": height,
                         "mime_type": _mime_type_for_extension(safe_path.suffix),
-                        "image_path": image_path,
+                        "image_key": str(
+                            Path(str(document_id)) / "pages" / image_path.name
+                        ),
                     }
                 )
 
@@ -288,9 +290,12 @@ async def get_document_page(
         document_id=document_id,
         owner_id=current_user.id,
     )
-    if page is None or not Path(page.image_path).is_file():
+    if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
-    return FileResponse(page.image_path)
+    image_path = (STORAGE_ROOT / page.image_key).resolve()
+    if STORAGE_ROOT.resolve() not in image_path.parents or not image_path.is_file():
+        raise HTTPException(status_code=404, detail="Page not found")
+    return FileResponse(image_path)
 
 
 @router.get(

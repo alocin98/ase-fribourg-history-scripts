@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     MAX_UPLOAD_SIZE: int
     STORAGE_ROOT: str
+    BUCKET_URL: str
 
 
 settings = Settings()

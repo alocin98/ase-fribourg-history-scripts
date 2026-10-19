@@ -39,4 +39,4 @@ class Page(Base):
     height: Mapped[int]
     mime_type: Mapped[str] = mapped_column(String(100))
     page_number: Mapped[int]
-    image_path: Mapped[str] = mapped_column(String(500))
+    image_key: Mapped[str] = mapped_column(String(500))
