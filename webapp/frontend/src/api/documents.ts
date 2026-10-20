@@ -65,7 +65,9 @@ export async function listPages(documentId: string): Promise<DocumentPage[]> {
   const pages: DocumentPage[] = []
   let page = 1
   while (page < 20) {
-    const batch = await request<DocumentPage[]>(`/documents/${documentId}/pages?page=${page}&page_size=100`)
+    const batch = await request<DocumentPage[]>(
+      `/documents/${documentId}/pages?page=${page}&page_size=100`,
+    )
     pages.push(...batch)
     if (batch.length < 100) break
     page += 1

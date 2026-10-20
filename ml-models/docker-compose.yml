@@ -1,0 +1,9 @@
+services:
+  ocr:
+    build: .
+    image: interfaceml
+    ports:
+      - "8000:8000"
+    environment:
+      DEVICE: cpu
+    restart: unless-stopped

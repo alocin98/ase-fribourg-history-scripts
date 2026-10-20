@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @source "./pages";
 @source "./components";
@@ -7,24 +7,42 @@
 
 /* Palette de l'application. Les pages utilisent surtout les classes Tailwind. */
 @theme {
-  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-sans: 'Segoe UI', 'Trebuchet MS', sans-serif;
   --animate-auth-in: auth-in 1.25s ease both;
   --animate-auth-from-right: auth-from-right 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-auth-from-left: auth-from-left 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes auth-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @keyframes auth-from-right {
-    from { opacity: 0; transform: translateX(36px); }
-    to { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateX(36px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @keyframes auth-from-left {
-    from { opacity: 0; transform: translateX(-36px); }
-    to { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateX(-36px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   --color-paper: #f6f7fb;

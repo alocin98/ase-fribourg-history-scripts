@@ -2,18 +2,35 @@ import shutil
 import zipfile
 from pathlib import Path, PurePosixPath
 from uuid import UUID, uuid4
-from PIL import Image
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, Security, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    Request,
+    Security,
+    UploadFile,
+    status,
+)
 from fastapi.responses import FileResponse
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, csrf_header
-from app.api.schemas.documents import DocumentRead, DocumentUploadResponse, PageRead, PagePaginateRead, DocumentCreate
-from app.core.db import get_db
+from app.api.deps import csrf_header, get_current_user
+from app.api.schemas.documents import (
+    DocumentCreate,
+    DocumentRead,
+    DocumentUploadResponse,
+    PagePaginateRead,
+    PageRead,
+)
 from app.core.config import settings
+from app.core.db import get_db
 from app.models.user import User
 from app.repositories.documents import DocumentRepository
+from app.repositories.transcriptions import TranscriptionRepository
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 STORAGE_ROOT = Path(settings.STORAGE_ROOT)
@@ -37,11 +54,20 @@ def _remove_upload_files(archive_path: Path, pages_dir: Path) -> None:
     shutil.rmtree(pages_dir, ignore_errors=True)
 
 
+def _remove_storage(document_id: UUID) -> None:
+    root = STORAGE_ROOT.resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
+
+
 def _safe_zip_path(name: str) -> PurePosixPath:
     path = PurePosixPath(name)
     if path.is_absolute() or ".." in path.parts:
         raise HTTPException(status_code=400, detail="The ZIP contains an unsafe path")
     return path
+
 
 @router.post(
     "/",
@@ -49,7 +75,7 @@ def _safe_zip_path(name: str) -> PurePosixPath:
     dependencies=[Security(csrf_header)],
     name="create_document",
     description="Create a new document. The document is created before its file is uploaded.",
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_document(
     data: DocumentCreate,
@@ -71,13 +97,14 @@ async def create_document(
 
     return DocumentUploadResponse(id=document.id)
 
+
 @router.post(
     "/{document_id}",
     response_model=DocumentUploadResponse,
     dependencies=[Security(csrf_header)],
     name="upload_files_to_document",
     description="Upload a ZIP file containing images to an existing document.",
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 async def upload_files_to_document(
     document_id: UUID,
@@ -117,13 +144,17 @@ async def upload_files_to_document(
             for member in members:
                 safe_path = _safe_zip_path(member.filename)
                 if safe_path.suffix.lower() not in ALLOWED_IMAGE_EXTENSIONS:
-                    raise HTTPException(status_code=400, detail="ZIP contains a non-image file")
+                    raise HTTPException(
+                        status_code=400, detail="ZIP contains a non-image file"
+                    )
                 if member.file_size > settings.MAX_UPLOAD_SIZE:
                     raise HTTPException(status_code=413, detail="An image is too large")
                 image_members.append((member, safe_path))
 
             if not image_members:
-                raise HTTPException(status_code=400, detail="ZIP does not contain images")
+                raise HTTPException(
+                    status_code=400, detail="ZIP does not contain images"
+                )
 
             pages = []
             for page_number, (member, safe_path) in enumerate(image_members, start=1):
@@ -149,24 +180,16 @@ async def upload_files_to_document(
         await session.rollback()
         _remove_upload_files(archive_path, pages_dir)
         raise
-    except (zipfile.BadZipFile, OSError):
+    except (zipfile.BadZipFile, OSError) as e:
         await session.rollback()
         _remove_upload_files(archive_path, pages_dir)
-        raise HTTPException(status_code=400, detail="Invalid ZIP file")
+        raise HTTPException(status_code=400, detail="Invalid ZIP file") from e
     except Exception:
         await session.rollback()
         _remove_upload_files(archive_path, pages_dir)
         raise
     finally:
         await file.close()
-
-
-def _remove_storage(document_id: UUID) -> None:
-    root = STORAGE_ROOT.resolve()
-    folder = (root / str(document_id)).resolve()
-    if folder.parent != root:
-        return
-    shutil.rmtree(folder, ignore_errors=True)
 
 
 @router.delete(
@@ -193,7 +216,7 @@ async def delete_document(
     dependencies=[Security(csrf_header)],
     name="list_user_documents",
     description="List all documents owned by the current user.",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def list_user_documents(
     current_user: User = Depends(get_current_user),
@@ -209,7 +232,7 @@ async def list_user_documents(
     dependencies=[Security(csrf_header)],
     name="list_document_pages",
     description="List all pages of a document owned by the current user.",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def list_document_pages(
     request: Request,
@@ -236,7 +259,9 @@ async def list_document_pages(
         PageRead(
             id=item.id,
             page_number=item.page_number,
-            image_url=str(request.url_for("get_page", document_id=document_id, page_id=item.id)),
+            image_url=str(
+                request.url_for("get_page", document_id=document_id, page_id=item.id)
+            ),
             height=item.height,
             width=item.width,
             mime_type=item.mime_type,
@@ -249,7 +274,7 @@ async def list_document_pages(
     "/{document_id}/pages/{page_id}",
     name="get_page",
     description="Get a specific page of a document owned by the current user.",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_document_page(
     document_id: UUID,
@@ -267,12 +292,39 @@ async def get_document_page(
         raise HTTPException(status_code=404, detail="Page not found")
     return FileResponse(page.image_path)
 
+
+@router.get(
+    "/{document_id}/pages/{page_id}/transcription",
+    name="get_page_transcription",
+    description="Get the transcription of a specific page of a document owned by the current user.",
+    status_code=status.HTTP_200_OK,
+)
+async def get_page_transcription(
+    document_id: UUID,
+    page_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    document_repository = DocumentRepository(session)
+    document = await document_repository.get_document_by_id(
+        document_id, current_user.id
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    repository = TranscriptionRepository(session)
+    transcription = await repository.get_page_transcription_by_page_id(page_id)
+    if transcription is None:
+        raise HTTPException(status_code=404, detail="Transcription not found")
+    return transcription
+
+
 @router.get(
     "/{document_id}/download",
     dependencies=[Security(csrf_header)],
     name="download_document",
     description="Download the original ZIP file of a document owned by the current user.",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def download_document(
     document_id: UUID,

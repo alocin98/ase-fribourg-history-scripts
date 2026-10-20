@@ -5,7 +5,14 @@ import { ApiError, ensureCsrf, request } from './client'
 
 const POLL_INTERVAL_MS = 300
 const POLL_TIMEOUT_MS = 3 * 60 * 1000
-const PENDING_STATUSES = new Set(['created', 'queued', 'in_progress', 'pending', 'processing', 'running'])
+const PENDING_STATUSES = new Set([
+  'created',
+  'queued',
+  'in_progress',
+  'pending',
+  'processing',
+  'running',
+])
 const DONE_STATUSES = new Set(['completed', 'done', 'success'])
 
 type TranscriptionJob = {
@@ -45,9 +52,16 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
 }
 
 // null : pas encore de transcription. Une chaîne vide reste une transcription.
-export async function getPageTranscription(documentId: string, pageId: string, signal?: AbortSignal): Promise<string | null> {
+export async function getPageTranscription(
+  documentId: string,
+  pageId: string,
+  signal?: AbortSignal,
+): Promise<string | null> {
   try {
-    const payload = await request<unknown>(`/documents/${documentId}/pages/${pageId}/transcription`, { signal })
+    const payload = await request<unknown>(
+      `/documents/${documentId}/pages/${pageId}/transcription`,
+      { signal },
+    )
     return readText(payload)
   } catch (error) {
     if (signal?.aborted) throw error
@@ -57,11 +71,18 @@ export async function getPageTranscription(documentId: string, pageId: string, s
 }
 
 // Attend que le job se termine, puis renvoie le texte enregistré pour la page.
-export async function transcribePage(documentId: string, pageId: string, signal?: AbortSignal): Promise<string> {
-  const job = await request<TranscriptionJob>(`/transcriptions/document/${documentId}/pages/${pageId}`, {
-    method: 'POST',
-    signal,
-  })
+export async function transcribePage(
+  documentId: string,
+  pageId: string,
+  signal?: AbortSignal,
+): Promise<string> {
+  const job = await request<TranscriptionJob>(
+    `/transcriptions/document/${documentId}/pages/${pageId}`,
+    {
+      method: 'POST',
+      signal,
+    },
+  )
   if (!job.job_id) throw new ApiError(0, 'Transcription')
 
   const started = Date.now()

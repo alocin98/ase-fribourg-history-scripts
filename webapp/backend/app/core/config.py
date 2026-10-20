@@ -7,7 +7,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
-    
+
     DATABASE_URL: str
     DB_ECHO: bool = False
     API_STR: str

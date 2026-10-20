@@ -142,15 +142,22 @@ With the default `API_STR=/api`, the main endpoints are:
 | `POST` | `/api/users/` | Register a user |
 | `GET` | `/api/users/me` | Read the authenticated user |
 | `PATCH` | `/api/users/me` | Update the authenticated user |
+| `DELETE` | `/api/users/me` | Delete the authenticated user |
 | `GET` | `/api/csrf-token` | Create a CSRF token cookie |
 | `POST` | `/api/login` | Log in and set the session cookie |
 | `POST` | `/api/logout` | Revoke the current session |
 | `GET` | `/api/documents/me` | List the current user's documents |
-| `POST` | `/api/documents/` | Upload a ZIP of document images |
+| `POST` | `/api/documents/` | Create document metadata |
+| `POST` | `/api/documents/{document_id}` | Upload a ZIP of document images |
 | `GET` | `/api/documents/{id}/pages` | List document pages with pagination |
 | `GET` | `/api/documents/{id}/pages/{page_id}` | Retrieve a page image |
 | `GET` | `/api/documents/{id}/download` | Download the original ZIP |
+| `DELETE` | `/api/documents/{id}` | Delete a document and its pages |
+| `POST` | `/api/transcriptions/document/{document_id}` | Start full-document transcription |
+| `POST` | `/api/transcriptions/document/{document_id}/pages/{page_id}` | Start transcription for one page |
+| `GET` | `/api/transcriptions/jobs/{job_id}` | Read transcription job status |
 | `GET` | `/api/utils/health-check` | Check API and database availability |
+| `GET` | `/api/` | Root endpoint |
 
 Authentication uses an HTTP-only session cookie. State-changing requests are
 protected by CSRF middleware and should send the token from the CSRF cookie in

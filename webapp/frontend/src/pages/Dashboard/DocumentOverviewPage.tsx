@@ -16,7 +16,8 @@ import { getPageTranscription, transcribePage } from '../../api/transcription'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
 
-const panelClass = 'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_10px_28px_rgba(23,28,51,0.06)]'
+const panelClass =
+  'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_10px_28px_rgba(23,28,51,0.06)]'
 
 // Trois colonnes : noms des images, image choisie, transcription.
 export default function DocumentOverviewPage() {
@@ -64,7 +65,7 @@ export default function DocumentOverviewPage() {
         setSelectedId(items[0]?.id ?? null)
       })
       .catch(() => {
-        if (!cancelled) setDocument((current) => current === undefined ? null : current)
+        if (!cancelled) setDocument((current) => (current === undefined ? null : current))
       })
     return () => {
       cancelled = true
@@ -84,7 +85,8 @@ export default function DocumentOverviewPage() {
           if (text === null && typeof current[pageId] === 'string') return current
           return { ...current, [pageId]: text }
         })
-        if (typeof text === 'string') setFailedId((current) => (current === pageId ? null : current))
+        if (typeof text === 'string')
+          setFailedId((current) => (current === pageId ? null : current))
       })
       .catch(() => {
         if (cancelled) return
@@ -199,20 +201,42 @@ export default function DocumentOverviewPage() {
           <>
             <div className="flex w-full min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
-                <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">{document.name}</h1>
+                <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">
+                  {document.name}
+                </h1>
                 {document.description && (
                   <div className="relative mt-2 min-w-0">
-                    <p ref={descriptionRef} className={`mb-0 max-w-full font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c] ${descriptionOpen ? '' : 'line-clamp-2'} ${!descriptionOpen && descriptionOverflows ? 'pr-7' : ''}`}>{document.description}</p>
+                    <p
+                      ref={descriptionRef}
+                      className={`mb-0 max-w-full font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c] ${descriptionOpen ? '' : 'line-clamp-2'} ${!descriptionOpen && descriptionOverflows ? 'pr-7' : ''}`}
+                    >
+                      {document.description}
+                    </p>
                     {descriptionOverflows && (
                       <button
                         type="button"
                         className={`grid size-6 cursor-pointer place-items-center rounded-full bg-[#f5f6fa] text-[#171c33] ${descriptionOpen ? 'mt-1' : 'absolute right-0 bottom-0'}`}
                         aria-expanded={descriptionOpen}
-                        aria-label={t(descriptionOpen ? 'documents.collapseDescription' : 'documents.expandDescription')}
+                        aria-label={t(
+                          descriptionOpen
+                            ? 'documents.collapseDescription'
+                            : 'documents.expandDescription',
+                        )}
                         onClick={() => setDescriptionOpen((open) => !open)}
                       >
-                        <svg className={`size-4 ${descriptionOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.25" aria-hidden="true">
-                          <path d="M5 7.5 L10 12.5 L15 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <svg
+                          className={`size-4 ${descriptionOpen ? 'rotate-180' : ''}`}
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.25"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M5 7.5 L10 12.5 L15 7.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                       </button>
                     )}
@@ -238,12 +262,20 @@ export default function DocumentOverviewPage() {
                 </button>
               </div>
             </div>
-            {deleteError && <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">{t('errors.deleteFailed')}</p>}
+            {deleteError && (
+              <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">
+                {t('errors.deleteFailed')}
+              </p>
+            )}
             <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 overflow-hidden min-[900px]:grid-cols-[10.5rem_minmax(0,1fr)_minmax(0,1.45fr)]">
               <section className={`${panelClass} p-3`}>
-                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">{t('documents.images')}</h2>
+                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+                  {t('documents.images')}
+                </h2>
                 {pages.length === 0 ? (
-                  <p className="mt-3 mb-0 font-sans text-[0.8rem] leading-5 text-[#71717a]">{t('documents.noImages')}</p>
+                  <p className="mt-3 mb-0 font-sans text-[0.8rem] leading-5 text-[#71717a]">
+                    {t('documents.noImages')}
+                  </p>
                 ) : (
                   <ol className="mt-3 mb-0 grid min-h-0 flex-1 list-none gap-1.5 overflow-y-auto p-0">
                     {pages.map((page) => {
@@ -257,7 +289,9 @@ export default function DocumentOverviewPage() {
                             aria-pressed={selected}
                             onClick={() => setSelectedId(page.id)}
                           >
-                            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">{page.page_number}</span>
+                            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">
+                              {page.page_number}
+                            </span>
                             {label}
                           </button>
                         </li>
@@ -272,7 +306,9 @@ export default function DocumentOverviewPage() {
                     <img
                       className="h-full w-full object-contain"
                       src={pageImageUrl(documentId, selectedId)}
-                      alt={t('documents.image', { n: pages.find((page) => page.id === selectedId)?.page_number ?? '' })}
+                      alt={t('documents.image', {
+                        n: pages.find((page) => page.id === selectedId)?.page_number ?? '',
+                      })}
                     />
                   )}
                 </div>
@@ -280,19 +316,32 @@ export default function DocumentOverviewPage() {
                   <button
                     type="button"
                     className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.8rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => { void transcribe() }}
+                    onClick={() => {
+                      void transcribe()
+                    }}
                     disabled={!selectedId || pendingId === selectedId}
                   >
-                    {pendingId === selectedId && <span className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />}
-                    {pendingId === selectedId ? t('documents.transcribing') : t('documents.transcribe')}
+                    {pendingId === selectedId && (
+                      <span
+                        className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                        aria-hidden="true"
+                      />
+                    )}
+                    {pendingId === selectedId
+                      ? t('documents.transcribing')
+                      : t('documents.transcribe')}
                   </button>
                 </div>
               </section>
               <section className={`${panelClass} p-5`}>
-                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">{t('documents.transcription')}</h2>
+                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+                  {t('documents.transcription')}
+                </h2>
                 <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#27272a]">
                   {failed ? (
-                    <p className="m-0 text-[#71717a]" role="alert">{t('errors.transcriptionFailed')}</p>
+                    <p className="m-0 text-[#71717a]" role="alert">
+                      {t('errors.transcriptionFailed')}
+                    </p>
                   ) : waiting ? (
                     <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>
                   ) : shownText ? (
@@ -310,14 +359,21 @@ export default function DocumentOverviewPage() {
       </main>
 
       {isOpen && (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-[rgba(23,28,51,0.35)] p-4" onMouseDown={closeDialog}>
+        <div
+          className="fixed inset-0 z-40 grid place-items-center bg-[rgba(23,28,51,0.35)] p-4"
+          onMouseDown={closeDialog}
+        >
           <form
             className="w-[min(440px,100%)] rounded-2xl bg-white p-5 shadow-[0_24px_50px_rgba(23,28,51,0.16)] sm:p-6"
             onMouseDown={(event) => event.stopPropagation()}
             onSubmit={handleSubmit}
           >
-            <h2 className="m-0 font-sans text-[1.15rem] font-bold text-[#171c33]">{t('documents.upload')}</h2>
-            <p className="mt-1 mb-0 font-sans text-[0.9rem] leading-6 text-[#5d657c]">{t('documents.dropHint')}</p>
+            <h2 className="m-0 font-sans text-[1.15rem] font-bold text-[#171c33]">
+              {t('documents.upload')}
+            </h2>
+            <p className="mt-1 mb-0 font-sans text-[0.9rem] leading-6 text-[#5d657c]">
+              {t('documents.dropHint')}
+            </p>
             <input
               ref={fileInput}
               className="sr-only"
@@ -338,12 +394,25 @@ export default function DocumentOverviewPage() {
             >
               {file ? file.name : t('documents.drop')}
             </button>
-            {formError && <p className="mt-3 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">{formError}</p>}
+            {formError && (
+              <p className="mt-3 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">
+                {formError}
+              </p>
+            )}
             <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <button type="button" className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.9rem] font-bold text-[#4338a8]" onClick={closeDialog} disabled={isSaving}>
+              <button
+                type="button"
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.9rem] font-bold text-[#4338a8]"
+                onClick={closeDialog}
+                disabled={isSaving}
+              >
                 {t('documents.cancel')}
               </button>
-              <button type="submit" className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.9rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60" disabled={isSaving}>
+              <button
+                type="submit"
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.9rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSaving}
+              >
                 {isSaving ? t('documents.uploading') : t('documents.upload')}
               </button>
             </div>
