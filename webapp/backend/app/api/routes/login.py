@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Security, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies.auth import get_current_user, get_current_session
+from app.api.dependencies.auth import get_current_session
 from app.api.dependencies.csrf import csrf_header
 from app.api.schemas.user import CSRFTokenResponse, UserLogin, UserRead
 from app.core.config import settings
-from app.infrastructure.database.session import get_db
 from app.core.security import create_csrf_token, verify_password
+from app.infrastructure.database.session import get_db
 from app.models.sessions import AuthSession
 from app.repositories.sessions import SessionRepository
 from app.repositories.user import UserRepository

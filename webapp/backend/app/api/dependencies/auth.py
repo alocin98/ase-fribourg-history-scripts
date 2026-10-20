@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -10,6 +9,7 @@ from app.models.sessions import AuthSession
 from app.models.user import User
 from app.repositories.sessions import SessionRepository
 from app.repositories.user import UserRepository
+
 
 async def get_current_session(
     request: Request,

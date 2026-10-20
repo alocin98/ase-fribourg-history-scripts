@@ -7,9 +7,9 @@ from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.csrf import csrf_header
 from app.api.schemas.transcriptions import TranscriptionResponse
 from app.infrastructure.database.session import get_db
-from app.workers.queue import enqueue_document_transcription, enqueue_page_transcription
 from app.models.user import User
 from app.repositories.transcriptions import TranscriptionRepository
+from app.workers.queue import enqueue_document_transcription, enqueue_page_transcription
 
 router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 

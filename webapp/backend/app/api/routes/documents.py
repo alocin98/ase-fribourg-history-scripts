@@ -1,7 +1,6 @@
-from pathlib import Path
 import tempfile
 import zipfile
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from uuid import UUID, uuid4
 
 from fastapi import (
@@ -124,11 +123,15 @@ async def upload_files_to_document(
                 while chunk := await file.read(1024 * 1024):
                     bytes_written += len(chunk)
                     if bytes_written > settings.MAX_UPLOAD_SIZE:
-                        raise HTTPException(status_code=413, detail="ZIP file is too large")
+                        raise HTTPException(
+                            status_code=413, detail="ZIP file is too large"
+                        )
                     output.write(chunk)
 
             with zipfile.ZipFile(archive_path) as archive:
-                members = [member for member in archive.infolist() if not member.is_dir()]
+                members = [
+                    member for member in archive.infolist() if not member.is_dir()
+                ]
                 if len(members) > MAX_PAGE_COUNT:
                     raise HTTPException(status_code=400, detail="Too many files in ZIP")
 
@@ -140,16 +143,27 @@ async def upload_files_to_document(
                             status_code=400, detail="ZIP contains a non-image file"
                         )
                     if member.file_size > settings.MAX_UPLOAD_SIZE:
-                        raise HTTPException(status_code=413, detail="An image is too large")
+                        raise HTTPException(
+                            status_code=413, detail="An image is too large"
+                        )
                     image_members.append((member, safe_path))
 
                 if not image_members:
-                    raise HTTPException(status_code=400, detail="ZIP does not contain images")
+                    raise HTTPException(
+                        status_code=400, detail="ZIP does not contain images"
+                    )
 
                 pages = []
-                for page_number, (member, safe_path) in enumerate(image_members, start=1):
-                    image_path = pages_dir / f"{page_number:04d}{safe_path.suffix.lower()}"
-                    with archive.open(member) as source, image_path.open("wb") as target:
+                for page_number, (member, safe_path) in enumerate(
+                    image_members, start=1
+                ):
+                    image_path = (
+                        pages_dir / f"{page_number:04d}{safe_path.suffix.lower()}"
+                    )
+                    with (
+                        archive.open(member) as source,
+                        image_path.open("wb") as target,
+                    ):
                         while chunk := source.read(1024 * 1024):
                             target.write(chunk)
                     with Image.open(image_path) as image:
@@ -276,7 +290,6 @@ async def get_document_page(
     repository = DocumentRepository(session)
     page = await repository.get_page_by_id(
         page_id=page_id,
-        document_id=document_id,
         owner_id=current_user.id,
     )
     if page is None:

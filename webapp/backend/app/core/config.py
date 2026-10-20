@@ -29,4 +29,5 @@ class Settings(BaseSettings):
     BUCKET_ACCESS_KEY: str
     BUCKET_SECRET_KEY: str
 
+
 settings = Settings()

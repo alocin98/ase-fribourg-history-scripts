@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from fastapi import BackgroundTasks
 
 from app.workers.transcription import transcribe_document, transcribe_page

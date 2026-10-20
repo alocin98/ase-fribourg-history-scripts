@@ -14,6 +14,7 @@ from app.repositories.user import UserRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+
 @router.post(
     "/",
     response_model=UserRead,

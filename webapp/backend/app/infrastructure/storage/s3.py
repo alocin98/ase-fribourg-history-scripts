@@ -3,7 +3,6 @@ from botocore.response import StreamingBody
 
 from app.core.config import settings
 
-
 session = aioboto3.Session()
 
 
