@@ -107,7 +107,6 @@ class DocumentRepository:
     async def get_page_by_id(
         self,
         page_id: UUID,
-        document_id: UUID,
         owner_id: UUID,
     ) -> Page | None:
         return await self.session.scalar(
@@ -115,7 +114,6 @@ class DocumentRepository:
             .join(Document)
             .where(
                 Page.id == page_id,
-                Page.document_id == document_id,
                 Document.owner_id == owner_id,
             )
         )
