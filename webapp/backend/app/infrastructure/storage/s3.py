@@ -1,5 +1,3 @@
-from collections.abc import AsyncIterator
-
 import aioboto3
 from botocore.response import StreamingBody
 
@@ -55,3 +53,17 @@ async def delete_file(object_key: str) -> None:
             Bucket=settings.BUCKET_NAME,
             Key=object_key,
         )
+
+
+async def delete_prefix(prefix: str) -> None:
+    async with s3_client() as s3:
+        response = await s3.list_objects_v2(
+            Bucket=settings.BUCKET_NAME,
+            Prefix=prefix,
+        )
+        objects = response.get("Contents", [])
+        if objects:
+            await s3.delete_objects(
+                Bucket=settings.BUCKET_NAME,
+                Delete={"Objects": [{"Key": item["Key"]} for item in objects]},
+            )

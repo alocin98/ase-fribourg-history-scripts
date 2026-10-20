@@ -25,12 +25,5 @@ class PageRead(BaseModel):
     mime_type: str | None = None
 
 
-class PagePaginateRead(BaseModel):
-    document_id: UUID
-    owner_id: UUID
-    offset: int
-    limit: int
-
-
 class DocumentUploadResponse(BaseModel):
     id: UUID
