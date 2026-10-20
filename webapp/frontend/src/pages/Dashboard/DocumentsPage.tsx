@@ -69,7 +69,7 @@ function DocumentsContent() {
   )
 
   return (
-    <main className="flex h-full min-h-0 flex-col overflow-hidden px-5 py-6 sm:px-8 lg:px-10">
+    <main className="flex h-full min-h-0 flex-col overflow-y-auto px-4 py-4 sm:px-8 md:overflow-hidden lg:px-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] text-[#171c33]">
@@ -119,9 +119,23 @@ function DocumentsContent() {
         </p>
       )}
 
-      <div className="mt-6 min-h-0 flex-1 overflow-auto">
+      <div className="mt-6 min-h-0 flex-1 overflow-auto max-md:flex-none max-md:overflow-visible">
         {display === 'table' && visible.length > 0 && (
-          <div className="overflow-x-auto rounded-2xl border border-[#e6e8f2] bg-white">
+          <ul className="mb-0 flex list-none flex-col gap-3 p-0 min-[700px]:hidden">
+            {visible.map((document) => (
+              <li key={document.id} className="rounded-2xl border border-[#e6e8f2] bg-white p-4">
+                <div className="font-sans text-[0.95rem] break-words">{titleLink(document)}</div>
+                <p className="mt-1 mb-0 line-clamp-3 font-sans text-[0.85rem] leading-5 break-words text-[#5d657c]">
+                  {document.description}
+                </p>
+                <div className="mt-3 flex justify-end">{actionsFor(document)}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {display === 'table' && visible.length > 0 && (
+          <div className="hidden overflow-x-auto rounded-2xl border border-[#e6e8f2] bg-white min-[700px]:block">
             <table className="w-full min-w-[36rem] table-fixed border-collapse text-left">
               <thead>
                 <tr className="border-b border-[#eef0f6]">
@@ -156,7 +170,7 @@ function DocumentsContent() {
         )}
 
         {display === 'icons' && visible.length > 0 && (
-          <ul className="mb-0 grid list-none grid-cols-2 gap-3 p-0 min-[700px]:grid-cols-4 min-[1100px]:grid-cols-6">
+          <ul className="mb-0 grid list-none grid-cols-1 gap-3 p-0 min-[480px]:grid-cols-2 min-[700px]:grid-cols-4 min-[1100px]:grid-cols-6">
             {visible.map((document) => (
               <li
                 key={document.id}

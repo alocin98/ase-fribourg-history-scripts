@@ -154,7 +154,7 @@ export default function DocumentOverviewPage() {
 
   return (
     <DocumentsFrame>
-      <main className="flex h-full min-h-0 flex-col overflow-hidden px-5 py-6 sm:px-8 lg:px-10">
+      <main className="flex h-full min-h-0 flex-col overflow-y-auto px-4 py-4 sm:px-8 min-[900px]:overflow-hidden lg:px-10">
         {document === undefined ? (
           <p className="m-0 font-sans text-[1rem] text-[#5d657c]">{t('common.loading')}</p>
         ) : document === null ? (
@@ -205,7 +205,7 @@ export default function DocumentOverviewPage() {
                   </div>
                 )}
               </div>
-              <div className="flex w-full shrink-0 flex-nowrap items-center gap-2 sm:w-auto sm:justify-end">
+              <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
                 <DocumentActions
                   id={documentId}
                   onRemove={() => {
@@ -229,8 +229,8 @@ export default function DocumentOverviewPage() {
                 {t('errors.deleteFailed')}
               </p>
             )}
-            <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 overflow-hidden min-[900px]:grid-cols-[10.5rem_minmax(0,1fr)_minmax(0,1.45fr)]">
-              <section className={`${panelClass} p-3`}>
+            <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 max-[899px]:flex-none min-[900px]:overflow-hidden min-[900px]:grid-cols-[10.5rem_minmax(0,1fr)_minmax(0,1.45fr)]">
+              <section className={`${panelClass} p-3 max-[899px]:max-h-48`}>
                 <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
                   {t('documents.images')}
                 </h2>
@@ -265,7 +265,7 @@ export default function DocumentOverviewPage() {
                   </ol>
                 )}
               </section>
-              <section className={`${panelClass} p-3`}>
+              <section className={`${panelClass} p-3 max-[899px]:h-80`}>
                 <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-white">
                   {selectedId && (
                     <img
@@ -296,7 +296,7 @@ export default function DocumentOverviewPage() {
                   </button>
                 </div>
               </section>
-              <section className={`${panelClass} p-5`}>
+              <section className={`${panelClass} p-4 max-[899px]:min-h-56 sm:p-5`}>
                 <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
                   {t('documents.transcription')}
                 </h2>

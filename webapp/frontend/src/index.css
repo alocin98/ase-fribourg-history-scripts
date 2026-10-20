@@ -11,6 +11,10 @@
   --animate-auth-in: auth-in 1.25s ease both;
   --animate-auth-from-right: auth-from-right 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-auth-from-left: auth-from-left 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-hero-rise: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-hero-book: hero-book 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-hero-line: hero-line 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-hero-gleam: hero-gleam 9s ease-in-out infinite;
 
   @keyframes auth-in {
     from {
@@ -31,6 +35,58 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes hero-book {
+    from {
+      opacity: 0;
+      transform: translateX(64px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes hero-line {
+    from {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes hero-gleam {
+    0%,
+    18% {
+      opacity: 0;
+      transform: translateX(-120%);
+    }
+    32% {
+      opacity: 1;
+    }
+    68% {
+      opacity: 1;
+    }
+    82%,
+    100% {
+      opacity: 0;
+      transform: translateX(280%);
     }
   }
 

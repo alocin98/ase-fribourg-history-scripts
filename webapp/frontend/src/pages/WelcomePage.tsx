@@ -1,152 +1,155 @@
-// Page / : présentation du projet
+// Page / : hero 
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import manuscriptPage from '../assets/gillion-de-trazegnies-1464.jpg'
+import manuscript from '../assets/manuscript-3d.png'
 import { useAuth } from '../auth/AuthProvider'
 import Brand from '../components/Brand'
-import LanguageSwitcher from '../components/LanguageSwitcher'
+import { LANGUAGES } from '../i18n'
 
 export default function WelcomePage() {
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user, logout } = useAuth()
   const isSignedIn = Boolean(user)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLeaving, setIsLeaving] = useState(false)
+  const current = i18n.resolvedLanguage
+  const [menuOpen, setMenuOpen] = useState(false)
 
-  // Le bouton principal ouvre le compte si la session existe, sinon la connexion.
   const openAccount = () => {
     navigate(isSignedIn ? '/app' : '/login')
   }
 
-  const signOut = async () => {
-    setIsLeaving(true)
-    setIsMenuOpen(false)
-    try {
-      await logout()
-    } finally {
-      setIsLeaving(false)
-    }
-  }
+  const languageButtons = (compact: boolean) => (
+    <div
+      className={`flex items-center gap-1 rounded-full bg-white/10 ${compact ? 'px-2 py-1 text-xs' : 'px-1.5 py-0.5 text-[0.65rem] sm:px-2 sm:text-xs'}`}
+      role="group"
+      aria-label={t('nav.language')}
+    >
+      {LANGUAGES.map((lng) => {
+        const active = current === lng
+        return (
+          <button
+            key={lng}
+            type="button"
+            lang={lng}
+            aria-pressed={active}
+            onClick={() => {
+              void i18n.changeLanguage(lng)
+              setMenuOpen(false)
+            }}
+            className={`cursor-pointer ${active ? 'rounded-full bg-indigo-600 px-1.5 py-0.5 font-bold' : 'px-1 opacity-60'}`}
+          >
+            {lng.toUpperCase()}
+          </button>
+        )
+      })}
+    </div>
+  )
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f5f6fa] font-sans text-[#172033]">
-      {/* Barre du haut : logo, langue, connexion ou profil. */}
-      <header className="w-full">
-        <div className="relative flex w-full items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-10">
-          <Brand />
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-[#071422] font-sans text-white">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_48%_at_50%_100%,#f7efe4_0%,#f0e2cc_34%,rgba(247,239,228,0)_72%)] md:bg-[radial-gradient(ellipse_75%_85%_at_92%_72%,#f7efe4_0%,#f0e2cc_30%,rgba(247,239,228,0)_68%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,#071525_0%,#071525_38%,rgba(7,21,37,0.82)_52%,rgba(7,21,37,0)_74%)] md:bg-[linear-gradient(90deg,#071525_0%,#071525_46%,rgba(7,21,37,0.72)_58%,rgba(7,21,37,0)_74%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_18%,rgba(24,62,112,0.85)_0%,rgba(7,21,37,0)_70%)] md:bg-[radial-gradient(ellipse_55%_45%_at_18%_28%,rgba(24,62,112,0.85)_0%,rgba(7,21,37,0)_70%)]" />
+        <div className="absolute inset-x-0 top-0 h-[62%] overflow-hidden md:inset-y-0 md:left-0 md:h-full md:w-[56%]">
+          <div className="absolute top-[-12%] h-[124%] w-[42%] bg-[linear-gradient(90deg,transparent,rgba(255,248,236,0.16),transparent)] blur-3xl animate-hero-gleam" />
+        </div>
+      </div>
+      <header className="relative z-30 mx-auto flex w-full max-w-7xl shrink-0 items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+        <Brand onDark />
 
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full md:hidden"
+          aria-expanded={menuOpen}
+          aria-controls="welcome-menu"
+          aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span className="relative block h-3.5 w-5" aria-hidden="true">
+            <span className={`absolute left-0 h-0.5 w-5 rounded-full bg-white transition ${menuOpen ? 'top-1.5 rotate-45' : 'top-0'}`} />
+            <span className={`absolute top-1.5 left-0 h-0.5 w-5 rounded-full bg-white transition ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`absolute left-0 h-0.5 w-5 rounded-full bg-white transition ${menuOpen ? 'top-1.5 -rotate-45' : 'top-3'}`} />
+          </span>
+        </button>
+
+        <nav className="hidden shrink-0 items-center gap-2 text-xs font-medium sm:gap-5 sm:text-sm md:flex" aria-label={t('nav.main')}>
+          {isSignedIn && (
+            <button type="button" className="cursor-pointer opacity-90 hover:opacity-100" onClick={() => navigate('/app')}>
+              {t('home.dashboard')}
+            </button>
+          )}
+          {languageButtons(false)}
           <button
             type="button"
-            className="ml-auto hidden size-[42px] shrink-0 cursor-pointer flex-col items-center justify-center gap-[5px] rounded-[10px] border border-[#d9dded] bg-white max-[1100px]:inline-flex"
-            aria-label={isMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
-            aria-expanded={isMenuOpen}
-            aria-controls="welcome-menu"
-            onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
+            className="cursor-pointer opacity-90 hover:opacity-100"
+            onClick={() => { if (isSignedIn) void logout(); else navigate('/login') }}
           >
-            <span className="block h-0.5 w-[18px] rounded-sm bg-[#1e1b4b]" />
-            <span className="block h-0.5 w-[18px] rounded-sm bg-[#1e1b4b]" />
-            <span className="block h-0.5 w-[18px] rounded-sm bg-[#1e1b4b]" />
+            {isSignedIn ? t('nav.signOut') : t('nav.signIn')}
           </button>
+        </nav>
 
-          <nav
-            id="welcome-menu"
-            className={`${isMenuOpen ? 'max-[1100px]:flex' : 'max-[1100px]:hidden'} flex items-center gap-5 font-sans min-[1101px]:shrink-0 max-[1100px]:absolute max-[1100px]:top-[calc(100%+0.4rem)] max-[1100px]:right-0 max-[1100px]:left-0 max-[1100px]:z-40 max-[1100px]:flex-col max-[1100px]:items-stretch max-[1100px]:gap-1 max-[1100px]:rounded-[14px] max-[1100px]:border max-[1100px]:border-[#e3e0ef] max-[1100px]:bg-white max-[1100px]:p-3 max-[1100px]:shadow-[0_16px_36px_rgba(30,27,75,0.12)]`}
-            aria-label={t('nav.main')}
-          >
-            <div className="flex items-center gap-1.5 max-[1100px]:w-full max-[1100px]:flex-col max-[1100px]:items-stretch">
+        {menuOpen && (
+          <div id="welcome-menu" className="absolute top-[calc(100%-0.25rem)] right-4 left-4 rounded-2xl border border-white/15 bg-[#10233d]/95 p-4 shadow-2xl backdrop-blur-md md:hidden">
+            <div className="flex flex-col items-start gap-4 text-sm font-medium">
+              {languageButtons(true)}
               {isSignedIn && (
-                <Link
-                  to="/app"
-                  className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('home.dashboard')} <span aria-hidden="true">↗</span>
-                </Link>
-              )}
-              <LanguageSwitcher
-                compact
-                className="max-[1100px]:mx-3 max-[1100px]:my-[0.35rem] max-[1100px]:h-auto max-[1100px]:self-start"
-              />
-              {!isSignedIn && (
-                <Link
-                  to="/login"
-                  className="inline-flex h-10 shrink-0 items-center justify-center gap-1 rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('nav.signIn')} <span aria-hidden="true">↗</span>
-                </Link>
-              )}
-              {isSignedIn && (
-                <button
-                  type="button"
-                  className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white disabled:cursor-not-allowed disabled:opacity-60 max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]"
-                  onClick={() => {
-                    void signOut()
-                  }}
-                  disabled={isLeaving}
-                >
-                  {t('nav.signOut')}
+                <button type="button" className="cursor-pointer opacity-90 hover:opacity-100" onClick={() => navigate('/app')}>
+                  {t('home.dashboard')}
                 </button>
               )}
+              <button
+                type="button"
+                className="cursor-pointer opacity-90 hover:opacity-100"
+                onClick={() => { setMenuOpen(false); if (isSignedIn) void logout(); else navigate('/login') }}
+              >
+                {isSignedIn ? t('nav.signOut') : t('nav.signIn')}
+              </button>
             </div>
-          </nav>
-        </div>
+          </div>
+        )}
       </header>
 
-      <main
-        className="flex min-h-0 w-full flex-1 justify-center px-5 pt-2 sm:px-8 lg:px-10"
-        id="accueil"
-      >
-        <div className="grid h-max w-full max-w-[1120px] content-start grid-cols-[minmax(0,1.05fr)_minmax(16rem,0.8fr)] items-stretch gap-12 max-[860px]:grid-cols-1 max-[860px]:content-center max-[860px]:gap-6">
-          {/* Titre et manuscrit de l'exemple. */}
-          <div className="flex min-w-0 flex-col justify-center">
-            <h1 className="m-0 font-sans text-[clamp(1.85rem,2.3vw,2.05rem)] leading-[1.08] font-bold tracking-[-0.045em] text-[#171c33] max-[860px]:text-[clamp(1.7rem,6vw,2.2rem)] max-[480px]:text-[1.35rem] max-[480px]:leading-[1.2]">
+      <main className="relative z-10 min-h-0 w-full flex-1">
+        <div className="relative flex h-full min-h-0 flex-col md:block">
+          <div className="flex w-full max-w-[42rem] shrink-0 flex-col items-start gap-3 px-5 pt-3 sm:gap-4 sm:px-8 sm:pt-6 md:absolute md:top-[16%] md:left-[6%] md:w-[min(40rem,48%)] md:px-0 md:pt-0 lg:top-[24%] lg:left-[6.5%] lg:w-[min(42rem,50%)] lg:gap-5">
+            <p className="m-0 flex items-center gap-2 text-[0.58rem] font-medium tracking-[0.12em] uppercase [animation-delay:120ms] animate-hero-rise md:gap-3.5 md:text-sm md:tracking-[0.22em]">
+              <span className="h-px w-6 origin-left bg-gradient-to-r from-[#f8edd4] to-[#e4c27a]/30 [animation-delay:80ms] animate-hero-line md:w-14" aria-hidden="true" />
+              <span className="bg-gradient-to-r from-[#fff8ee] to-[#e8c98a] bg-clip-text text-transparent">{t('brand.tagline')}</span>
+            </p>
+            <h1 className="max-w-[16em] text-[1.4rem] leading-[1.12] font-extrabold tracking-tight text-white [animation-delay:280ms] animate-hero-rise md:max-w-[18em] md:text-[clamp(1.85rem,3.8vw,3.28rem)] md:leading-[1.08]">
               {t('home.titleLine1')}
               <br />
               {t('home.titleLine2')}
             </h1>
-            <p className="mt-[1.4rem] mb-0 max-w-[34rem] font-sans text-[1.05rem] leading-[1.7] text-[#5d657c]">
-              {t('home.intro')}
-            </p>
-            <div className="mt-[1.8rem] flex flex-wrap items-center gap-[1.15rem]">
-              <button
-                type="button"
-                className="inline-flex min-h-[46px] cursor-pointer items-center gap-2 rounded-full border border-[#d9ddf5] bg-white px-[1.1rem] py-3 font-sans text-[0.95rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white"
-                onClick={openAccount}
-              >
-                {t('home.discover')} <span aria-hidden="true">→</span>
-              </button>
-            </div>
+            <p className="max-w-xl text-sm leading-relaxed font-light text-slate-100/90 [animation-delay:520ms] animate-hero-rise md:text-lg">{t('home.intro')}</p>
+            <button
+              type="button"
+              className="group mt-1 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-md transition-all [animation-delay:720ms] animate-hero-rise hover:bg-white/15 md:px-6 md:py-3 md:text-base"
+              onClick={openAccount}
+            >
+              {t('home.discover')}
+              <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+            </button>
           </div>
 
-          <figure
-            className="relative m-0 w-fit max-w-full justify-self-center overflow-hidden rounded-[18px] border border-[#d4d0ea] bg-[#e8e6f2] shadow-[0_20px_46px_rgba(49,46,129,0.14)] after:pointer-events-none after:absolute after:inset-0 after:z-[2] after:bg-[linear-gradient(135deg,rgba(37,99,235,0.14),transparent_46%,rgba(124,58,237,0.18))] after:content-['']"
-            aria-label={t('home.manuscriptAlt')}
-          >
-            <img
-              className="block h-auto max-h-[min(30rem,calc(100dvh-8.5rem))] w-auto max-w-[min(100%,18.5rem)] max-[860px]:max-h-[min(15rem,36dvh)]"
-              src={manuscriptPage}
-              alt={t('home.manuscriptAlt')}
-            />
-            {/* Positions en % de l'image : 6e ligne du texte et canon dans la bordure du bas. */}
-            <span
-              className="absolute top-[56.2%] left-[8.5%] z-[3] h-[3%] w-[70%] rounded border-[1.5px] border-[#2563eb] bg-[rgba(37,99,235,0.08)] before:absolute before:top-[-4px] before:right-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']"
-              aria-hidden="true"
-            />
-            <span
-              className="absolute top-[80.5%] left-[46%] z-[3] h-[13.5%] w-[14%] rounded border-[1.5px] border-[#7c3aed] bg-[rgba(37,99,235,0.08)] before:absolute before:bottom-[-4px] before:left-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']"
-              aria-hidden="true"
-            />
-            <span className="absolute top-[51.6%] left-[8.5%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.45rem] py-[0.3rem] font-sans text-[0.6rem] font-bold tracking-[0.11em] text-white uppercase">
-              {t('home.line')}
-            </span>
-            <span className="absolute top-[85%] left-[62%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.45rem] py-[0.3rem] font-sans text-[0.6rem] font-bold tracking-[0.11em] text-white uppercase">
-              {t('home.cannon')}
-            </span>
-          </figure>
+          <div className="pointer-events-none relative min-h-0 flex-1 md:absolute md:inset-0">
+            <div className="absolute inset-x-3 bottom-2 top-6 flex items-end justify-center sm:top-8 md:inset-auto md:bottom-[8%] md:left-auto md:right-[4%] md:top-auto md:block lg:bottom-[10%] lg:right-[3.5%]">
+              <div className="relative flex h-full max-w-full items-end justify-center animate-hero-book md:block md:h-auto">
+                <div
+                  className="absolute -bottom-2 left-1/2 z-0 h-8 w-[68%] -translate-x-1/2 rounded-[50%] bg-[#020814]/75 blur-2xl sm:h-10 md:-bottom-4 md:h-14 lg:-bottom-6 lg:h-16 lg:w-[78%]"
+                  aria-hidden="true"
+                />
+                <img
+                  src={manuscript}
+                  alt={t('home.manuscriptAlt')}
+                  className="relative z-10 h-auto w-auto max-h-full max-w-[min(100%,29.25rem)] object-contain md:max-h-[min(50dvh,25.25rem)] md:max-w-[min(42vw,29.25rem)] lg:max-h-[min(58dvh,25.25rem)] lg:max-w-[min(40vw,29.25rem)]"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>

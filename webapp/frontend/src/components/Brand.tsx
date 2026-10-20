@@ -1,26 +1,18 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-export default function Brand() {
+import logo from '../assets/Logo Manuscript AI.png'
+
+export default function Brand({ onDark = false }: { onDark?: boolean }) {
   const { t } = useTranslation()
 
   return (
-    <Link
-      to="/"
-      className="inline-flex min-w-0 shrink items-center gap-3 text-[#172033] no-underline"
-      aria-label={t('brand.name')}
-    >
-      <span className="grid size-[42px] shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#2563eb] to-[#7c3aed] font-extrabold text-white">
-        A
-      </span>
-      <span className="min-w-0">
-        <strong className="block truncate text-[0.95rem] sm:text-[1.05rem]">
-          {t('brand.name')}
-        </strong>
-        <small className="mt-[0.2rem] block truncate text-[0.7rem] text-[#667085] max-[520px]:hidden">
-          {t('brand.tagline')}
-        </small>
-      </span>
+    <Link to="/" className="inline-flex min-w-0 shrink items-center no-underline" aria-label={t('brand.name')}>
+      <img
+        src={logo}
+        alt=""
+        className={`h-9 w-auto max-w-[min(42vw,11rem)] object-contain sm:h-11 ${onDark ? 'brightness-0 invert' : ''}`}
+      />
     </Link>
   )
 }
