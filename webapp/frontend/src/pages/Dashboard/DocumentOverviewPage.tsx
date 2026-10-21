@@ -187,8 +187,10 @@ export default function DocumentOverviewPage() {
   }
 
   const shownText = selectedId ? texts[selectedId] : undefined
-  const waiting = pendingId === selectedId && typeof shownText !== 'string'
-  const failed = failedId === selectedId && typeof shownText !== 'string'
+  // Sans image, selectedId et pendingId valent tous deux null : ne pas les comparer.
+  const isPending = selectedId !== null && pendingId === selectedId
+  const waiting = isPending && typeof shownText !== 'string'
+  const failed = selectedId !== null && failedId === selectedId && typeof shownText !== 'string'
 
   return (
     <DocumentsFrame>
@@ -319,15 +321,15 @@ export default function DocumentOverviewPage() {
                     onClick={() => {
                       void transcribe()
                     }}
-                    disabled={!selectedId || pendingId === selectedId}
+                    disabled={!selectedId || isPending}
                   >
-                    {pendingId === selectedId && (
+                    {isPending && (
                       <span
                         className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
                         aria-hidden="true"
                       />
                     )}
-                    {pendingId === selectedId
+                    {isPending
                       ? t('documents.transcribing')
                       : t('documents.transcribe')}
                   </button>
