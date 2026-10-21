@@ -26,5 +26,7 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int
     STORAGE_ROOT: str
 
+    MODEL_BACKEND_URL: str
+
 
 settings = Settings()
