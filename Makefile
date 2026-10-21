@@ -1,7 +1,8 @@
 BACKEND_DIR := webapp/backend
 FRONTEND_DIR := webapp/frontend
+TESTING_DIR := testing
 
-.PHONY: start backend frontend build stop stop-all logs install check-env format lint test check
+.PHONY: start backend frontend build stop stop-all logs install check-env format lint test check test-api test-e2e test-smoke
 
 # Start the backend containers in the background, then the frontend dev server.
 start: backend frontend
@@ -56,3 +57,17 @@ test: $(FRONTEND_DIR)/node_modules
 check: $(FRONTEND_DIR)/node_modules
 	$(MAKE) -C $(BACKEND_DIR) check
 	cd $(FRONTEND_DIR) && npm run format:check && npm run lint && npm run typecheck && npm test
+
+# --- Smoke tests (need a running stack: make start) ---
+
+$(TESTING_DIR)/node_modules: $(TESTING_DIR)/package.json $(TESTING_DIR)/package-lock.json
+	cd $(TESTING_DIR) && npm install && npx playwright install chromium
+	@touch $@
+
+test-api: $(TESTING_DIR)/node_modules
+	cd $(TESTING_DIR) && npm run test:api
+
+test-e2e: $(TESTING_DIR)/node_modules
+	cd $(TESTING_DIR) && npm run test:e2e
+
+test-smoke: test-api test-e2e
