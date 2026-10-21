@@ -11,5 +11,6 @@ os.environ.update(
         "API_VERSION": "0.0.0",
         "MAX_UPLOAD_SIZE": "1048576",
         "STORAGE_ROOT": "/tmp/ase-test-storage",
+        "MODEL_BACKEND_URL": "http://localhost:8001",
     }
 )
