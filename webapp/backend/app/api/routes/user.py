@@ -1,28 +1,18 @@
-import shutil
-from pathlib import Path
-from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, Response, Security, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import csrf_header, get_current_user
+from app.api.dependencies.auth import get_current_user
+from app.api.dependencies.csrf import csrf_header
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
 from app.core.config import settings
-from app.core.db import get_db
+from app.infrastructure.database.session import get_db
+from app.infrastructure.storage.s3 import delete_prefix
 from app.models.user import User
 from app.repositories.documents import DocumentRepository
 from app.repositories.user import UserRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-def _remove_storage(document_id: UUID) -> None:
-    root = Path(settings.STORAGE_ROOT).resolve()
-    folder = (root / str(document_id)).resolve()
-    if folder.parent != root:
-        return
-    shutil.rmtree(folder, ignore_errors=True)
 
 
 @router.post(
@@ -46,7 +36,11 @@ async def create_user(
         )
 
     try:
-        return await repository.create(data)
+        return await repository.create(
+            email=data.email,
+            name=data.name,
+            password=data.password,
+        )
     except IntegrityError as e:
         await session.rollback()
         raise HTTPException(
@@ -80,7 +74,12 @@ async def update_current_user(
             )
 
     try:
-        return await repository.update(current_user, data)
+        return await repository.update(
+            current_user,
+            email=data.email,
+            name=data.name,
+            password=data.password,
+        )
     except IntegrityError as e:
         await session.rollback()
         raise HTTPException(
@@ -124,6 +123,6 @@ async def delete_current_user(
 ) -> None:
     stored = await DocumentRepository(session).delete_all_for_owner(current_user.id)
     for document_id in stored:
-        _remove_storage(document_id)
+        await delete_prefix(f"{document_id}/")
     await UserRepository(session).delete(current_user)
     response.delete_cookie(key=settings.SESSION_COOKIE_NAME)

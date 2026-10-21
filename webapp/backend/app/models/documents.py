@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import Base
+from app.infrastructure.database.base import Base
 
 
 class Document(Base):
@@ -39,4 +39,4 @@ class Page(Base):
     height: Mapped[int]
     mime_type: Mapped[str] = mapped_column(String(100))
     page_number: Mapped[int]
-    image_path: Mapped[str] = mapped_column(String(500))
+    image_key: Mapped[str] = mapped_column(String(500))

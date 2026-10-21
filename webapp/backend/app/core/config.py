@@ -24,7 +24,10 @@ class Settings(BaseSettings):
     CSRF_HEADER_NAME: str = "X-CSRF-Token"
 
     MAX_UPLOAD_SIZE: int
-    STORAGE_ROOT: str
+    BUCKET_NAME: str
+    BUCKET_URL: str
+    BUCKET_ACCESS_KEY: str
+    BUCKET_SECRET_KEY: str
 
 
 settings = Settings()

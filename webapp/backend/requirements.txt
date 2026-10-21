@@ -7,3 +7,4 @@ email-validator
 pillow
 pwdlib[argon2]
 pwdlib[bcrypt]
+aioboto3

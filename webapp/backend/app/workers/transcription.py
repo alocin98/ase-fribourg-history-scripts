@@ -1,7 +1,7 @@
 import asyncio
 from uuid import UUID
 
-from app.core.db import session_factory
+from app.infrastructure.database.session import session_factory
 from app.repositories.documents import DocumentRepository
 from app.repositories.transcriptions import TranscriptionRepository
 
