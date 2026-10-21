@@ -8,11 +8,11 @@ import {
   getDocument,
   listPages,
   pageImageUrl,
-  transcribePage,
   uploadDocument,
   type DocumentPage,
   type StoredDocument,
 } from '../../api/documents'
+import { getPageTranscription, transcribePage } from '../../api/transcription'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
 
@@ -35,9 +35,11 @@ export default function DocumentOverviewPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState(false)
-  const [texts, setTexts] = useState<Record<string, string>>({})
-  const [isTranscribing, setIsTranscribing] = useState(false)
-  const [transcriptionError, setTranscriptionError] = useState(false)
+  // undefined : pas encore lue, null : aucune transcription, string : texte enregistré.
+  const [texts, setTexts] = useState<Record<string, string | null>>({})
+  const [pendingId, setPendingId] = useState<string | null>(null)
+  const [failedId, setFailedId] = useState<string | null>(null)
+  const pollAbort = useRef<AbortController | null>(null)
   const descriptionRef = useRef<HTMLParagraphElement>(null)
   const [descriptionOpen, setDescriptionOpen] = useState(false)
   const [descriptionOverflows, setDescriptionOverflows] = useState(false)
@@ -48,7 +50,9 @@ export default function DocumentOverviewPage() {
     setPages([])
     setSelectedId(null)
     setTexts({})
-    setTranscriptionError(false)
+    setPendingId(null)
+    setFailedId(null)
+    pollAbort.current?.abort()
     setDescriptionOpen(false)
     setDescriptionOverflows(false)
     getDocument(documentId)
@@ -65,8 +69,33 @@ export default function DocumentOverviewPage() {
       })
     return () => {
       cancelled = true
+      pollAbort.current?.abort()
     }
   }, [documentId])
+
+  // Au retour sur une image, afficher la transcription déjà enregistrée.
+  useEffect(() => {
+    if (!selectedId) return
+    const pageId = selectedId
+    let cancelled = false
+    getPageTranscription(documentId, pageId)
+      .then((text) => {
+        if (cancelled) return
+        setTexts((current) => {
+          if (text === null && typeof current[pageId] === 'string') return current
+          return { ...current, [pageId]: text }
+        })
+        if (typeof text === 'string')
+          setFailedId((current) => (current === pageId ? null : current))
+      })
+      .catch(() => {
+        if (cancelled) return
+        setTexts((current) => (pageId in current ? current : { ...current, [pageId]: null }))
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [documentId, selectedId])
 
   // line-clamp masque la hauteur réelle : on mesure une copie sans limite.
   useLayoutEffect(() => {
@@ -137,20 +166,31 @@ export default function DocumentOverviewPage() {
   }
 
   const transcribe = async () => {
-    if (!selectedId || isTranscribing) return
-    setIsTranscribing(true)
-    setTranscriptionError(false)
+    if (!selectedId || pendingId === selectedId) return
+    pollAbort.current?.abort()
+    const controller = new AbortController()
+    pollAbort.current = controller
+    const pageId = selectedId
+    setPendingId(pageId)
+    setFailedId((current) => (current === pageId ? null : current))
     try {
-      const text = await transcribePage(documentId, selectedId)
-      setTexts((current) => ({ ...current, [selectedId]: text }))
+      const text = await transcribePage(documentId, pageId, controller.signal)
+      if (controller.signal.aborted) return
+      setTexts((current) => ({ ...current, [pageId]: text }))
+      setFailedId((current) => (current === pageId ? null : current))
     } catch {
-      setTranscriptionError(true)
+      if (controller.signal.aborted) return
+      setFailedId(pageId)
     } finally {
-      setIsTranscribing(false)
+      if (pollAbort.current === controller) setPendingId(null)
     }
   }
 
   const shownText = selectedId ? texts[selectedId] : undefined
+  // Sans image, selectedId et pendingId valent tous deux null : ne pas les comparer.
+  const isPending = selectedId !== null && pendingId === selectedId
+  const waiting = isPending && typeof shownText !== 'string'
+  const failed = selectedId !== null && failedId === selectedId && typeof shownText !== 'string'
 
   return (
     <DocumentsFrame>
@@ -249,10 +289,7 @@ export default function DocumentOverviewPage() {
                             type="button"
                             className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-left font-sans text-[0.8rem] ${selected ? 'bg-[#f4f4f5] font-semibold text-[#18181b] shadow-[inset_0_0_0_1px_#e4e4e7]' : 'text-[#3f3f46] hover:bg-[#fafafa]'}`}
                             aria-pressed={selected}
-                            onClick={() => {
-                              setSelectedId(page.id)
-                              setTranscriptionError(false)
-                            }}
+                            onClick={() => setSelectedId(page.id)}
                           >
                             <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">
                               {page.page_number}
@@ -284,15 +321,15 @@ export default function DocumentOverviewPage() {
                     onClick={() => {
                       void transcribe()
                     }}
-                    disabled={!selectedId || isTranscribing}
+                    disabled={!selectedId || isPending}
                   >
-                    {isTranscribing && (
+                    {isPending && (
                       <span
                         className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
                         aria-hidden="true"
                       />
                     )}
-                    {isTranscribing ? t('documents.transcribing') : t('documents.transcribe')}
+                    {isPending ? t('documents.transcribing') : t('documents.transcribe')}
                   </button>
                 </div>
               </section>
@@ -301,14 +338,16 @@ export default function DocumentOverviewPage() {
                   {t('documents.transcription')}
                 </h2>
                 <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#27272a]">
-                  {isTranscribing && shownText === undefined ? (
-                    <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>
-                  ) : transcriptionError ? (
+                  {failed ? (
                     <p className="m-0 text-[#71717a]" role="alert">
                       {t('errors.transcriptionFailed')}
                     </p>
+                  ) : waiting ? (
+                    <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>
                   ) : shownText ? (
                     shownText
+                  ) : shownText === undefined && selectedId ? (
+                    <p className="m-0 text-[#71717a]">{t('common.loading')}</p>
                   ) : (
                     <p className="m-0 text-[#a1a1aa]">{t('documents.transcriptionEmpty')}</p>
                   )}
