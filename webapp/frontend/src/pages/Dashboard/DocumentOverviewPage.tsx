@@ -329,9 +329,7 @@ export default function DocumentOverviewPage() {
                         aria-hidden="true"
                       />
                     )}
-                    {isPending
-                      ? t('documents.transcribing')
-                      : t('documents.transcribe')}
+                    {isPending ? t('documents.transcribing') : t('documents.transcribe')}
                   </button>
                 </div>
               </section>
