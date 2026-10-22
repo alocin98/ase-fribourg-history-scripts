@@ -129,7 +129,44 @@
     "transcription": "Transcription",
     "transcribe": "Transcrire",
     "transcribing": "Transcription…",
-    "transcriptionEmpty": "Le texte de l’image affichée apparaîtra ici."
+    "transcriptionEmpty": "Le texte de l’image affichée apparaîtra ici.",
+    "lineSource": "Ligne {{n}} dans l'image",
+    "lineSourceHint": "Survolez une ligne pour voir d'où elle vient dans l'image.",
+    "notTranscribed": "Non transcrite",
+    "pagesRated": "{{rated}}/{{total}} pages transcrites",
+    "linesHigh_one": "{{count}} ligne ≥ {{high}} %",
+    "linesHigh_other": "{{count}} lignes ≥ {{high}} %",
+    "linesMedium_one": "{{count}} ligne {{medium}}–{{high}} %",
+    "linesMedium_other": "{{count}} lignes {{medium}}–{{high}} %",
+    "linesLow_one": "{{count}} ligne < {{medium}} %",
+    "linesLow_other": "{{count}} lignes < {{medium}} %",
+    "confidence": "Confiance {{value}} %",
+    "confidenceHint": "Probabilité moyenne donnée par le modèle aux tokens de cette ligne.",
+    "pageConfidence": "Page · confiance {{value}} %",
+    "documentConfidence": "Document · confiance {{value}} %",
+    "confidenceInfo": {
+      "open": "Comment la confiance est-elle calculée ?",
+      "title": "Confiance moyenne par token",
+      "tokens": "TrOCR écrit chaque ligne comme une suite de n tokens (morceaux de mots de son vocabulaire). Pour chaque token i produit, le décodeur donne la probabilité pᵢ qu'il a attribuée à ce choix.",
+      "definition": "La confiance d'une ligne est la moyenne de ces probabilités. Si le modèle est bien calibré, environ (1 − confiance) des tokens de la ligne sont faux.",
+      "average": "Les valeurs de la page et du document sont la moyenne de la confiance de toutes leurs lignes. Les couleurs utilisent le pourcentage arrondi :",
+      "bandHigh": "confiance ≥ {{high}} %",
+      "bandMedium": "{{medium}} % ≤ confiance < {{high}} %",
+      "bandLow": "confiance < {{medium}} %",
+      "caveat": "C'est l'estimation du modèle lui-même, pas une comparaison avec une transcription correcte (ce serait le taux d'erreur par caractère, CER, qui demande une vérité terrain). Un token faux prédit avec une forte probabilité augmente quand même la confiance."
+    },
+    "lineDialog": {
+      "title": "Ligne {{n}} sur {{total}}",
+      "previous": "Ligne précédente",
+      "next": "Ligne suivante",
+      "close": "Fermer",
+      "words": "Mots",
+      "wordsHint": "Confiance de chaque mot : probabilité moyenne de ses propres tokens, avec les mêmes bornes de couleur qu'une ligne.",
+      "noWords": "Le modèle n'a pas fourni de valeurs par mot pour cette ligne."
+    },
+    "transcribeRemaining_one": "Transcrire la page restante ({{count}})",
+    "transcribeRemaining_other": "Transcrire les pages restantes ({{count}})",
+    "transcribingProgress": "Transcription… {{done}}/{{total}}"
   },
   "profile": {
     "nav": "Profil",
@@ -158,6 +195,7 @@
     "zipOnly": "Seuls les fichiers ZIP sont acceptés.",
     "invalidZip": "Ce fichier ZIP n’est pas valide.",
     "deleteFailed": "Impossible de supprimer ce document.",
-    "transcriptionFailed": "La transcription n’a pas pu être obtenue."
+    "transcriptionFailed": "La transcription n’a pas pu être obtenue.",
+    "documentTranscriptionFailed": "Certaines pages n'ont pas pu être transcrites. Relancez pour les reprendre."
   }
 }

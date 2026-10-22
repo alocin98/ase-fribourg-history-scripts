@@ -8,7 +8,15 @@ class FakePipeline:
     """Stands in for the real pipeline so tests don't load the Kraken/TrOCR models."""
 
     def __init__(self):
-        self.lines = [{"index": 1, "text": "hello", "bbox": [0, 0, 10, 10]}]
+        self.lines = [
+            {
+                "index": 1,
+                "text": "hello",
+                "bbox": [0, 0, 10, 10],
+                "confidence": 0.9,
+                "words": [{"text": "hello", "confidence": 0.9}],
+            }
+        ]
 
     def __call__(self, image, y_tolerance=60):
         return {

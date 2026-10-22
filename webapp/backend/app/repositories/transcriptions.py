@@ -58,6 +58,14 @@ class TranscriptionRepository:
             return transcription_job
         return None
 
+    async def fail_transcription_job(self, job_id: UUID):
+        transcription_job = await self.get_transcription_job_by_id(job_id)
+        if transcription_job:
+            transcription_job.status = "failed"
+            transcription_job.finished_at = datetime.now()
+            await self.session.commit()
+        return transcription_job
+
     async def complete_transcription_job(self, job_id: UUID):
         result = await self.session.scalars(
             select(TranscriptionJob).where(TranscriptionJob.id == job_id)
@@ -104,10 +112,16 @@ class TranscriptionRepository:
         self,
         page_id: UUID,
         text: str,
+        lines: list[dict] | None = None,
+        image_width: int | None = None,
+        image_height: int | None = None,
     ):
         page_transcription = PageTranscription(
             page_id=page_id,
             text=text,
+            lines=lines,
+            image_width=image_width,
+            image_height=image_height,
         )
         self.session.add(page_transcription)
         await self.session.commit()
@@ -127,6 +141,9 @@ class TranscriptionRepository:
         self,
         page_id: UUID,
         text: str,
+        lines: list[dict] | None = None,
+        image_width: int | None = None,
+        image_height: int | None = None,
     ):
         result = await self.session.scalars(
             select(PageTranscription).where(PageTranscription.page_id == page_id)
@@ -134,7 +151,27 @@ class TranscriptionRepository:
         page_transcription = result.one_or_none()
         if page_transcription:
             page_transcription.text = text
+            page_transcription.lines = lines
+            page_transcription.image_width = image_width
+            page_transcription.image_height = image_height
             await self.session.commit()
             await self.session.refresh(page_transcription)
             return page_transcription
         return None
+
+    async def save_page_transcription(
+        self,
+        page_id: UUID,
+        text: str,
+        lines: list[dict],
+        image_width: int | None,
+        image_height: int | None,
+    ):
+        # Une seule transcription par page : une nouvelle remplace l'ancienne.
+        updated = await self.update_page_transcription(
+            page_id, text, lines, image_width, image_height
+        )
+        if updated is None:
+            await self.create_page_transcription(
+                page_id, text, lines, image_width, image_height
+            )
