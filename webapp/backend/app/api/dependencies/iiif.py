@@ -5,6 +5,8 @@ from typing import NamedTuple
 from fastapi import HTTPException
 from PIL import Image, ImageOps
 
+from app.core.config import settings
+
 
 class IIIFImage(NamedTuple):
     content: bytes
@@ -80,54 +82,130 @@ def transform_region(image: Image.Image, region: str) -> Image.Image:
 
 
 def _parse_size(size: str, image: Image.Image) -> tuple[int, int]:
-    if size in {"full", "max"}:
+    allow_upscale = size.startswith("^")
+
+    if allow_upscale:
+        size = size[1:]
+
+    if size == "max":
+        return _get_max_size(
+            image,
+            allow_upscale=allow_upscale,
+        )
+
+    if size == "full":
         return image.width, image.height
 
     try:
         if size.startswith("pct:"):
-            percentage = float(size.removeprefix("pct:")) / 100
+            percentage = float(size.removeprefix("pct:"))
 
             if percentage <= 0:
                 raise ValueError
 
-            target_width = round(image.width * percentage)
-            target_height = round(image.height * percentage)
+            if not allow_upscale and percentage > 100:
+                raise ValueError
 
-        else:
-            fit_inside = size.startswith("!")
-            size = size.removeprefix("!")
+            scale = percentage / 100
 
-            if size.endswith(","):
-                target_width = int(size[:-1])
-                target_height = round(
-                    image.height * target_width / image.width,
-                )
-            elif size.startswith(","):
-                target_height = int(size[1:])
-                target_width = round(
-                    image.width * target_height / image.height,
-                )
-            else:
-                target_width, target_height = map(int, size.split(","))
+            return (
+                max(1, round(image.width * scale)),
+                max(1, round(image.height * scale)),
+            )
 
-            if fit_inside:
-                scale = min(
-                    target_width / image.width,
-                    target_height / image.height,
-                )
-                target_width = round(image.width * scale)
-                target_height = round(image.height * scale)
+        fit_inside = size.startswith("!")
+
+        if fit_inside:
+            size = size[1:]
+
+        if size.endswith(","):
+            target_width = int(size[:-1])
+
+            if target_width <= 0:
+                raise ValueError
+
+            if not allow_upscale and target_width > image.width:
+                raise ValueError
+
+            target_height = max(
+                1,
+                round(image.height * target_width / image.width),
+            )
+
+            return target_width, target_height
+
+        if size.startswith(","):
+            target_height = int(size[1:])
+
+            if target_height <= 0:
+                raise ValueError
+
+            if not allow_upscale and target_height > image.height:
+                raise ValueError
+
+            target_width = max(
+                1,
+                round(image.width * target_height / image.height),
+            )
+
+            return target_width, target_height
+
+        target_width, target_height = map(int, size.split(","))
 
         if target_width <= 0 or target_height <= 0:
             raise ValueError
 
-        return target_width, target_height
+        if not allow_upscale and (
+            target_width > image.width or target_height > image.height
+        ):
+            raise ValueError
 
-    except (TypeError, ValueError, ZeroDivisionError) as error:
+        if not fit_inside:
+            return target_width, target_height
+
+        scale = min(
+            target_width / image.width,
+            target_height / image.height,
+        )
+
+        if not allow_upscale:
+            scale = min(scale, 1)
+
+        return (
+            max(1, round(image.width * scale)),
+            max(1, round(image.height * scale)),
+        )
+
+    except (TypeError, ValueError, ZeroDivisionError, OverflowError) as error:
         raise HTTPException(
             status_code=400,
             detail="Unsupported IIIF size",
         ) from error
+
+
+def _get_max_size(
+    image: Image.Image,
+    *,
+    allow_upscale: bool,
+) -> tuple[int, int]:
+    if settings.MAX_WIDTH <= 0 or settings.MAX_HEIGHT <= 0:
+        raise HTTPException(
+            status_code=500,
+            detail="Invalid image size limits",
+        )
+
+    scale = min(
+        settings.MAX_WIDTH / image.width,
+        settings.MAX_HEIGHT / image.height,
+    )
+
+    if not allow_upscale:
+        scale = min(scale, 1)
+
+    return (
+        max(1, round(image.width * scale)),
+        max(1, round(image.height * scale)),
+    )
 
 
 def transform_size(image: Image.Image, size: str) -> Image.Image:
