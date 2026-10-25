@@ -3,6 +3,7 @@
 Portage du notebook english_cursive_mvp.ipynb (Polina) : mêmes prétraitements,
 même regroupement des fragments BLLA et mêmes paramètres de génération.
 """
+
 import math
 import os
 import threading
@@ -52,7 +53,9 @@ class Pipeline:
         self.seg_model = vgsl.TorchVGSLModel.load_model(
             str(resources.files("kraken").joinpath("blla.mlmodel"))
         )
-        self.processor = TrOCRProcessor.from_pretrained(TROCR_MODEL, revision=TROCR_REVISION)
+        self.processor = TrOCRProcessor.from_pretrained(
+            TROCR_MODEL, revision=TROCR_REVISION
+        )
         self.model = VisionEncoderDecoderModel.from_pretrained(
             TROCR_MODEL, revision=TROCR_REVISION, use_safetensors=True
         ).to(DEVICE)
@@ -64,7 +67,9 @@ class Pipeline:
         prepared = ImageOps.autocontrast(ImageOps.grayscale(image)).convert("RGB")
         padded = prepared
         if prepared.width / prepared.height > MAX_ASPECT:
-            padded = Image.new("RGB", (prepared.width, math.ceil(prepared.width / MAX_ASPECT)), "white")
+            padded = Image.new(
+                "RGB", (prepared.width, math.ceil(prepared.width / MAX_ASPECT)), "white"
+            )
             padded.paste(prepared, (0, 0))
         segmentation = blla.segment(
             padded, text_direction="horizontal-lr", model=self.seg_model, device=DEVICE
@@ -74,7 +79,9 @@ class Pipeline:
         crops = []
         boxes = []
         for group in groups:
-            points = [p for line in group["lines"] for p in (line.boundary or line.baseline)]
+            points = [
+                p for line in group["lines"] for p in (line.boundary or line.baseline)
+            ]
             left = max(0, int(min(p[0] for p in points)) - padding)
             top = max(0, int(min(p[1] for p in points)) - padding)
             right = min(prepared.width, int(max(p[0] for p in points)) + padding + 1)
@@ -86,10 +93,14 @@ class Pipeline:
     def transcribe_lines(self, images, batch_size=4):
         results = []
         for start in range(0, len(images), batch_size):
-            batch = images[start:start + batch_size]
-            pixel_values = self.processor(images=batch, return_tensors="pt").pixel_values.to(DEVICE)
+            batch = images[start : start + batch_size]
+            pixel_values = self.processor(
+                images=batch, return_tensors="pt"
+            ).pixel_values.to(DEVICE)
             with torch.inference_mode():
-                generated_ids = self.model.generate(pixel_values, max_new_tokens=128, num_beams=4)
+                generated_ids = self.model.generate(
+                    pixel_values, max_new_tokens=128, num_beams=4
+                )
             texts = self.processor.batch_decode(generated_ids, skip_special_tokens=True)
             results.extend(text.strip() for text in texts)
         return results
@@ -102,9 +113,12 @@ class Pipeline:
             "text": "\n".join(texts),
             "lines": [
                 {"index": i, "text": t, "bbox": list(b)}
-                for i, (t, b) in enumerate(zip(texts, boxes), start=1)
+                for i, (t, b) in enumerate(zip(texts, boxes, strict=True), start=1)
             ],
             "n_fragments": n_fragments,
             "image_size": list(image.size),
-            "models": {"segmentation": "kraken-blla (default)", "recognition": TROCR_MODEL},
+            "models": {
+                "segmentation": "kraken-blla (default)",
+                "recognition": TROCR_MODEL,
+            },
         }
