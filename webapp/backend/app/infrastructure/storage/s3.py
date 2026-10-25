@@ -1,4 +1,5 @@
 import aioboto3
+from botocore.exceptions import ClientError
 from botocore.response import StreamingBody
 
 from app.core.config import settings
@@ -18,11 +19,13 @@ def s3_client():
 
 async def ensure_bucket() -> None:
     async with s3_client() as s3:
-        buckets = await s3.list_buckets()
-        names = {bucket["Name"] for bucket in buckets["Buckets"]}
-
-        if settings.BUCKET_NAME not in names:
+        try:
             await s3.create_bucket(Bucket=settings.BUCKET_NAME)
+        except ClientError as error:
+            error_code = error.response["Error"]["Code"]
+
+            if error_code != "BucketAlreadyOwnedByYou":
+                raise
 
 
 async def upload_file(file_path: str, object_key: str) -> None:
@@ -61,8 +64,11 @@ async def delete_prefix(prefix: str) -> None:
             Prefix=prefix,
         )
         objects = response.get("Contents", [])
+
         if objects:
             await s3.delete_objects(
                 Bucket=settings.BUCKET_NAME,
-                Delete={"Objects": [{"Key": item["Key"]} for item in objects]},
+                Delete={
+                    "Objects": [{"Key": item["Key"]} for item in objects],
+                },
             )
