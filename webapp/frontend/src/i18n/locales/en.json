@@ -129,7 +129,44 @@
     "transcription": "Transcription",
     "transcribe": "Transcribe",
     "transcribing": "Transcribing…",
-    "transcriptionEmpty": "The text of the displayed image will appear here."
+    "transcriptionEmpty": "The text of the displayed image will appear here.",
+    "lineSource": "Line {{n}} in the image",
+    "lineSourceHint": "Hover a line to see where it comes from in the image.",
+    "notTranscribed": "Not transcribed",
+    "pagesRated": "{{rated}}/{{total}} pages transcribed",
+    "linesHigh_one": "{{count}} line ≥ {{high}} %",
+    "linesHigh_other": "{{count}} lines ≥ {{high}} %",
+    "linesMedium_one": "{{count}} line {{medium}}–{{high}} %",
+    "linesMedium_other": "{{count}} lines {{medium}}–{{high}} %",
+    "linesLow_one": "{{count}} line < {{medium}} %",
+    "linesLow_other": "{{count}} lines < {{medium}} %",
+    "confidence": "Confidence {{value}} %",
+    "confidenceHint": "Mean probability the model gave to the tokens of this line.",
+    "pageConfidence": "Page · confidence {{value}} %",
+    "documentConfidence": "Document · confidence {{value}} %",
+    "confidenceInfo": {
+      "open": "How is the confidence computed?",
+      "title": "Mean token confidence",
+      "tokens": "TrOCR writes each line as a sequence of n tokens (sub-word pieces of its vocabulary). For every token i it outputs, the decoder gives the probability pᵢ it assigned to that choice.",
+      "definition": "The confidence of a line is the mean of these probabilities. If the model is well calibrated, about (1 − confidence) of the line's tokens are wrong.",
+      "average": "Page and document values are the mean confidence of all their lines. Colours use the rounded percentage:",
+      "bandHigh": "confidence ≥ {{high}} %",
+      "bandMedium": "{{medium}} % ≤ confidence < {{high}} %",
+      "bandLow": "confidence < {{medium}} %",
+      "caveat": "This is the model's own estimate, not a comparison with a correct transcription (that would be the character error rate, CER, which needs ground truth). A wrong token predicted with high probability still raises the confidence."
+    },
+    "lineDialog": {
+      "title": "Line {{n}} of {{total}}",
+      "previous": "Previous line",
+      "next": "Next line",
+      "close": "Close",
+      "words": "Words",
+      "wordsHint": "Confidence of each word: mean probability of its own tokens, with the same colour bounds as a line.",
+      "noWords": "The model did not provide word-level values for this line."
+    },
+    "transcribeRemaining_one": "Transcribe remaining page ({{count}})",
+    "transcribeRemaining_other": "Transcribe remaining pages ({{count}})",
+    "transcribingProgress": "Transcribing… {{done}}/{{total}}"
   },
   "profile": {
     "nav": "Profile",
@@ -158,6 +195,7 @@
     "zipOnly": "Only ZIP files are accepted.",
     "invalidZip": "This ZIP file is not valid.",
     "deleteFailed": "This document could not be deleted.",
-    "transcriptionFailed": "The transcription could not be retrieved."
+    "transcriptionFailed": "The transcription could not be retrieved.",
+    "documentTranscriptionFailed": "Some pages could not be transcribed. Try again to retry them."
   }
 }

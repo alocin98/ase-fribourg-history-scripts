@@ -12,9 +12,36 @@ import {
   type DocumentPage,
   type StoredDocument,
 } from '../../api/documents'
-import { getPageTranscription, transcribePage } from '../../api/transcription'
+import {
+  getPageTranscription,
+  transcribeDocument,
+  transcribePage,
+  type PageTranscription,
+  type TranscriptionLine as TranscriptionLineData,
+} from '../../api/transcription'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
+import LineDialog from './LineDialog'
+import LineSource from './LineSource'
+import PageImage from './PageImage'
+import PageRating from './PageRating'
+import TranscriptionLine from './TranscriptionLine'
+import DocumentRating from './DocumentRating'
+import {
+  confidencePercent,
+  levelColors,
+  linesOf,
+  pageRating,
+  type Rating,
+} from './transcriptionLines'
+
+// Délai minimal entre deux relectures des pages pendant la transcription du document.
+const REFRESH_INTERVAL_MS = 3000
+
+// Une page reste à transcrire sans transcription, ou avec une ancienne (texte seul).
+function needsWork(transcription: PageTranscription | null | undefined): boolean {
+  return transcription === null || (transcription !== undefined && !transcription.complete)
+}
 
 const panelClass =
   'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_10px_28px_rgba(23,28,51,0.06)]'
@@ -35,11 +62,22 @@ export default function DocumentOverviewPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState(false)
-  // undefined : pas encore lue, null : aucune transcription, string : texte enregistré.
-  const [texts, setTexts] = useState<Record<string, string | null>>({})
+  // undefined : pas encore lue, null : aucune transcription, objet : transcription enregistrée.
+  const [texts, setTexts] = useState<Record<string, PageTranscription | null>>({})
+  // Ligne survolée (et d'où vient le survol) ou ouverte dans la fenêtre, pour une page donnée.
+  const [hover, setHover] = useState<{
+    pageId: string
+    index: number
+    from: 'text' | 'image'
+  } | null>(null)
+  const [opened, setOpened] = useState<{ pageId: string; index: number } | null>(null)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [failedId, setFailedId] = useState<string | null>(null)
   const pollAbort = useRef<AbortController | null>(null)
+  // Transcription des pages restantes : pages attendues par le job en cours.
+  const [documentJob, setDocumentJob] = useState<{ pageIds: string[] } | null>(null)
+  const [documentJobFailed, setDocumentJobFailed] = useState(false)
+  const documentAbort = useRef<AbortController | null>(null)
   const descriptionRef = useRef<HTMLParagraphElement>(null)
   const [descriptionOpen, setDescriptionOpen] = useState(false)
   const [descriptionOverflows, setDescriptionOverflows] = useState(false)
@@ -50,6 +88,9 @@ export default function DocumentOverviewPage() {
     setPages([])
     setSelectedId(null)
     setTexts({})
+    setDocumentJob(null)
+    setDocumentJobFailed(false)
+    documentAbort.current?.abort()
     setPendingId(null)
     setFailedId(null)
     pollAbort.current?.abort()
@@ -70,6 +111,7 @@ export default function DocumentOverviewPage() {
     return () => {
       cancelled = true
       pollAbort.current?.abort()
+      documentAbort.current?.abort()
     }
   }, [documentId])
 
@@ -82,11 +124,10 @@ export default function DocumentOverviewPage() {
       .then((text) => {
         if (cancelled) return
         setTexts((current) => {
-          if (text === null && typeof current[pageId] === 'string') return current
+          if (text === null && current[pageId]) return current
           return { ...current, [pageId]: text }
         })
-        if (typeof text === 'string')
-          setFailedId((current) => (current === pageId ? null : current))
+        if (text !== null) setFailedId((current) => (current === pageId ? null : current))
       })
       .catch(() => {
         if (cancelled) return
@@ -96,6 +137,24 @@ export default function DocumentOverviewPage() {
       cancelled = true
     }
   }, [documentId, selectedId])
+
+  // Les transcriptions de toutes les pages, pour noter chacune dans la liste des images.
+  useEffect(() => {
+    let cancelled = false
+    for (const page of pages) {
+      getPageTranscription(documentId, page.id)
+        .then((transcription) => {
+          if (cancelled) return
+          setTexts((current) =>
+            current[page.id] ? current : { ...current, [page.id]: transcription },
+          )
+        })
+        .catch(() => {})
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [documentId, pages])
 
   // line-clamp masque la hauteur réelle : on mesure une copie sans limite.
   useLayoutEffect(() => {
@@ -186,11 +245,105 @@ export default function DocumentOverviewPage() {
     }
   }
 
+  // Relit les pages données une par une et remplace leur transcription quand elle existe.
+  const refreshPages = async (pageIds: string[], signal: AbortSignal) => {
+    for (const pageId of pageIds) {
+      try {
+        const transcription = await getPageTranscription(documentId, pageId, signal)
+        if (signal.aborted) return
+        if (transcription !== null) {
+          setTexts((current) => ({ ...current, [pageId]: transcription }))
+        }
+      } catch {
+        // Page illisible pour l'instant : on passe à la suivante.
+      }
+    }
+  }
+
+  // Les pages qui n'ont pas encore de transcription complète.
+  const remainingIds: string[] = []
+  for (const page of pages) {
+    if (needsWork(texts[page.id])) remainingIds.push(page.id)
+  }
+
+  const transcribeRemaining = async () => {
+    if (documentJob || remainingIds.length === 0) return
+    documentAbort.current?.abort()
+    const controller = new AbortController()
+    documentAbort.current = controller
+    const pageIds = remainingIds
+    setDocumentJob({ pageIds })
+    setDocumentJobFailed(false)
+    let lastRefresh = 0
+    try {
+      await transcribeDocument(documentId, pageIds.length, controller.signal, () => {
+        // Les pages finies apparaissent au fil du job, sans relire à chaque sondage.
+        if (Date.now() - lastRefresh < REFRESH_INTERVAL_MS) return
+        lastRefresh = Date.now()
+        void refreshPages(pageIds, controller.signal)
+      })
+    } catch {
+      if (controller.signal.aborted) return
+      setDocumentJobFailed(true)
+    }
+    await refreshPages(pageIds, controller.signal)
+    if (documentAbort.current === controller) setDocumentJob(null)
+  }
+
   const shownText = selectedId ? texts[selectedId] : undefined
   // Sans image, selectedId et pendingId valent tous deux null : ne pas les comparer.
   const isPending = selectedId !== null && pendingId === selectedId
-  const waiting = isPending && typeof shownText !== 'string'
-  const failed = selectedId !== null && failedId === selectedId && typeof shownText !== 'string'
+  const waiting = isPending && !shownText
+  const failed = selectedId !== null && failedId === selectedId && !shownText
+  const imageSize = shownText ? shownText.imageSize : null
+  const lines = shownText ? linesOf(shownText) : []
+  const hovered = hover !== null && hover.pageId === selectedId ? hover : null
+  const openedIndex = opened !== null && opened.pageId === selectedId ? opened.index : null
+
+  // Note de chaque page (undefined : pas encore lue, null : rien à noter),
+  // puis note du document calculée sur les lignes de toutes les pages.
+  const pageRatings: Record<string, Rating | null | undefined> = {}
+  const allLines: TranscriptionLineData[] = []
+  let ratedCount = 0
+  for (const page of pages) {
+    const transcription = texts[page.id]
+    if (!transcription) {
+      pageRatings[page.id] = transcription
+      continue
+    }
+    const pageLines = linesOf(transcription)
+    pageRatings[page.id] = pageRating(pageLines)
+    if (pageRatings[page.id] !== null) ratedCount = ratedCount + 1
+    for (const line of pageLines) allLines.push(line)
+  }
+  const documentRating = pageRating(allLines)
+
+  // La ligne mise en avant : celle survolée, sinon celle ouverte dans la fenêtre.
+  let activeIndex: number | null = openedIndex
+  if (hovered !== null) activeIndex = hovered.index
+  let activeLine: TranscriptionLineData | null = null
+  let hasBoxes = false
+  for (const line of lines) {
+    if (line.index === activeIndex) activeLine = line
+    if (line.bbox !== null) hasBoxes = true
+  }
+
+  // Avancement de la transcription du document : pages déjà terminées.
+  let doneCount = 0
+  if (documentJob) {
+    for (const pageId of documentJob.pageIds) {
+      if (!needsWork(texts[pageId])) doneCount = doneCount + 1
+    }
+  }
+
+  const imageSrc = selectedId ? pageImageUrl(documentId, selectedId) : ''
+  const hoverLine = (from: 'text' | 'image', index: number | null) => {
+    if (index === null || !selectedId) setHover(null)
+    else setHover({ pageId: selectedId, index, from })
+  }
+  const openLine = (index: number) => {
+    if (selectedId) setOpened({ pageId: selectedId, index })
+  }
 
   return (
     <DocumentsFrame>
@@ -203,9 +356,18 @@ export default function DocumentOverviewPage() {
           <>
             <div className="flex w-full min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
-                <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">
-                  {document.name}
-                </h1>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <h1 className="m-0 min-w-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">
+                    {document.name}
+                  </h1>
+                  {documentRating && (
+                    <DocumentRating
+                      rating={documentRating}
+                      rated={ratedCount}
+                      total={pages.length}
+                    />
+                  )}
+                </div>
                 {document.description && (
                   <div className="relative mt-2 min-w-0">
                     <p
@@ -255,6 +417,29 @@ export default function DocumentOverviewPage() {
                       .catch(() => setDeleteError(true))
                   }}
                 />
+                {(remainingIds.length > 0 || documentJob) && (
+                  <button
+                    type="button"
+                    className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.82rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-70"
+                    disabled={documentJob !== null || pendingId !== null}
+                    onClick={() => {
+                      void transcribeRemaining()
+                    }}
+                  >
+                    {documentJob && (
+                      <span
+                        className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                        aria-hidden="true"
+                      />
+                    )}
+                    {documentJob
+                      ? t('documents.transcribingProgress', {
+                          done: doneCount,
+                          total: documentJob.pageIds.length,
+                        })
+                      : t('documents.transcribeRemaining', { count: remainingIds.length })}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white"
@@ -264,6 +449,11 @@ export default function DocumentOverviewPage() {
                 </button>
               </div>
             </div>
+            {documentJobFailed && (
+              <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">
+                {t('errors.documentTranscriptionFailed')}
+              </p>
+            )}
             {deleteError && (
               <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">
                 {t('errors.deleteFailed')}
@@ -283,6 +473,7 @@ export default function DocumentOverviewPage() {
                     {pages.map((page) => {
                       const label = t('documents.image', { n: page.page_number })
                       const selected = page.id === selectedId
+                      const rating = pageRatings[page.id]
                       return (
                         <li key={page.id}>
                           <button
@@ -294,7 +485,27 @@ export default function DocumentOverviewPage() {
                             <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">
                               {page.page_number}
                             </span>
-                            {label}
+                            <span className="flex min-w-0 flex-col">
+                              {label}
+                              {rating !== undefined && (
+                                <span className="inline-flex items-center gap-1.5 text-[0.7rem] font-normal text-[#71717a]">
+                                  <span
+                                    className="size-2 shrink-0 rounded-full"
+                                    style={{
+                                      backgroundColor: rating
+                                        ? levelColors[rating.level].stroke
+                                        : '#d4d4d8',
+                                    }}
+                                    aria-hidden="true"
+                                  />
+                                  {rating
+                                    ? t('documents.confidence', {
+                                        value: confidencePercent(rating.average),
+                                      })
+                                    : t('documents.notTranscribed')}
+                                </span>
+                              )}
+                            </span>
                           </button>
                         </li>
                       )
@@ -303,40 +514,53 @@ export default function DocumentOverviewPage() {
                 )}
               </section>
               <section className={`${panelClass} p-3`}>
+                {shownText && lines.length > 0 && <PageRating lines={lines} />}
                 <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-white">
                   {selectedId && (
-                    <img
-                      className="h-full w-full object-contain"
-                      src={pageImageUrl(documentId, selectedId)}
+                    <PageImage
+                      key={selectedId}
+                      src={imageSrc}
                       alt={t('documents.image', {
                         n: pages.find((page) => page.id === selectedId)?.page_number ?? '',
                       })}
+                      size={imageSize}
+                      lines={lines}
+                      activeIndex={activeIndex}
+                      onHover={(index) => hoverLine('image', index)}
+                      onOpen={openLine}
                     />
                   )}
                 </div>
-                <div className="mt-3 flex shrink-0 justify-center">
-                  <button
-                    type="button"
-                    className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.8rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => {
-                      void transcribe()
-                    }}
-                    disabled={!selectedId || isPending}
-                  >
-                    {isPending && (
-                      <span
-                        className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
-                        aria-hidden="true"
-                      />
-                    )}
-                    {isPending ? t('documents.transcribing') : t('documents.transcribe')}
-                  </button>
-                </div>
+                {selectedId && (needsWork(shownText) || isPending) && (
+                  <div className="mt-3 flex shrink-0 justify-center">
+                    <button
+                      type="button"
+                      className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.8rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => {
+                        void transcribe()
+                      }}
+                      disabled={!selectedId || isPending || documentJob !== null}
+                    >
+                      {isPending && (
+                        <span
+                          className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {isPending ? t('documents.transcribing') : t('documents.transcribe')}
+                    </button>
+                  </div>
+                )}
               </section>
               <section className={`${panelClass} p-5`}>
                 <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
                   {t('documents.transcription')}
                 </h2>
+                {hasBoxes && (
+                  <div className="mt-3">
+                    <LineSource src={imageSrc} size={imageSize} line={activeLine} />
+                  </div>
+                )}
                 <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#27272a]">
                   {failed ? (
                     <p className="m-0 text-[#71717a]" role="alert">
@@ -344,8 +568,19 @@ export default function DocumentOverviewPage() {
                     </p>
                   ) : waiting ? (
                     <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>
-                  ) : shownText ? (
-                    shownText
+                  ) : shownText && shownText.text !== '' ? (
+                    <ol className="m-0 grid list-none gap-0.5 p-0">
+                      {lines.map((line) => (
+                        <TranscriptionLine
+                          key={line.index}
+                          line={line}
+                          active={line.index === activeIndex}
+                          reveal={hovered?.from === 'image'}
+                          onHover={(index) => hoverLine('text', index)}
+                          onOpen={openLine}
+                        />
+                      ))}
+                    </ol>
                   ) : shownText === undefined && selectedId ? (
                     <p className="m-0 text-[#71717a]">{t('common.loading')}</p>
                   ) : (
@@ -357,6 +592,17 @@ export default function DocumentOverviewPage() {
           </>
         )}
       </main>
+
+      {openedIndex !== null && (
+        <LineDialog
+          src={imageSrc}
+          size={imageSize}
+          lines={lines}
+          index={openedIndex}
+          onNavigate={openLine}
+          onClose={() => setOpened(null)}
+        />
+      )}
 
       {isOpen && (
         <div

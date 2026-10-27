@@ -1,0 +1,63 @@
+name: ML Backend CI
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - webapp/ml-backend/**
+      - .github/workflows/ml-backend.yml
+  pull_request:
+    paths:
+      - webapp/ml-backend/**
+      - .github/workflows/ml-backend.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: webapp/ml-backend
+
+jobs:
+  check:
+    name: "ML Backend: Format, lint, test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            webapp/ml-backend/requirements.txt
+            webapp/ml-backend/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Lint
+        run: ruff check --output-format=github .
+
+      - name: Test
+        run: pytest
+
+  docker:
+    name: "ML Backend: Build docker image"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: webapp/ml-backend
+          push: false
+          cache-from: type=gha,scope=ml-backend
+          cache-to: type=gha,mode=max,scope=ml-backend
