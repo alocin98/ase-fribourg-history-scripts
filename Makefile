@@ -2,7 +2,7 @@ BACKEND_DIR := webapp/backend
 FRONTEND_DIR := webapp/frontend
 ML_BACKEND_DIR := webapp/ml-backend
 
-.PHONY: start backend ml-backend frontend build stop stop-all logs ml-logs install check-env format lint test check
+.PHONY: start backend ml-backend frontend build stop stop-all logs ml-logs install check-env prepare\:local format lint test check
 
 # Start the backend and ML backend containers in the background, then the frontend dev server.
 start: backend ml-backend frontend
@@ -47,8 +47,18 @@ ml-logs:
 	$(MAKE) -C $(ML_BACKEND_DIR) logs
 
 check-env:
-	@test -f $(BACKEND_DIR)/.env || { echo "Missing $(BACKEND_DIR)/.env — run: cp $(BACKEND_DIR)/exemple.env $(BACKEND_DIR)/.env"; exit 1; }
-	@test -f $(ML_BACKEND_DIR)/.env || { echo "Missing $(ML_BACKEND_DIR)/.env — run: cp $(ML_BACKEND_DIR)/exemple.env $(ML_BACKEND_DIR)/.env"; exit 1; }
+	@test -f $(BACKEND_DIR)/.env || { echo "Missing $(BACKEND_DIR)/.env — run: make prepare:local"; exit 1; }
+	@test -f $(ML_BACKEND_DIR)/.env || { echo "Missing $(ML_BACKEND_DIR)/.env — run: make prepare:local"; exit 1; }
+
+# Create the local .env files from the examples; existing files are left untouched.
+prepare\:local:
+	@for dir in $(BACKEND_DIR) $(ML_BACKEND_DIR); do \
+		if [ -f $$dir/.env ]; then \
+			echo "$$dir/.env already exists, skipping"; \
+		else \
+			cp $$dir/exemple.env $$dir/.env && echo "Created $$dir/.env"; \
+		fi; \
+	done
 
 # --- Code quality (same checks as CI) ---
 # Backend tools come from requirements-dev.txt: pip install -r webapp/backend/requirements-dev.txt
