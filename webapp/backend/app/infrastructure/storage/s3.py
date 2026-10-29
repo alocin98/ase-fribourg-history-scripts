@@ -49,6 +49,19 @@ async def download_file(object_key: str) -> bytes:
         return await body.read()
 
 
+async def download_file_to_path(object_key: str, file_path: str) -> None:
+    async with s3_client() as s3:
+        response = await s3.get_object(
+            Bucket=settings.BUCKET_NAME,
+            Key=object_key,
+        )
+
+        body: StreamingBody = response["Body"]
+        with open(file_path, "wb") as file:
+            while chunk := await body.read(1024 * 1024):
+                file.write(chunk)
+
+
 async def delete_file(object_key: str) -> None:
     async with s3_client() as s3:
         await s3.delete_object(

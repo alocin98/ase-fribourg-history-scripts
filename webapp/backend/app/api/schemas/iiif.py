@@ -14,3 +14,4 @@ class InfoResponse(BaseModel):
     maxWidth: int
     maxHeight: int
     extraFormats: list[str]
+    tiles: list[dict]
