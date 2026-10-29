@@ -1,14 +1,16 @@
-FROM python:3.11-slim
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
     HF_HOME=/models/hf
 
-WORKDIR /srv
+WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+
+# requirements.txt pulls torch from the PyTorch CPU index; let uv pick the best
+# match across both indexes (pip's default behaviour).
+RUN uv pip install --system --index-strategy unsafe-best-match -r requirements.txt
 
 # Télécharge les poids TrOCR au build : le conteneur démarre ensuite sans réseau.
 # Révision = PR #7 du dépôt HF (variante safetensors) : kraken impose torch 2.4 et
@@ -23,4 +25,6 @@ ENV HF_HUB_OFFLINE=1
 COPY app ./app
 
 EXPOSE 8000
+
+# Production start: a single worker, the models are loaded once per process.
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

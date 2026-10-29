@@ -8,6 +8,7 @@ from app.api.schemas.transcriptions import TranscriptionResponse
 from app.core.db import get_db
 from app.core.jobs import enqueue_document_transcription, enqueue_page_transcription
 from app.models.user import User
+from app.repositories.documents import DocumentRepository
 from app.repositories.transcriptions import TranscriptionRepository
 
 router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
@@ -26,13 +27,16 @@ async def create_document_transcription_job(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> None:
+    document = await DocumentRepository(session).get_document_by_id(
+        document_id, current_user.id
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
     repository = TranscriptionRepository(session)
     jobs = await repository.create_document_transcription_job(
         document_id=document_id, owner_id=current_user.id
     )
-
-    if jobs is None:
-        raise HTTPException(status_code=404, detail="Document not found")
 
     enqueue_document_transcription(background_tasks, jobs.id)
 
@@ -53,13 +57,16 @@ async def create_page_transcription(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
+    page = await DocumentRepository(session).get_page_by_id(
+        page_id=page_id, document_id=document_id, owner_id=current_user.id
+    )
+    if page is None:
+        raise HTTPException(status_code=404, detail="Document or Page not found")
+
     repository = TranscriptionRepository(session)
     jobs = await repository.create_page_transcription_job(
         document_id=document_id, page_id=page_id, owner_id=current_user.id
     )
-
-    if jobs is None:
-        raise HTTPException(status_code=404, detail="Document or Page not found")
 
     enqueue_page_transcription(background_tasks, jobs.id)
 

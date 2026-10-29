@@ -1,0 +1,27 @@
+[project]
+name = "ml-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+# Line length is handled by `ruff format`; long string literals are left as is.
+ignore = ["E501"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's `File(...)` / `Query(...)` in argument defaults is idiomatic.
+extend-immutable-calls = ["fastapi.File", "fastapi.Query"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
