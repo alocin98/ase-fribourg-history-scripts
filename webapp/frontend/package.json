@@ -15,7 +15,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/openseadragon": "^5.0.2",
     "i18next": "^26.4.2",
+    "openseadragon": "^6.1.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.15",

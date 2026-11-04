@@ -7,6 +7,7 @@ import {
   deleteDocument,
   getDocument,
   listPages,
+  pageImageInfoUrl,
   pageImageUrl,
   uploadDocument,
   type DocumentPage,
@@ -337,6 +338,7 @@ export default function DocumentOverviewPage() {
   }
 
   const imageSrc = selectedId ? pageImageUrl(documentId, selectedId) : ''
+  const imageInfoSrc = selectedId ? pageImageInfoUrl(selectedId) : ''
   const hoverLine = (from: 'text' | 'image', index: number | null) => {
     if (index === null || !selectedId) setHover(null)
     else setHover({ pageId: selectedId, index, from })
@@ -519,10 +521,13 @@ export default function DocumentOverviewPage() {
                   {selectedId && (
                     <PageImage
                       key={selectedId}
-                      src={imageSrc}
+                      tileSource={imageInfoSrc}
                       alt={t('documents.image', {
                         n: pages.find((page) => page.id === selectedId)?.page_number ?? '',
                       })}
+                      zoomInLabel={t('documents.zoomIn')}
+                      zoomOutLabel={t('documents.zoomOut')}
+                      resetZoomLabel={t('documents.resetZoom')}
                       size={imageSize}
                       lines={lines}
                       activeIndex={activeIndex}
