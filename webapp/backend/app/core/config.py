@@ -32,5 +32,7 @@ class Settings(BaseSettings):
     BUCKET_ACCESS_KEY: str
     BUCKET_SECRET_KEY: str
 
+    MODEL_BACKEND_URL: str
+
 
 settings = Settings()

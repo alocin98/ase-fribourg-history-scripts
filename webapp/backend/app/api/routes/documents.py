@@ -27,6 +27,7 @@ from app.api.schemas.documents import (
     DocumentUploadResponse,
     PageRead,
 )
+from app.api.schemas.transcriptions import PageTranscriptionRead
 from app.core.config import settings
 from app.infrastructure.database.session import get_db
 from app.infrastructure.storage.s3 import (
@@ -308,6 +309,7 @@ async def get_document_page(
     name="get_page_transcription",
     description="Get the transcription of a specific page of a document owned by the current user.",
     status_code=status.HTTP_200_OK,
+    response_model=PageTranscriptionRead,
 )
 async def get_page_transcription(
     document_id: UUID,
@@ -315,12 +317,11 @@ async def get_page_transcription(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
-    document_repository = DocumentRepository(session)
-    document = await document_repository.get_document_by_id(
-        document_id, current_user.id
+    page = await DocumentRepository(session).get_page_by_id(
+        page_id=page_id, document_id=document_id, owner_id=current_user.id
     )
-    if document is None:
-        raise HTTPException(status_code=404, detail="Document not found")
+    if page is None:
+        raise HTTPException(status_code=404, detail="Page not found")
 
     repository = TranscriptionRepository(session)
     transcription = await repository.get_page_transcription_by_page_id(page_id)

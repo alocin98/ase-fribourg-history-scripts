@@ -15,5 +15,6 @@ os.environ.update(
         "BUCKET_NAME": "documents",
         "BUCKET_ACCESS_KEY": "test-access-key",
         "BUCKET_SECRET_KEY": "test-secret-key",
+        "MODEL_BACKEND_URL": "http://localhost:8001",
     }
 )
