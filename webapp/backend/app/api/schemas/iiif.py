@@ -7,6 +7,7 @@ class InfoResponse(BaseModel):
     context: str = Field(alias="@context")
     id: str
     type: str
+    protocol: str = "http://iiif.io/api/image"
     profile: list[str]
     width: int
     height: int

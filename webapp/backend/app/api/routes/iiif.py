@@ -71,6 +71,7 @@ async def iiif_info(
         context="http://iiif.io/api/image/3/context.json",
         id=str(image_url).removesuffix("/full/full/0/default.jpg"),
         type="ImageService3",
+        protocol="http://iiif.io/api/image",
         profile=["level2"],
         width=page.width,
         height=page.height,

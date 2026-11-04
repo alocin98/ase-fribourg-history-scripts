@@ -318,7 +318,7 @@ async def get_page_transcription(
     session: AsyncSession = Depends(get_db),
 ):
     page = await DocumentRepository(session).get_page_by_id(
-        page_id=page_id, document_id=document_id, owner_id=current_user.id
+        page_id=page_id, owner_id=current_user.id
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")

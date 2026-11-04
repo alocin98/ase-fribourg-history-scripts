@@ -1,4 +1,5 @@
 import logging
+import tempfile
 from pathlib import Path
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.schemas.transcriptions import TranscriptionLine
 from app.core.config import settings
 from app.infrastructure.database.session import session_factory
+from app.infrastructure.storage.s3 import download_file_to_path
 from app.models.documents import Page
 from app.models.transcriptions import PageTranscription
 from app.repositories.documents import DocumentRepository
@@ -34,19 +36,25 @@ async def page_transcription(session: AsyncSession, page_id: UUID) -> bool:
     if page is None:
         return False
 
-    with open(page.image_path, "rb") as image_file:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{settings.MODEL_BACKEND_URL.rstrip('/')}/predict",
-                files={
-                    "file": (
-                        Path(page.image_path).name,
-                        image_file,
-                        page.mime_type,
-                    )
-                },
-                timeout=120.0,
-            )
+    # Télécharger l'image dans un répertoire temporaire
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        image_path = Path(temporary_directory) / Path(page.image_key).name
+
+        await download_file_to_path(page.image_key, str(image_path))
+
+        with image_path.open("rb") as image_file:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{settings.MODEL_BACKEND_URL.rstrip('/')}/predict",
+                    files={
+                        "file": (
+                            image_path.name,
+                            image_file,
+                            page.mime_type,
+                        )
+                    },
+                    timeout=120.0,
+                )
         # 422 : le modèle n'a trouvé aucune ligne, la page est vide.
         if response.status_code == 422:
             await repository.save_page_transcription(page_id, "", [], None, None)
