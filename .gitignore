@@ -1,1 +1,8 @@
 .DS_Store
+
+# manuscript dataset: images/XML are downloaded with data/download_manuscripts.sh
+data/manuscripts/_cache/
+data/manuscripts/train/
+data/manuscripts/test/
+__pycache__/
+data/manuscripts/_release/
