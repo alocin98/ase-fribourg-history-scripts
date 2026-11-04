@@ -1,5 +1,11 @@
 import OpenSeadragon from 'openseadragon'
-import { useEffect, useRef, useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type WheelEvent as ReactWheelEvent,
+} from 'react'
 
 import type { TranscriptionLine } from '../../api/transcription'
 import { confidenceLevel, levelColors } from './transcriptionLines'
@@ -16,8 +22,6 @@ type Props = {
   zoomOutLabel: string
   resetZoomLabel: string
 }
-
-const GUTTER_RATIO = 0.03
 
 type Bar = { line: TranscriptionLine; top: number; bottom: number }
 type ImageBounds = { left: number; top: number; width: number; height: number }
@@ -69,6 +73,7 @@ export default function PageImage({
     const instance = OpenSeadragon({
       element: viewerElement.current,
       tileSources: tileSource,
+      ajaxWithCredentials: true,
       showNavigationControl: false,
       showHomeControl: false,
       showZoomControl: false,
@@ -120,6 +125,29 @@ export default function PageImage({
     viewer.current?.viewport.goHome()
   }
 
+  const zoomImage = (event: ReactWheelEvent<SVGGElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const currentViewer = viewer.current
+    const element = viewerElement.current
+    if (!currentViewer || !element) return
+    const bounds = element.getBoundingClientRect()
+    const point = currentViewer.viewport.pointFromPixel(
+      new OpenSeadragon.Point(event.clientX - bounds.left, event.clientY - bounds.top),
+    )
+    const factor = Math.pow(1.002, -event.deltaY)
+    currentViewer.viewport.zoomBy(factor, point)
+  }
+
+  const panImage = (deltaX: number, deltaY: number) => {
+    const currentViewer = viewer.current
+    if (!currentViewer) return
+    const delta = currentViewer.viewport.deltaPointsFromPixels(
+      new OpenSeadragon.Point(-deltaX, -deltaY),
+    )
+    currentViewer.viewport.panBy(delta, true)
+  }
+
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#f8f8fb]">
       <div ref={viewerElement} className="absolute inset-0" aria-label={alt} />
@@ -131,6 +159,8 @@ export default function PageImage({
           activeIndex={activeIndex}
           onHover={onHover}
           onOpen={onOpen}
+          onPan={panImage}
+          onZoom={zoomImage}
         />
       )}
       <div className="absolute right-3 bottom-3 z-10 flex overflow-hidden rounded-lg bg-white/95 shadow-[0_2px_8px_rgba(23,28,51,0.18)]">
@@ -170,6 +200,8 @@ function PageOverlay({
   activeIndex,
   onHover,
   onOpen,
+  onPan,
+  onZoom,
 }: {
   bounds: ImageBounds
   size: [number, number]
@@ -177,9 +209,59 @@ function PageOverlay({
   activeIndex: number | null
   onHover: (index: number | null) => void
   onOpen: (index: number) => void
+  onPan: (deltaX: number, deltaY: number) => void
+  onZoom: (event: ReactWheelEvent<SVGGElement>) => void
 }) {
-  const gutter = width * GUTTER_RATIO
-  const barWidth = gutter * 0.45
+  const barWidth = width * 0.0135
+  const pointer = useRef<{
+    x: number
+    y: number
+    lastX: number
+    lastY: number
+    dragged: boolean
+  } | null>(null)
+
+  const startPointer = (event: ReactPointerEvent<SVGRectElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    pointer.current = {
+      x: event.clientX,
+      y: event.clientY,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      dragged: false,
+    }
+  }
+
+  const movePointer = (event: ReactPointerEvent<SVGRectElement>) => {
+    const current = pointer.current
+    if (!current) return
+    const deltaX = event.clientX - current.lastX
+    const deltaY = event.clientY - current.lastY
+    if (!current.dragged && Math.hypot(event.clientX - current.x, event.clientY - current.y) > 4) {
+      current.dragged = true
+    }
+    if (current.dragged && (deltaX !== 0 || deltaY !== 0)) onPan(deltaX, deltaY)
+    current.lastX = event.clientX
+    current.lastY = event.clientY
+  }
+
+  const endPointer = (event: ReactPointerEvent<SVGRectElement>, index: number) => {
+    const current = pointer.current
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    pointer.current = null
+    if (current && !current.dragged) onOpen(index)
+  }
+
+  const cancelPointer = (event: ReactPointerEvent<SVGRectElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    pointer.current = null
+  }
 
   return (
     <svg
@@ -190,19 +272,19 @@ function PageOverlay({
         width: bounds.width,
         height: bounds.height,
       }}
-      viewBox={`${-gutter} 0 ${width + gutter} ${height}`}
+      viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="none"
       role="img"
       aria-label="Transcription line annotations"
     >
-      <g className="pointer-events-auto">
+      <g className="pointer-events-auto" onWheel={onZoom}>
         {qualityBars(lines, height).map(({ line, top, bottom }) => {
           const active = line.index === activeIndex
           return (
             <rect
               key={`bar-${line.index}`}
               className="cursor-pointer transition-opacity duration-100"
-              x={-gutter + (active ? 0 : (gutter - barWidth) / 4)}
+              x={0}
               y={top}
               width={active ? barWidth * 1.5 : barWidth}
               height={bottom - top}
@@ -211,7 +293,10 @@ function PageOverlay({
               opacity={activeIndex === null || active ? 1 : 0.35}
               onMouseEnter={() => onHover(line.index)}
               onMouseLeave={() => onHover(null)}
-              onClick={() => onOpen(line.index)}
+              onPointerDown={startPointer}
+              onPointerMove={movePointer}
+              onPointerUp={(event) => endPointer(event, line.index)}
+              onPointerCancel={cancelPointer}
             />
           )
         })}
@@ -237,7 +322,10 @@ function PageOverlay({
               vectorEffect="non-scaling-stroke"
               onMouseEnter={() => onHover(line.index)}
               onMouseLeave={() => onHover(null)}
-              onClick={() => onOpen(line.index)}
+              onPointerDown={startPointer}
+              onPointerMove={movePointer}
+              onPointerUp={(event) => endPointer(event, line.index)}
+              onPointerCancel={cancelPointer}
             />
           )
         })}
