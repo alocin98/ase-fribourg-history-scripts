@@ -1,3 +1,7 @@
 .DS_Store
+data/manuscripts/_cache/
+data/manuscripts/train/
+data/manuscripts/test/
 __pycache__/
+data/manuscripts/_release/
 *.pyc
