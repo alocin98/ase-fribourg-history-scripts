@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
+from fastapi import APIRouter, Depends, HTTPException, Response, Security, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_session, csrf_header
-from app.api.schemas.user import UserLogin, UserRead, CSRFTokenResponse
+from app.api.deps import csrf_header, get_current_session
+from app.api.schemas.user import CSRFTokenResponse, UserLogin, UserRead
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.security import create_csrf_token, verify_password
 from app.models.sessions import AuthSession
-from app.repositories.user import UserRepository
 from app.repositories.sessions import SessionRepository
+from app.repositories.user import UserRepository
 
 router = APIRouter(tags=["auth"])
 
@@ -47,7 +47,7 @@ async def _authenticate(email: str, password: str, session: AsyncSession):
     dependencies=[Security(csrf_header)],
     name="login",
     description="Authenticate a user and create a new session.",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def login(
     data: UserLogin,
@@ -77,7 +77,8 @@ async def login(
     dependencies=[Security(csrf_header)],
     name="logout",
     description="Revoke the current session and log out the user.",
-    status_code=status.HTTP_204_NO_CONTENT)
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def logout(
     response: Response,
     auth_session: AuthSession = Depends(get_current_session),
@@ -92,7 +93,7 @@ async def logout(
     response_model=CSRFTokenResponse,
     name="csrf_token",
     description="Generate a new CSRF token. This token should be included in the headers of subsequent requests to protect against CSRF attacks. (The token is also set as a cookie.)",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def csrf_token(response: Response):
     token = create_csrf_token()

@@ -2,11 +2,11 @@ import shutil
 from pathlib import Path
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status, Security
+from fastapi import APIRouter, Depends, HTTPException, Response, Security, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, csrf_header
+from app.api.deps import csrf_header, get_current_user
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
 from app.core.config import settings
 from app.core.db import get_db
@@ -15,6 +15,14 @@ from app.repositories.documents import DocumentRepository
 from app.repositories.user import UserRepository
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+def _remove_storage(document_id: UUID) -> None:
+    root = Path(settings.STORAGE_ROOT).resolve()
+    folder = (root / str(document_id)).resolve()
+    if folder.parent != root:
+        return
+    shutil.rmtree(folder, ignore_errors=True)
 
 
 @router.post(
@@ -39,21 +47,21 @@ async def create_user(
 
     try:
         return await repository.create(data)
-    except IntegrityError:
+    except IntegrityError as e:
         await session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="A user with this email already exists",
-        )
+        ) from e
 
 
 @router.patch(
-    "/me", 
+    "/me",
     response_model=UserRead,
     dependencies=[Security(csrf_header)],
     name="Update Current User",
     description="Update the current user's information. This endpoint allows users to update their own profile information",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def update_current_user(
     data: UserUpdate,
@@ -65,10 +73,7 @@ async def update_current_user(
     if data.email is not None:
         existing_user = await repository.get_by_email(data.email)
 
-        if (
-            existing_user is not None
-            and existing_user.id != current_user.id
-        ):
+        if existing_user is not None and existing_user.id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="A user with this email already exists",
@@ -76,19 +81,20 @@ async def update_current_user(
 
     try:
         return await repository.update(current_user, data)
-    except IntegrityError:
+    except IntegrityError as e:
         await session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User update violates a database constraint",
-        )
+        ) from e
+
 
 @router.get(
     "/me",
     response_model=UserRead,
     name="Read Current User",
     description="Read the current user's information.",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def read_current_user(
     current_user: User = Depends(get_current_user),
@@ -100,18 +106,10 @@ async def read_current_user(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User not found",
+            detail="User not found",
         )
 
     return user
-
-
-def _remove_storage(document_id: UUID) -> None:
-    root = Path(settings.STORAGE_ROOT).resolve()
-    folder = (root / str(document_id)).resolve()
-    if folder.parent != root:
-        return
-    shutil.rmtree(folder, ignore_errors=True)
 
 
 @router.delete(

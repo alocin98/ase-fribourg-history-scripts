@@ -18,7 +18,8 @@ class SessionRepository:
         auth_session = AuthSession(
             token_hash=hash_session_token(token),
             user_id=user_id,
-            expires_at=datetime.now(UTC) + timedelta(minutes=settings.SESSION_EXPIRE_MINUTES),
+            expires_at=datetime.now(UTC)
+            + timedelta(minutes=settings.SESSION_EXPIRE_MINUTES),
         )
         self.session.add(auth_session)
         await self.session.commit()

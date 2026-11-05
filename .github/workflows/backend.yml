@@ -1,0 +1,63 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - webapp/backend/**
+      - .github/workflows/backend.yml
+  pull_request:
+    paths:
+      - webapp/backend/**
+      - .github/workflows/backend.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: webapp/backend
+
+jobs:
+  check:
+    name: "Backend: Format, lint, test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            webapp/backend/requirements.txt
+            webapp/backend/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Lint
+        run: ruff check --output-format=github .
+
+      - name: Test
+        run: pytest
+
+  docker:
+    name: "Backend: Build docker image"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: webapp/backend
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend

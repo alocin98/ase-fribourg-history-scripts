@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
-import { getCurrentUser, login as loginRequest, logout as logoutRequest, register as registerRequest, type User } from '../api/auth'
+import {
+  getCurrentUser,
+  login as loginRequest,
+  logout as logoutRequest,
+  register as registerRequest,
+  type User,
+} from '../api/auth'
 import { ApiError } from '../api/client'
 
 type AuthContextValue = {
@@ -36,26 +42,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const value = useMemo<AuthContextValue>(() => ({
-    user,
-    ready,
-    login: async (email, password) => {
-      setUser(await loginRequest(email, password))
-    },
-    register: async (name, email, password) => {
-      setUser(await registerRequest(name, email, password))
-    },
-    logout: async () => {
-      try {
-        await logoutRequest()
-      } catch (error) {
-        if (!(error instanceof ApiError) || (error.status !== 401 && error.status !== 204)) throw error
-      }
-      setUser(null)
-    },
-    applyUser: (next) => setUser(next),
-    forgetUser: () => setUser(null),
-  }), [user, ready])
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      ready,
+      login: async (email, password) => {
+        setUser(await loginRequest(email, password))
+      },
+      register: async (name, email, password) => {
+        setUser(await registerRequest(name, email, password))
+      },
+      logout: async () => {
+        try {
+          await logoutRequest()
+        } catch (error) {
+          if (!(error instanceof ApiError) || (error.status !== 401 && error.status !== 204))
+            throw error
+        }
+        setUser(null)
+      },
+      applyUser: (next) => setUser(next),
+      forgetUser: () => setUser(null),
+    }),
+    [user, ready],
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

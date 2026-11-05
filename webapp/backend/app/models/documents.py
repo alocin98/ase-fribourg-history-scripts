@@ -1,7 +1,6 @@
-from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -22,6 +21,7 @@ class Document(Base):
     )
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str] = mapped_column(String(500))
+
 
 class Page(Base):
     __tablename__ = "pages"

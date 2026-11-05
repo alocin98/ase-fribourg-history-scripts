@@ -17,6 +17,7 @@ csrf_header = APIKeyHeader(
     auto_error=False,
 )
 
+
 async def get_current_session(
     request: Request,
     session: Annotated[AsyncSession, Depends(get_db)],

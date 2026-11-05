@@ -1,3 +1,6 @@
 __pycache__/
 .env
 storage/
+.venv/
+.ruff_cache/
+.pytest_cache/

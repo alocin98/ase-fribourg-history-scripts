@@ -7,7 +7,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
-    
+
     DATABASE_URL: str
     DB_ECHO: bool = False
     API_STR: str
@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
     MAX_UPLOAD_SIZE: int
     STORAGE_ROOT: str
+
+    MODEL_BACKEND_URL: str
 
 
 settings = Settings()

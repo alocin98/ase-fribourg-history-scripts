@@ -6,12 +6,12 @@ React, TypeScript, Vite et Tailwind CSS v4. La navigation utilise React Router. 
 
 ## Pages
 
-| Adresse | Fichier | Rôle |
-| --- | --- | --- |
-| `/` | `src/pages/WelcomePage.tsx` | Accueil : présentation, hero avec le manuscrit de 1464, cartes, étapes, bandeau et retour en haut |
-| `/login` | `src/pages/LoginPage.tsx` | Connexion avec l’email et le mot de passe |
-| `/register` | `src/pages/RegisterPage.tsx` | Création du compte : nom et email sur une ligne, les deux mots de passe sur la suivante |
-| `/app` | `src/pages/AccountPage.tsx` | Page du compte. Un court texte indique que la lecture et la transcription sont encore en cours |
+| Adresse     | Fichier                      | Rôle                                                                                              |
+| ----------- | ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| `/`         | `src/pages/WelcomePage.tsx`  | Accueil : présentation, hero avec le manuscrit de 1464, cartes, étapes, bandeau et retour en haut |
+| `/login`    | `src/pages/LoginPage.tsx`    | Connexion avec l’email et le mot de passe                                                         |
+| `/register` | `src/pages/RegisterPage.tsx` | Création du compte : nom et email sur une ligne, les deux mots de passe sur la suivante           |
+| `/app`      | `src/pages/AccountPage.tsx`  | Page du compte. Un court texte indique que la lecture et la transcription sont encore en cours    |
 
 Une adresse inconnue renvoie vers `/`. Sans session, `/app` renvoie vers `/login`. Une session déjà ouverte renvoie `/login` et `/register` vers `/app`. La déconnexion est visible et ramène à l’accueil.
 

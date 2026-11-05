@@ -35,7 +35,11 @@ export function logout(): Promise<void> {
   return request<void>('/logout', { method: 'POST' })
 }
 
-export function updateCurrentUser(body: { name: string; email: string; password?: string }): Promise<User> {
+export function updateCurrentUser(body: {
+  name: string
+  email: string
+  password?: string
+}): Promise<User> {
   return request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body) })
 }
 

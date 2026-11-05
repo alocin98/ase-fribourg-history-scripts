@@ -2,7 +2,13 @@ import { useTranslation } from 'react-i18next'
 
 import { LANGUAGES } from '../i18n'
 
-export default function LanguageSwitcher({ className = '', compact = false }: { className?: string; compact?: boolean }) {
+export default function LanguageSwitcher({
+  className = '',
+  compact = false,
+}: {
+  className?: string
+  compact?: boolean
+}) {
   const { t, i18n } = useTranslation()
   const current = i18n.resolvedLanguage
 

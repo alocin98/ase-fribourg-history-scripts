@@ -58,13 +58,21 @@ async function send(path: string, init: RequestInit = {}, retry = true): Promise
 
   let response: Response
   try {
-    response = await fetch(`${API_URL}${path}`, { ...init, method, headers, credentials: 'include' })
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      method,
+      headers,
+      credentials: 'include',
+    })
   } catch {
     throw new ApiError(0, 'Network error')
   }
 
   if (response.status === 403 && retry && isUnsafe(method)) {
-    const body = await response.clone().json().catch(() => null)
+    const body = await response
+      .clone()
+      .json()
+      .catch(() => null)
     const detail = typeof body?.detail === 'string' ? body.detail : ''
     if (detail.toLowerCase().includes('csrf')) {
       await ensureCsrf(true)
