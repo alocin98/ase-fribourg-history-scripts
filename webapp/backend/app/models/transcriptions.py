@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import Base
+from app.infrastructure.database.base import Base
 
 
 class TranscriptionJob(Base):

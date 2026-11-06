@@ -11,6 +11,10 @@ os.environ.update(
         "API_VERSION": "0.0.0",
         "MAX_UPLOAD_SIZE": "1048576",
         "STORAGE_ROOT": "/tmp/ase-test-storage",
+        "BUCKET_URL": "http://localhost:9000/documents",
+        "BUCKET_NAME": "documents",
+        "BUCKET_ACCESS_KEY": "test-access-key",
+        "BUCKET_SECRET_KEY": "test-secret-key",
         "MODEL_BACKEND_URL": "http://localhost:8001",
     }
 )

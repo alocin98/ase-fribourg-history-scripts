@@ -3,13 +3,14 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Security, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import csrf_header, get_current_user
+from app.api.dependencies.auth import get_current_user
+from app.api.dependencies.csrf import csrf_header
 from app.api.schemas.transcriptions import TranscriptionResponse
-from app.core.db import get_db
-from app.core.jobs import enqueue_document_transcription, enqueue_page_transcription
+from app.infrastructure.database.session import get_db
 from app.models.user import User
 from app.repositories.documents import DocumentRepository
 from app.repositories.transcriptions import TranscriptionRepository
+from app.workers.queue import enqueue_document_transcription, enqueue_page_transcription
 
 router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 
@@ -58,7 +59,7 @@ async def create_page_transcription(
     session: AsyncSession = Depends(get_db),
 ):
     page = await DocumentRepository(session).get_page_by_id(
-        page_id=page_id, document_id=document_id, owner_id=current_user.id
+        page_id=page_id, owner_id=current_user.id
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Document or Page not found")

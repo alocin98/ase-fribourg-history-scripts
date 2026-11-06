@@ -23,8 +23,14 @@ class Settings(BaseSettings):
     CSRF_COOKIE_NAME: str = "ase_csrf"
     CSRF_HEADER_NAME: str = "X-CSRF-Token"
 
+    MAX_HEIGHT: int = 5000
+    MAX_WIDTH: int = 5000
+
     MAX_UPLOAD_SIZE: int
-    STORAGE_ROOT: str
+    BUCKET_NAME: str
+    BUCKET_URL: str
+    BUCKET_ACCESS_KEY: str
+    BUCKET_SECRET_KEY: str
 
     MODEL_BACKEND_URL: str
 

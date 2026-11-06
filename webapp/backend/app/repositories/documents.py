@@ -1,10 +1,8 @@
-from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.documents import PagePaginateRead
 from app.models.documents import Document, Page
 
 
@@ -35,7 +33,7 @@ class DocumentRepository:
     async def create_pages(
         self,
         document_id: UUID,
-        pages: list[dict[str, int | str | Path]],
+        pages: list[dict[str, int | str]],
     ) -> None:
         self.session.add_all(
             Page(
@@ -44,7 +42,7 @@ class DocumentRepository:
                 width=page["width"],
                 height=page["height"],
                 mime_type=page["mime_type"],
-                image_path=str(page["image_path"]),
+                image_key=str(page["image_key"]),
             )
             for page in pages
         )
@@ -70,17 +68,23 @@ class DocumentRepository:
             )
         )
 
-    async def get_pages(self, parameters: PagePaginateRead) -> list[Page]:
+    async def get_pages(
+        self,
+        document_id: UUID,
+        owner_id: UUID,
+        offset: int,
+        limit: int,
+    ) -> list[Page]:
         result = await self.session.scalars(
             select(Page)
             .join(Document)
             .where(
-                Page.document_id == parameters.document_id,
-                Document.owner_id == parameters.owner_id,
+                Page.document_id == document_id,
+                Document.owner_id == owner_id,
             )
             .order_by(Page.page_number)
-            .offset(parameters.offset)
-            .limit(parameters.limit)
+            .offset(offset)
+            .limit(limit)
         )
         return list(result.all())
 
@@ -103,7 +107,6 @@ class DocumentRepository:
     async def get_page_by_id(
         self,
         page_id: UUID,
-        document_id: UUID,
         owner_id: UUID,
     ) -> Page | None:
         return await self.session.scalar(
@@ -111,7 +114,6 @@ class DocumentRepository:
             .join(Document)
             .where(
                 Page.id == page_id,
-                Page.document_id == document_id,
                 Document.owner_id == owner_id,
             )
         )

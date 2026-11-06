@@ -6,5 +6,7 @@ pydantic-settings
 asyncpg
 email-validator
 pillow
+pyvips
 pwdlib[argon2]
 pwdlib[bcrypt]
+aioboto3
