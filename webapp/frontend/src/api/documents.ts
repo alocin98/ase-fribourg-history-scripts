@@ -61,6 +61,10 @@ export function pageImageUrl(documentId: string, pageId: string): string {
   return `${API_URL}/documents/${documentId}/pages/${pageId}`
 }
 
+export function pageImageInfoUrl(pageId: string): string {
+  return `${API_URL}/iiif/3/${pageId}/info.json`
+}
+
 export async function listPages(documentId: string): Promise<DocumentPage[]> {
   const pages: DocumentPage[] = []
   let page = 1
