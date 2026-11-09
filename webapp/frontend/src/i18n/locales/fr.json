@@ -16,6 +16,13 @@
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
   },
+  "search": {
+    "label": "Rechercher dans les transcriptions",
+    "placeholder": "Rechercher un mot…",
+    "results": "Résultats de recherche",
+    "empty": "Aucun résultat pour cette recherche.",
+    "page": "page {{n}}"
+  },
   "home": {
     "features": "Fonctionnalités",
     "steps": "Étapes",
@@ -169,7 +176,32 @@
     },
     "transcribeRemaining_one": "Transcrire la page restante ({{count}})",
     "transcribeRemaining_other": "Transcrire les pages restantes ({{count}})",
-    "transcribingProgress": "Transcription… {{done}}/{{total}}"
+    "transcribingProgress": "Transcription… {{done}}/{{total}}",
+    "exportPdf": "Exporter en PDF",
+    "exportingPdf": "Export PDF…",
+    "sharedTitle": "Partagés avec moi",
+    "sharedIntro": "Documents que d’autres utilisateurs ont partagés avec vous.",
+    "sharedEmpty": "Aucun document partagé pour le moment.",
+    "sharedBy": "Partagé par {{name}}",
+    "accessViewer": "Lecture seule",
+    "accessEditor": "Éditeur",
+    "share": {
+      "title": "Partager le document",
+      "hint": "Invitez un utilisateur inscrit par son nom d’utilisateur, en lecteur ou en éditeur.",
+      "username": "Nom d’utilisateur",
+      "usernamePlaceholder": "ex. marie.dupont",
+      "role": "Rôle",
+      "roleFor": "Rôle de {{username}}",
+      "viewer": "Lecteur",
+      "editor": "Éditeur",
+      "rolesHint": "Les lecteurs peuvent consulter. Les éditeurs peuvent aussi importer et transcrire.",
+      "add": "Partager",
+      "sharing": "Partage…",
+      "people": "Personnes ayant accès",
+      "empty": "Personne n’a encore accès à ce document.",
+      "remove": "Retirer",
+      "action": "Partager"
+    }
   },
   "profile": {
     "nav": "Profil",
@@ -199,6 +231,13 @@
     "invalidZip": "Ce fichier ZIP n’est pas valide.",
     "deleteFailed": "Impossible de supprimer ce document.",
     "transcriptionFailed": "La transcription n’a pas pu être obtenue.",
-    "documentTranscriptionFailed": "Certaines pages n'ont pas pu être transcrites. Relancez pour les reprendre."
+    "documentTranscriptionFailed": "Certaines pages n'ont pas pu être transcrites. Relancez pour les reprendre.",
+    "exportPdfFailed": "Impossible d’exporter le PDF. Réessayez plus tard.",
+    "shareFailed": "Impossible de partager ce document.",
+    "shareLoadFailed": "Impossible de charger les partages.",
+    "shareUserNotFound": "Aucun utilisateur trouvé avec ce nom.",
+    "shareAlreadyExists": "Ce document est déjà partagé avec cet utilisateur.",
+    "shareInvalid": "Impossible de partager avec cet utilisateur.",
+    "searchFailed": "Impossible de lancer la recherche. Réessayez plus tard."
   }
 }

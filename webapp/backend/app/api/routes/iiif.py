@@ -48,15 +48,25 @@ async def iiif_info(
 ):
     page = await get_owned_page(page_id, current_user, session)
 
-    image_url = request.url_for(
-        "iiif_image",
-        page_id=str(page_id),
-        region="full",
-        size="full",
-        rotation="0",
-        quality="default",
-        image_format="jpg",
-    )
+    # Prefer the public host (proxy) so tile URLs stay on the same origin as the app.
+    forwarded_host = request.headers.get("x-forwarded-host")
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    if forwarded_host:
+        scheme = forwarded_proto or request.url.scheme
+        image_id = f"{scheme}://{forwarded_host}{request.url.path}".removesuffix(
+            "/info.json"
+        )
+    else:
+        image_url = request.url_for(
+            "iiif_image",
+            page_id=str(page_id),
+            region="full",
+            size="full",
+            rotation="0",
+            quality="default",
+            image_format="jpg",
+        )
+        image_id = str(image_url).removesuffix("/full/full/0/default.jpg")
 
     scale_factors = []
     scale = 1
@@ -69,7 +79,7 @@ async def iiif_info(
 
     return InfoResponse(
         context="http://iiif.io/api/image/3/context.json",
-        id=str(image_url).removesuffix("/full/full/0/default.jpg"),
+        id=image_id,
         type="ImageService3",
         protocol="http://iiif.io/api/image",
         profile=["level2"],

@@ -2,99 +2,34 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { listDocuments, type StoredDocument } from '../../api/documents'
+import { listDocuments, listSharedDocuments, type StoredDocument } from '../../api/documents'
 import { useAuth } from '../../auth/AuthProvider'
 import Brand from '../../components/Brand'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
+import TranscriptionSearch from './TranscriptionSearch'
 
 type ShellLocationState = { logoutFailed?: boolean }
 
-const DocumentsContext = createContext<StoredDocument[] | null>(null)
+type DocumentsLists = {
+  owned: StoredDocument[] | null
+  shared: StoredDocument[] | null
+}
 
-export function useDocuments(): StoredDocument[] | null {
+const DocumentsContext = createContext<DocumentsLists>({ owned: null, shared: null })
+
+export function useDocuments(): DocumentsLists {
   return useContext(DocumentsContext)
 }
 
-function MenuGlyph({ children }: { children: ReactNode }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-5 shrink-0"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      aria-hidden="true"
-    >
-      {children}
-    </svg>
-  )
-}
-
-function DocumentsIcon() {
-  return (
-    <MenuGlyph>
-      <path
-        d="M7 4.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V6A1.5 1.5 0 0 1 7 4.5z"
-        strokeLinejoin="round"
-      />
-      <path d="M14 4.5V9h4.5" strokeLinejoin="round" />
-    </MenuGlyph>
-  )
-}
-
-function ProfileIcon() {
-  return (
-    <MenuGlyph>
-      <circle cx="12" cy="8" r="3" />
-      <path d="M5.5 19.2c1.2-2.6 3.5-3.7 6.5-3.7s5.3 1.1 6.5 3.7" strokeLinecap="round" />
-    </MenuGlyph>
-  )
-}
-
-function MenuEntry({
-  to,
-  label,
-  icon,
-  collapsed,
-  end = false,
-  className = '',
-}: {
-  to: string
-  label: string
-  icon: ReactNode
-  collapsed: boolean
-  end?: boolean
-  className?: string
-}) {
-  return (
-    <NavLink
-      to={to}
-      end={end}
-      title={label}
-      aria-label={label}
-      className={({ isActive }) =>
-        `flex items-center rounded-lg font-sans text-[0.92rem] font-semibold no-underline ${collapsed ? 'size-10 justify-center' : 'gap-3 px-3 py-2'} ${isActive ? 'bg-[#f3f4fb] text-[#312e81]' : 'text-[#3d4663] hover:bg-[#f6f7fb]'} ${className}`
-      }
-    >
-      {icon}
-      {collapsed ? null : <span className="truncate">{label}</span>}
-    </NavLink>
-  )
-}
-
-// Le logo et les actions sont sur la même ligne. Le menu reste à gauche, la page à droite.
 export default function DocumentsFrame({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
-  const [documents, setDocuments] = useState<StoredDocument[] | null>(null)
+  const [owned, setOwned] = useState<StoredDocument[] | null>(null)
+  const [shared, setShared] = useState<StoredDocument[] | null>(null)
   const [revision, setRevision] = useState(0)
   const [isLeaving, setIsLeaving] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(true)
-  const menuWidthClass = isMenuOpen
-    ? 'w-[17.5rem] max-[800px]:max-h-[40vh] max-[800px]:w-full'
-    : 'w-16 max-[800px]:w-full'
   const logoutFailed = Boolean((location.state as ShellLocationState | null)?.logoutFailed)
 
   useEffect(() => {
@@ -106,13 +41,14 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return
     let cancelled = false
-    listDocuments()
-      .then((items) => {
-        if (!cancelled) setDocuments(items)
-      })
-      .catch(() => {
-        if (!cancelled) setDocuments([])
-      })
+    Promise.all([
+      listDocuments().catch(() => [] as StoredDocument[]),
+      listSharedDocuments().catch(() => [] as StoredDocument[]),
+    ]).then(([ownedItems, sharedItems]) => {
+      if (cancelled) return
+      setOwned(ownedItems)
+      setShared(sharedItems)
+    })
     return () => {
       cancelled = true
     }
@@ -134,11 +70,34 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
   }
 
   return (
-    <DocumentsContext.Provider value={documents}>
+    <DocumentsContext.Provider value={{ owned, shared }}>
       <div className="flex h-dvh flex-col overflow-hidden bg-[#f5f6fa] font-sans text-[#172033]">
-        <header className="flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[#e6e8f2] bg-white px-5 py-3 max-[640px]:px-3">
+        <header className="relative flex min-h-16 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[#e6e8f2] bg-white px-5 py-3 max-[640px]:px-3">
           <Brand />
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 hidden -translate-y-1/2 justify-center px-4 min-[720px]:flex">
+            <div className="pointer-events-auto w-full max-w-[17.25rem]">
+              <TranscriptionSearch />
+            </div>
+          </div>
+          <div className="w-full min-w-0 min-[720px]:hidden">
+            <TranscriptionSearch />
+          </div>
           <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
+            <nav className="flex items-center" aria-label={t('nav.main')}>
+              <NavLink
+                to="/app/documents"
+                end
+                className={({ isActive }) =>
+                  `px-2 py-1.5 font-sans text-[0.88rem] font-semibold underline decoration-[#c7d2fe] underline-offset-[4px] ${
+                    isActive
+                      ? 'text-[#312e81] decoration-[#4338a8]'
+                      : 'text-[#3d4663] hover:text-[#312e81] hover:decoration-[#4338a8]'
+                  }`
+                }
+              >
+                {t('documents.nav')}
+              </NavLink>
+            </nav>
             <LanguageSwitcher compact />
             <button
               type="button"
@@ -159,61 +118,7 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
           </p>
         )}
 
-        <div className="flex min-h-0 flex-1 max-[800px]:flex-col">
-          <aside
-            className={`relative flex shrink-0 flex-col border-r border-[#e6e8f2] bg-white max-[800px]:overflow-auto max-[800px]:border-r-0 max-[800px]:border-b ${menuWidthClass} ${isMenuOpen ? '' : 'max-[800px]:flex-row max-[800px]:items-center'}`}
-          >
-            <div
-              className={`flex shrink-0 ${isMenuOpen ? 'justify-end px-2 pt-2' : 'justify-center pt-3 max-[800px]:pt-0 max-[800px]:pl-2'}`}
-            >
-              <button
-                type="button"
-                className="grid size-9 cursor-pointer place-items-center rounded-full bg-white text-[#171c33] shadow-[0_4px_14px_rgba(23,28,51,0.16)] hover:shadow-[0_6px_18px_rgba(23,28,51,0.22)]"
-                aria-label={isMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
-                aria-expanded={isMenuOpen}
-                onClick={() => setIsMenuOpen((open) => !open)}
-              >
-                <svg
-                  className={`size-5 ${isMenuOpen ? '' : 'rotate-180'}`}
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.25"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12.5 4.5 L7 10 L12.5 15.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-            <nav
-              className={`flex min-h-0 flex-1 overflow-auto ${isMenuOpen ? 'flex-col px-3 pb-4 pt-1' : 'flex-col items-center gap-1 px-2 pb-3 pt-2 max-[800px]:flex-row max-[800px]:justify-center max-[800px]:px-2 max-[800px]:py-2'}`}
-              aria-label={t('nav.main')}
-            >
-              <MenuEntry
-                to="/app/documents"
-                label={t('documents.nav')}
-                icon={<DocumentsIcon />}
-                collapsed={!isMenuOpen}
-                end
-              />
-              <MenuEntry
-                to="/app/profile"
-                label={t('profile.nav')}
-                icon={<ProfileIcon />}
-                collapsed={!isMenuOpen}
-                className={
-                  isMenuOpen ? 'mt-auto border-t border-[#eef0f6] pt-3' : 'mt-auto max-[800px]:mt-0'
-                }
-              />
-            </nav>
-          </aside>
-
-          <div className="min-h-0 min-w-0 flex-1 overflow-hidden">{children}</div>
-        </div>
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden">{children}</div>
       </div>
     </DocumentsContext.Provider>
   )
