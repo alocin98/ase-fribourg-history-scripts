@@ -2,11 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  listDocuments,
-  listSharedDocuments,
-  type StoredDocument,
-} from '../../api/documents'
+import { listDocuments, listSharedDocuments, type StoredDocument } from '../../api/documents'
 import { useAuth } from '../../auth/AuthProvider'
 import Brand from '../../components/Brand'
 import LanguageSwitcher from '../../components/LanguageSwitcher'

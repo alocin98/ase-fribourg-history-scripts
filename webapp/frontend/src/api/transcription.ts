@@ -3,8 +3,8 @@
 
 import { ApiError, ensureCsrf, request } from './client'
 
-const POLL_INTERVAL_MS = 300
-const POLL_TIMEOUT_MS = 3 * 60 * 1000
+const POLL_INTERVAL_MS = 30000
+const POLL_TIMEOUT_MS = 3 * 60 * 10000
 // Une page prend quelques dizaines de secondes sur CPU ; marge large par page.
 const PAGE_TIMEOUT_MS = 2 * 60 * 1000
 const PENDING_STATUSES = new Set([

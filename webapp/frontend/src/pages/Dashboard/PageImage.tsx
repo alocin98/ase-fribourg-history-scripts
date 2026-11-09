@@ -77,10 +77,8 @@ export default function PageImage({
 
     // info.json renvoie une URL backend absolue ; on la réécrit vers le même origin
     // (proxy Vite) pour que les tuiles envoient bien le cookie de session.
-    const sameOriginId = new URL(
-      tileSource.replace(/\/info\.json$/i, ''),
-      window.location.origin,
-    ).href
+    const sameOriginId = new URL(tileSource.replace(/\/info\.json$/i, ''), window.location.origin)
+      .href
 
     const openViewer = (source: OpenSeadragon.Options['tileSources']) => {
       if (cancelled || !viewerElement.current) return

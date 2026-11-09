@@ -85,9 +85,7 @@ export default function ShareDialog({ documentId, onClose }: Props) {
     setError(null)
     try {
       const updated = await updateDocumentShare(documentId, share.id, nextRole)
-      setShares((current) =>
-        (current ?? []).map((item) => (item.id === share.id ? updated : item)),
-      )
+      setShares((current) => (current ?? []).map((item) => (item.id === share.id ? updated : item)))
     } catch (shareError) {
       setError(mapError(shareError))
     } finally {
@@ -159,7 +157,11 @@ export default function ShareDialog({ documentId, onClose }: Props) {
                 <option value="editor">{t('documents.share.editor')}</option>
               </select>
             </label>
-            <button type="submit" className={`${primaryButton} w-full sm:w-auto`} disabled={isSaving}>
+            <button
+              type="submit"
+              className={`${primaryButton} w-full sm:w-auto`}
+              disabled={isSaving}
+            >
               {isSaving ? t('documents.share.sharing') : t('documents.share.add')}
             </button>
           </form>
@@ -171,7 +173,9 @@ export default function ShareDialog({ documentId, onClose }: Props) {
           )}
 
           {shares === null ? (
-            <p className="mt-5 mb-0 font-sans text-[0.9rem] text-[#5d657c]">{t('common.loading')}</p>
+            <p className="mt-5 mb-0 font-sans text-[0.9rem] text-[#5d657c]">
+              {t('common.loading')}
+            </p>
           ) : shares.length > 0 ? (
             <ul className="mt-5 mb-0 grid list-none gap-2 p-0">
               {shares.map((share) => (

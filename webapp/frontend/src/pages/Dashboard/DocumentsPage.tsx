@@ -2,11 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  deleteDocument,
-  isDocumentOwner,
-  type StoredDocument,
-} from '../../api/documents'
+import { deleteDocument, isDocumentOwner, type StoredDocument } from '../../api/documents'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame, { useDocuments } from './DocumentsFrame'
 import DocumentDialog from './DocumentDialog'
@@ -246,7 +242,9 @@ function DocumentsContent() {
           </p>
 
           {sharedList === null ? (
-            <p className="mt-6 mb-0 font-sans text-[0.95rem] text-[#5d657c]">{t('common.loading')}</p>
+            <p className="mt-6 mb-0 font-sans text-[0.95rem] text-[#5d657c]">
+              {t('common.loading')}
+            </p>
           ) : sharedList.length === 0 ? (
             <p className="mt-6 mb-0 max-w-md font-sans text-[0.95rem] leading-7 text-[#5d657c]">
               {t('documents.sharedEmpty')}

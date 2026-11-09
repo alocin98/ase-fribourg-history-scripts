@@ -2,10 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  searchTranscriptions,
-  type TranscriptionSearchHit,
-} from '../../api/transcription'
+import { searchTranscriptions, type TranscriptionSearchHit } from '../../api/transcription'
 
 const DEBOUNCE_MS = 300
 

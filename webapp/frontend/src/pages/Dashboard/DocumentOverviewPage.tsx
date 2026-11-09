@@ -510,7 +510,9 @@ export default function DocumentOverviewPage() {
                     }}
                     disabled={isExporting || pages.length === 0}
                     aria-busy={isExporting}
-                    aria-label={isExporting ? t('documents.exportingPdf') : t('documents.exportPdf')}
+                    aria-label={
+                      isExporting ? t('documents.exportingPdf') : t('documents.exportPdf')
+                    }
                   >
                     {isExporting ? (
                       <span
@@ -806,9 +808,7 @@ export default function DocumentOverviewPage() {
         </div>
       )}
 
-      {isShareOpen && (
-        <ShareDialog documentId={documentId} onClose={() => setIsShareOpen(false)} />
-      )}
+      {isShareOpen && <ShareDialog documentId={documentId} onClose={() => setIsShareOpen(false)} />}
     </DocumentsFrame>
   )
 }
