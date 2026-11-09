@@ -69,47 +69,78 @@ export default function PageImage({
   const hasBoxes = size !== null && lines.some((line) => line.bbox !== null)
 
   useEffect(() => {
-    if (!viewerElement.current) return
-    const instance = OpenSeadragon({
-      element: viewerElement.current,
-      tileSources: tileSource,
-      ajaxWithCredentials: true,
-      showNavigationControl: false,
-      showHomeControl: false,
-      showZoomControl: false,
-      showFullPageControl: false,
-      showRotationControl: false,
-      visibilityRatio: 1,
-      constrainDuringPan: true,
-      animationTime: 0.25,
-      gestureSettingsMouse: { clickToZoom: false, scrollToZoom: true },
-    })
-    viewer.current = instance
+    if (!viewerElement.current || !tileSource) return
 
-    const updateBounds = () => {
-      if (!instance.world.getItemAt(0)) return
-      const topLeft = instance.viewport.imageToViewerElementCoordinates(
-        new OpenSeadragon.Point(0, 0),
-      )
-      const bottomRight = instance.viewport.imageToViewerElementCoordinates(
-        instance.world.getItemAt(0).getContentSize(),
-      )
-      setImageBounds({
-        left: topLeft.x,
-        top: topLeft.y,
-        width: bottomRight.x - topLeft.x,
-        height: bottomRight.y - topLeft.y,
+    let cancelled = false
+    let instance: OpenSeadragon.Viewer | null = null
+    setImageBounds(null)
+
+    // info.json renvoie une URL backend absolue ; on la réécrit vers le même origin
+    // (proxy Vite) pour que les tuiles envoient bien le cookie de session.
+    const sameOriginId = new URL(
+      tileSource.replace(/\/info\.json$/i, ''),
+      window.location.origin,
+    ).href
+
+    const openViewer = (source: OpenSeadragon.Options['tileSources']) => {
+      if (cancelled || !viewerElement.current) return
+      instance = OpenSeadragon({
+        element: viewerElement.current,
+        tileSources: source,
+        ajaxWithCredentials: true,
+        crossOriginPolicy: 'use-credentials',
+        showNavigationControl: false,
+        showHomeControl: false,
+        showZoomControl: false,
+        showFullPageControl: false,
+        showRotationControl: false,
+        visibilityRatio: 1,
+        constrainDuringPan: true,
+        animationTime: 0.25,
+        gestureSettingsMouse: { clickToZoom: false, scrollToZoom: true },
       })
+      viewer.current = instance
+
+      const updateBounds = () => {
+        if (!instance?.world.getItemAt(0)) return
+        const topLeft = instance.viewport.imageToViewerElementCoordinates(
+          new OpenSeadragon.Point(0, 0),
+        )
+        const bottomRight = instance.viewport.imageToViewerElementCoordinates(
+          instance.world.getItemAt(0).getContentSize(),
+        )
+        setImageBounds({
+          left: topLeft.x,
+          top: topLeft.y,
+          width: bottomRight.x - topLeft.x,
+          height: bottomRight.y - topLeft.y,
+        })
+      }
+
+      instance.addHandler('open', updateBounds)
+      instance.addHandler('animation', updateBounds)
+      instance.addHandler('resize', updateBounds)
+      instance.addHandler('pan', updateBounds)
+      instance.addHandler('zoom', updateBounds)
     }
 
-    instance.addHandler('open', updateBounds)
-    instance.addHandler('animation', updateBounds)
-    instance.addHandler('resize', updateBounds)
-    instance.addHandler('pan', updateBounds)
-    instance.addHandler('zoom', updateBounds)
+    void fetch(tileSource, { credentials: 'include' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`IIIF info ${response.status}`)
+        const info = (await response.json()) as Record<string, unknown>
+        openViewer({
+          ...info,
+          id: sameOriginId,
+          '@id': sameOriginId,
+        } as OpenSeadragon.TileSourceOptions)
+      })
+      .catch(() => {
+        openViewer(sameOriginId)
+      })
 
     return () => {
-      instance.destroy()
+      cancelled = true
+      instance?.destroy()
       viewer.current = null
     }
   }, [tileSource])

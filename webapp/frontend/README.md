@@ -1,73 +1,115 @@
 # Frontend — Manuscript AI
 
-Interface du projet ASE, dans `webapp/frontend`. Le site se lance ici. Il n’y a pas de dossier `frontend` à la racine du dépôt.
+ASE project UI, in `webapp/frontend`. The app is started from here. There is no `frontend` folder at the repository root.
 
-React, TypeScript, Vite et Tailwind CSS v4. La navigation utilise React Router. Les textes de toutes les pages passent par i18next (anglais par défaut, français disponible).
+Stack: React, TypeScript, Vite, and Tailwind CSS v4. Routing uses React Router. All page copy goes through i18next (English by default, French available).
 
 ## Pages
 
-| Adresse     | Fichier                      | Rôle                                                                                              |
-| ----------- | ---------------------------- | ------------------------------------------------------------------------------------------------- |
-| `/`         | `src/pages/WelcomePage.tsx`  | Accueil : présentation, hero avec le manuscrit de 1464, cartes, étapes, bandeau et retour en haut |
-| `/login`    | `src/pages/LoginPage.tsx`    | Connexion avec l’email et le mot de passe                                                         |
-| `/register` | `src/pages/RegisterPage.tsx` | Création du compte : nom et email sur une ligne, les deux mots de passe sur la suivante           |
-| `/app`      | `src/pages/AccountPage.tsx`  | Page du compte. Un court texte indique que la lecture et la transcription sont encore en cours    |
+- `/` — `WelcomePage.tsx`: landing page
+- `/login` — `auth/LoginPage.tsx`: sign in
+- `/register` — `auth/RegisterPage.tsx`: create an account
+- `/app/documents` — `Dashboard/DocumentsPage.tsx`: my documents and **Shared with me**
+- `/app/documents/:id/overview` — `Dashboard/DocumentOverviewPage.tsx`: images (IIIF), transcription, export, sharing
 
-Une adresse inconnue renvoie vers `/`. Sans session, `/app` renvoie vers `/login`. Une session déjà ouverte renvoie `/login` et `/register` vers `/app`. La déconnexion est visible et ramène à l’accueil.
+Unknown routes redirect to `/`. Without a session, `/app/*` redirects to `/login`. With an open session, `/login` and `/register` redirect to `/app/documents`.
 
-Entre `/login` et `/register`, la carte glisse (vers la droite pour l’inscription, vers la gauche pour revenir).
+The signed-in shell (`DocumentsFrame`) shows the logo, transcription search, **My documents**, language switcher, and sign out. There is no sidebar and no profile page.
+
+## Recent frontend features
+
+Frontend-only work (no backend changes) on branch `export-and-share-document-frontend`.
+
+### PDF export
+
+- Icon button on the document page (instant tooltip)
+- Expected call: `GET /api/documents/{id}/export` to download the PDF
+- States: loading, error, disabled when there are no images
+
+### Document sharing
+
+- Owner only: share icon and dialog (username, viewer or editor role)
+- Access list: change role or remove access
+- **Shared with me** section on `/app/documents`
+- UI permissions:
+  - **viewer**: read only (no upload, no transcription)
+  - **editor**: upload and transcription
+  - **owner**: everything, plus sharing and deletion
+- Expected routes:
+  - `GET /api/documents/shared`
+  - `GET` / `POST /api/documents/{id}/shares`
+  - `PATCH` / `DELETE /api/documents/{id}/shares/{shareId}`
+
+### Transcription search
+
+- Centered search field in the navigation bar
+- Results: document, page, line, with the match highlighted
+- Click opens `/app/documents/{id}/overview?page=...&line=...` and highlights the line (text and image)
+- Expected route: `GET /api/transcriptions/search?q=...`
+
+### IIIF display
+
+- OpenSeadragon viewer on the document page
+- Tiles go through the same origin (`/api`) so the session cookie is sent (avoids 401 locally through the Vite proxy)
 
 ## Session
 
-L’authentification est celle du backend : cookie HTTP-only `ase_session`, et jeton CSRF `ase_csrf` envoyé dans l’en-tête `X-CSRF-Token`. Le frontend n’enregistre ni JWT ni session dans `localStorage`. Seule la langue choisie y est gardée, sous la clé `ase_lang`.
+Auth matches the backend: HTTP-only `ase_session` cookie, and CSRF token `ase_csrf` sent in the `X-CSRF-Token` header. The frontend stores neither JWT nor session in `localStorage`. Only the chosen language is kept there, under `ase_lang`.
 
-En développement, Vite proxyfie `/api` vers `http://127.0.0.1:8000`.
+In development, Vite proxies `/api` to `http://127.0.0.1:8000` (with `changeOrigin` and `xfwd` for proxy headers).
 
-## Organisation des fichiers
+## File layout
 
 ```
 src/
-  main.tsx                 point d'entrée
-  App.tsx                  routes et garde des pages
-  index.css                Tailwind, police, couleurs, animations
+  main.tsx
+  App.tsx
+  index.css
   api/
-    client.ts              requêtes, cookie de session, CSRF
-    auth.ts                connexion, inscription, déconnexion, utilisateur courant
+    client.ts
+    auth.ts
+    documents.ts
+    transcription.ts
   auth/
-    AuthProvider.tsx       état de session pour toute l'application
+    AuthProvider.tsx
   components/
-    Brand.tsx              logo
-    LanguageSwitcher.tsx   FR / EN
-  i18n/                    textes FR et EN de toutes les pages
-  pages/                   les quatre pages, plus le glissement login ↔ inscription
-  assets/
-    gillion-de-trazegnies-1464.jpg
-public/
-  favicon.svg
+    Brand.tsx
+    LanguageSwitcher.tsx
+    ConfirmDialog.tsx
+  i18n/
+  pages/
+    WelcomePage.tsx
+    auth/
+    Dashboard/
+      DocumentsFrame.tsx
+      DocumentsPage.tsx
+      DocumentOverviewPage.tsx
+      PageImage.tsx
+      ShareDialog.tsx
+      TranscriptionSearch.tsx
 ```
 
-La police de l’interface est Segoe UI, avec Trebuchet MS en repli. Le dégradé du site va du bleu `#2563eb` au violet `#7c3aed`. Les boutons des formulaires partent du violet intermédiaire `#514fec`.
-
-## Démarrer
+## Getting started
 
 ```bash
 npm install
-npm run dev -- --host 127.0.0.1 --port 5173
+npm run dev
 ```
 
-Le backend doit répondre sur le port 8000, sinon la connexion affiche que le serveur est injoignable.
+The app is served at [http://localhost:5173/](http://localhost:5173/). The backend must answer on port 8000 (`webapp/backend` via Docker Compose), otherwise API calls fail.
 
 ```bash
+npm run typecheck
 npm run build
 ```
 
 ## Docker
 
-L’image compile l’application puis la sert avec nginx (port 80).
+The image builds the app and serves it with nginx (port 80).
 
 ```bash
 docker build -t ase-frontend .
 docker run -p 3000:80 ase-frontend
 ```
 
-L’application appelle l’API sur `/api`, sur le même domaine.
+The app calls the API on `/api`, on the same domain.

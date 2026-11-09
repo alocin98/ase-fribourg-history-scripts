@@ -192,3 +192,30 @@ export async function transcribeDocument(
 
   throw new DOMException('Aborted', 'AbortError')
 }
+
+export type TranscriptionSearchHit = {
+  document_id: string
+  document_name: string
+  page_id: string
+  page_number: number
+  line_index: number
+  line_text: string
+}
+
+// Route attendue : GET /transcriptions/search?q=...
+export async function searchTranscriptions(
+  query: string,
+  signal?: AbortSignal,
+): Promise<TranscriptionSearchHit[]> {
+  const trimmed = query.trim()
+  if (!trimmed) return []
+  try {
+    return await request<TranscriptionSearchHit[]>(
+      `/transcriptions/search?q=${encodeURIComponent(trimmed)}`,
+      { signal },
+    )
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 404 || error.status === 501)) return []
+    throw error
+  }
+}

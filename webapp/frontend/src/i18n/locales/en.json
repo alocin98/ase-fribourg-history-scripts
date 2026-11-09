@@ -16,6 +16,13 @@
     "openMenu": "Open the menu",
     "closeMenu": "Close the menu"
   },
+  "search": {
+    "label": "Search transcriptions",
+    "placeholder": "Search for a word…",
+    "results": "Search results",
+    "empty": "No results for this search.",
+    "page": "page {{n}}"
+  },
   "home": {
     "features": "Features",
     "steps": "Steps",
@@ -169,7 +176,32 @@
     },
     "transcribeRemaining_one": "Transcribe remaining page ({{count}})",
     "transcribeRemaining_other": "Transcribe remaining pages ({{count}})",
-    "transcribingProgress": "Transcribing… {{done}}/{{total}}"
+    "transcribingProgress": "Transcribing… {{done}}/{{total}}",
+    "exportPdf": "Export as PDF",
+    "exportingPdf": "Exporting PDF…",
+    "sharedTitle": "Shared with me",
+    "sharedIntro": "Documents that other users have shared with you.",
+    "sharedEmpty": "No shared documents yet.",
+    "sharedBy": "Shared by {{name}}",
+    "accessViewer": "Viewer",
+    "accessEditor": "Editor",
+    "share": {
+      "title": "Share document",
+      "hint": "Invite a registered user by username, as viewer or editor.",
+      "username": "Username",
+      "usernamePlaceholder": "e.g. marie.dupont",
+      "role": "Role",
+      "roleFor": "Role for {{username}}",
+      "viewer": "Viewer",
+      "editor": "Editor",
+      "rolesHint": "Viewers can read. Editors can also upload and transcribe.",
+      "add": "Share",
+      "sharing": "Sharing…",
+      "people": "People with access",
+      "empty": "Nobody has access to this document yet.",
+      "remove": "Remove",
+      "action": "Share"
+    }
   },
   "profile": {
     "nav": "Profile",
@@ -199,6 +231,13 @@
     "invalidZip": "This ZIP file is not valid.",
     "deleteFailed": "This document could not be deleted.",
     "transcriptionFailed": "The transcription could not be retrieved.",
-    "documentTranscriptionFailed": "Some pages could not be transcribed. Try again to retry them."
+    "documentTranscriptionFailed": "Some pages could not be transcribed. Try again to retry them.",
+    "exportPdfFailed": "Could not export the PDF. Please try again later.",
+    "shareFailed": "Could not share this document.",
+    "shareLoadFailed": "Could not load shares.",
+    "shareUserNotFound": "No user found with this username.",
+    "shareAlreadyExists": "This document is already shared with that user.",
+    "shareInvalid": "Could not share with this user.",
+    "searchFailed": "Could not run the search. Please try again later."
   }
 }

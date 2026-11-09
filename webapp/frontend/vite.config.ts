@@ -11,7 +11,11 @@ export default defineConfig(({ mode }) => {
     server: {
       // Redirige les appels /api vers le backend pour éviter les problèmes de CORS en développement.
       proxy: {
-        '/api': env.API_PROXY_TARGET ?? 'http://127.0.0.1:8000',
+        '/api': {
+          target: env.API_PROXY_TARGET ?? 'http://127.0.0.1:8000',
+          changeOrigin: true,
+          xfwd: true,
+        },
       },
     },
   }

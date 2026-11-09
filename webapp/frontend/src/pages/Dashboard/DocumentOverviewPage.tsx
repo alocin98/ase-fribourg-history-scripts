@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
 import {
+  canEditDocument,
   deleteDocument,
+  exportDocumentPdf,
   getDocument,
+  isDocumentOwner,
   listPages,
   pageImageInfoUrl,
   pageImageUrl,
@@ -22,6 +25,7 @@ import {
 } from '../../api/transcription'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
+import ShareDialog from './ShareDialog'
 import LineDialog from './LineDialog'
 import LineSource from './LineSource'
 import PageImage from './PageImage'
@@ -51,18 +55,24 @@ const panelClass =
 export default function DocumentOverviewPage() {
   const { t } = useTranslation()
   const { documentId = '' } = useParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const fileInput = useRef<HTMLInputElement>(null)
   // undefined : en chargement, null : introuvable.
   const [document, setDocument] = useState<StoredDocument | null | undefined>(undefined)
   const [pages, setPages] = useState<DocumentPage[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  // Ligne mise en avant depuis la recherche (sur image + texte).
+  const [focus, setFocus] = useState<{ pageId: string; index: number } | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [isOver, setIsOver] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
   // undefined : pas encore lue, null : aucune transcription, objet : transcription enregistrée.
   const [texts, setTexts] = useState<Record<string, PageTranscription | null>>({})
   // Ligne survolée (et d'où vient le survol) ou ouverte dans la fenêtre, pour une page donnée.
@@ -97,6 +107,9 @@ export default function DocumentOverviewPage() {
     pollAbort.current?.abort()
     setDescriptionOpen(false)
     setDescriptionOverflows(false)
+    setIsExporting(false)
+    setExportError(false)
+    setFocus(null)
     getDocument(documentId)
       .then(async (found) => {
         if (cancelled) return
@@ -104,7 +117,12 @@ export default function DocumentOverviewPage() {
         const items = await listPages(found.id)
         if (cancelled) return
         setPages(items)
-        setSelectedId(items[0]?.id ?? null)
+        const pageFromUrl = new URLSearchParams(window.location.search).get('page')
+        const initial =
+          pageFromUrl && items.some((page) => page.id === pageFromUrl)
+            ? pageFromUrl
+            : (items[0]?.id ?? null)
+        setSelectedId(initial)
       })
       .catch(() => {
         if (!cancelled) setDocument((current) => (current === undefined ? null : current))
@@ -115,6 +133,18 @@ export default function DocumentOverviewPage() {
       documentAbort.current?.abort()
     }
   }, [documentId])
+
+  // Ouvre la page et la ligne demandées par la recherche (?page=&line=).
+  useEffect(() => {
+    const pageId = searchParams.get('page')
+    const lineRaw = searchParams.get('line')
+    if (!pageId || pages.length === 0) return
+    if (!pages.some((page) => page.id === pageId)) return
+    setSelectedId(pageId)
+    if (lineRaw === null || lineRaw === '') return
+    const index = Number(lineRaw)
+    if (Number.isFinite(index)) setFocus({ pageId, index })
+  }, [searchParams, pages])
 
   // Au retour sur une image, afficher la transcription déjà enregistrée.
   useEffect(() => {
@@ -300,6 +330,7 @@ export default function DocumentOverviewPage() {
   const lines = shownText ? linesOf(shownText) : []
   const hovered = hover !== null && hover.pageId === selectedId ? hover : null
   const openedIndex = opened !== null && opened.pageId === selectedId ? opened.index : null
+  const focused = focus !== null && focus.pageId === selectedId ? focus : null
 
   // Note de chaque page (undefined : pas encore lue, null : rien à noter),
   // puis note du document calculée sur les lignes de toutes les pages.
@@ -319,8 +350,9 @@ export default function DocumentOverviewPage() {
   }
   const documentRating = pageRating(allLines)
 
-  // La ligne mise en avant : celle survolée, sinon celle ouverte dans la fenêtre.
-  let activeIndex: number | null = openedIndex
+  // Priorité : survol > dialogue ouvert > résultat de recherche.
+  let activeIndex: number | null = focused?.index ?? null
+  if (openedIndex !== null) activeIndex = openedIndex
   if (hovered !== null) activeIndex = hovered.index
   let activeLine: TranscriptionLineData | null = null
   let hasBoxes = false
@@ -339,12 +371,27 @@ export default function DocumentOverviewPage() {
 
   const imageSrc = selectedId ? pageImageUrl(documentId, selectedId) : ''
   const imageInfoSrc = selectedId ? pageImageInfoUrl(selectedId) : ''
+  const owner = isDocumentOwner(document)
+  const canEdit = canEditDocument(document)
   const hoverLine = (from: 'text' | 'image', index: number | null) => {
     if (index === null || !selectedId) setHover(null)
     else setHover({ pageId: selectedId, index, from })
   }
   const openLine = (index: number) => {
     if (selectedId) setOpened({ pageId: selectedId, index })
+  }
+
+  const exportPdf = async () => {
+    if (!document || isExporting || pages.length === 0) return
+    setIsExporting(true)
+    setExportError(false)
+    try {
+      await exportDocumentPdf(documentId, document.name)
+    } catch {
+      setExportError(true)
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -409,9 +456,11 @@ export default function DocumentOverviewPage() {
                   </div>
                 )}
               </div>
-              <div className="flex w-full shrink-0 flex-nowrap items-center gap-2 sm:w-auto sm:justify-end">
+              <div className="flex w-full shrink-0 flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
                 <DocumentActions
                   id={documentId}
+                  showView={false}
+                  showRemove={owner}
                   onRemove={() => {
                     setDeleteError(false)
                     void deleteDocument(documentId)
@@ -419,10 +468,83 @@ export default function DocumentOverviewPage() {
                       .catch(() => setDeleteError(true))
                   }}
                 />
-                {(remainingIds.length > 0 || documentJob) && (
+                {owner && (
+                  <div className="group relative shrink-0">
+                    <button
+                      type="button"
+                      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] hover:border-[#c9cdf8]"
+                      onClick={() => setIsShareOpen(true)}
+                      aria-label={t('documents.share.action')}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <circle cx="18" cy="5" r="2.5" />
+                        <circle cx="6" cy="12" r="2.5" />
+                        <circle cx="18" cy="19" r="2.5" />
+                        <path d="M8.4 13.2l7.2 4.1M15.6 6.7l-7.2 4.1" />
+                      </svg>
+                    </button>
+                    <span
+                      role="tooltip"
+                      className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#171c33] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(23,28,51,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100"
+                    >
+                      {t('documents.share.action')}
+                    </span>
+                  </div>
+                )}
+                <div className="group relative shrink-0">
                   <button
                     type="button"
-                    className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.82rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-70"
+                    className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] hover:border-[#c9cdf8] disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => {
+                      void exportPdf()
+                    }}
+                    disabled={isExporting || pages.length === 0}
+                    aria-busy={isExporting}
+                    aria-label={isExporting ? t('documents.exportingPdf') : t('documents.exportPdf')}
+                  >
+                    {isExporting ? (
+                      <span
+                        className="size-3.5 animate-spin rounded-full border-2 border-[#4338a8]/40 border-t-[#4338a8]"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 19V5" />
+                        <path d="M7 10l5-5 5 5" />
+                      </svg>
+                    )}
+                  </button>
+                  <span
+                    role="tooltip"
+                    className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#171c33] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(23,28,51,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100"
+                  >
+                    {isExporting ? t('documents.exportingPdf') : t('documents.exportPdf')}
+                  </span>
+                </div>
+                {canEdit && (remainingIds.length > 0 || documentJob) && (
+                  <button
+                    type="button"
+                    className="inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-3 font-sans text-[0.75rem] font-bold whitespace-nowrap text-white disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={documentJob !== null || pendingId !== null}
                     onClick={() => {
                       void transcribeRemaining()
@@ -430,7 +552,7 @@ export default function DocumentOverviewPage() {
                   >
                     {documentJob && (
                       <span
-                        className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                        className="size-3 shrink-0 animate-spin rounded-full border-2 border-white/40 border-t-white"
                         aria-hidden="true"
                       />
                     )}
@@ -442,18 +564,25 @@ export default function DocumentOverviewPage() {
                       : t('documents.transcribeRemaining', { count: remainingIds.length })}
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white"
-                  onClick={() => setIsOpen(true)}
-                >
-                  {t('documents.upload')}
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-3 font-sans text-[0.75rem] font-bold whitespace-nowrap text-[#4338a8] hover:bg-[#4f46e5] hover:text-white"
+                    onClick={() => setIsOpen(true)}
+                  >
+                    {t('documents.upload')}
+                  </button>
+                )}
               </div>
             </div>
             {documentJobFailed && (
               <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">
                 {t('errors.documentTranscriptionFailed')}
+              </p>
+            )}
+            {exportError && (
+              <p className="mt-4 mb-0 text-[0.9rem] text-[#dc2626]" role="alert">
+                {t('errors.exportPdfFailed')}
               </p>
             )}
             {deleteError && (
@@ -482,7 +611,10 @@ export default function DocumentOverviewPage() {
                             type="button"
                             className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-left font-sans text-[0.8rem] ${selected ? 'bg-[#f4f4f5] font-semibold text-[#18181b] shadow-[inset_0_0_0_1px_#e4e4e7]' : 'text-[#3f3f46] hover:bg-[#fafafa]'}`}
                             aria-pressed={selected}
-                            onClick={() => setSelectedId(page.id)}
+                            onClick={() => {
+                              setSelectedId(page.id)
+                              setFocus(null)
+                            }}
                           >
                             <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">
                               {page.page_number}
@@ -536,7 +668,7 @@ export default function DocumentOverviewPage() {
                     />
                   )}
                 </div>
-                {selectedId && (needsWork(shownText) || isPending) && (
+                {canEdit && selectedId && (needsWork(shownText) || isPending) && (
                   <div className="mt-3 flex shrink-0 justify-center">
                     <button
                       type="button"
@@ -580,7 +712,10 @@ export default function DocumentOverviewPage() {
                           key={line.index}
                           line={line}
                           active={line.index === activeIndex}
-                          reveal={hovered?.from === 'image'}
+                          reveal={
+                            hovered?.from === 'image' ||
+                            (focused !== null && line.index === focused.index)
+                          }
                           onHover={(index) => hoverLine('text', index)}
                           onOpen={openLine}
                         />
@@ -669,6 +804,10 @@ export default function DocumentOverviewPage() {
             </div>
           </form>
         </div>
+      )}
+
+      {isShareOpen && (
+        <ShareDialog documentId={documentId} onClose={() => setIsShareOpen(false)} />
       )}
     </DocumentsFrame>
   )
