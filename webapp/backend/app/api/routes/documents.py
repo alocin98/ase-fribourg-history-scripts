@@ -1,6 +1,6 @@
 import tempfile
 import zipfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from uuid import UUID, uuid4
 
 from fastapi import (
@@ -16,11 +16,15 @@ from fastapi import (
     status,
 )
 from fastapi.responses import FileResponse, Response
-from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.csrf import csrf_header
+from app.api.dependencies.services import (
+    DocumentServiceDep,
+    TranscriptionServiceDep,
+)
+from app.api.dependencies.zip_files import extract_and_upload_pages
 from app.api.schemas.documents import (
     DocumentCreate,
     DocumentRead,
@@ -28,39 +32,14 @@ from app.api.schemas.documents import (
     PageRead,
 )
 from app.api.schemas.transcriptions import PageTranscriptionRead
-from app.core.config import settings
 from app.infrastructure.database.session import get_db
 from app.infrastructure.storage.s3 import (
     delete_prefix,
     download_file,
-    ensure_bucket,
-    upload_file,
 )
 from app.models.user import User
-from app.repositories.documents import DocumentRepository
-from app.repositories.transcriptions import TranscriptionRepository
 
 router = APIRouter(prefix="/documents", tags=["documents"])
-ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
-MAX_PAGE_COUNT = 1000
-
-
-def _mime_type_for_extension(extension: str) -> str:
-    return {
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".png": "image/png",
-        ".webp": "image/webp",
-        ".tif": "image/tiff",
-        ".tiff": "image/tiff",
-    }[extension.lower()]
-
-
-def _safe_zip_path(name: str) -> PurePosixPath:
-    path = PurePosixPath(name)
-    if path.is_absolute() or ".." in path.parts:
-        raise HTTPException(status_code=400, detail="The ZIP contains an unsafe path")
-    return path
 
 
 @router.post(
@@ -73,13 +52,12 @@ def _safe_zip_path(name: str) -> PurePosixPath:
 )
 async def create_document(
     data: DocumentCreate,
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ) -> DocumentUploadResponse:
 
     document_id = uuid4()
-    repository = DocumentRepository(session)
-    document = await repository.create_document(
+    document = await service.create(
         document_id=document_id,
         owner_id=current_user.id,
         name=data.name,
@@ -99,90 +77,18 @@ async def create_document(
 )
 async def upload_files_to_document(
     document_id: UUID,
+    service: DocumentServiceDep,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> DocumentUploadResponse:
-    if not file.filename or not file.filename.lower().endswith(".zip"):
-        raise HTTPException(status_code=400, detail="Only ZIP files are accepted")
-
-    repository = DocumentRepository(session)
-    document = await repository.get_document_by_id(document_id, current_user.id)
+    document = await service.get_owned(document_id, current_user.id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
     try:
-        await ensure_bucket()
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            temporary_root = Path(temporary_directory)
-            archive_path = temporary_root / "original.zip"
-            pages_dir = temporary_root / "pages"
-            pages_dir.mkdir()
-
-            with archive_path.open("wb") as output:
-                bytes_written = 0
-                while chunk := await file.read(1024 * 1024):
-                    bytes_written += len(chunk)
-                    if bytes_written > settings.MAX_UPLOAD_SIZE:
-                        raise HTTPException(
-                            status_code=413, detail="ZIP file is too large"
-                        )
-                    output.write(chunk)
-
-            with zipfile.ZipFile(archive_path) as archive:
-                members = [
-                    member for member in archive.infolist() if not member.is_dir()
-                ]
-                if len(members) > MAX_PAGE_COUNT:
-                    raise HTTPException(status_code=400, detail="Too many files in ZIP")
-
-                image_members = []
-                for member in members:
-                    safe_path = _safe_zip_path(member.filename)
-                    if safe_path.suffix.lower() not in ALLOWED_IMAGE_EXTENSIONS:
-                        raise HTTPException(
-                            status_code=400, detail="ZIP contains a non-image file"
-                        )
-                    if member.file_size > settings.MAX_UPLOAD_SIZE:
-                        raise HTTPException(
-                            status_code=413, detail="An image is too large"
-                        )
-                    image_members.append((member, safe_path))
-
-                if not image_members:
-                    raise HTTPException(
-                        status_code=400, detail="ZIP does not contain images"
-                    )
-
-                pages = []
-                for page_number, (member, safe_path) in enumerate(
-                    image_members, start=1
-                ):
-                    image_path = (
-                        pages_dir / f"{page_number:04d}{safe_path.suffix.lower()}"
-                    )
-                    with (
-                        archive.open(member) as source,
-                        image_path.open("wb") as target,
-                    ):
-                        while chunk := source.read(1024 * 1024):
-                            target.write(chunk)
-                    with Image.open(image_path) as image:
-                        width, height = image.size
-                    image_key = f"{document_id}/pages/{image_path.name}"
-                    await upload_file(str(image_path), image_key)
-                    pages.append(
-                        {
-                            "page_number": page_number,
-                            "width": width,
-                            "height": height,
-                            "mime_type": _mime_type_for_extension(safe_path.suffix),
-                            "image_key": image_key,
-                        }
-                    )
-
-        # The document is created before its file is uploaded. Persist only its pages here.
-        await repository.create_pages(document_id=document_id, pages=pages)
+        pages = await extract_and_upload_pages(file, document_id)
+        await service.create_pages(document_id=document_id, pages=pages)
         return DocumentUploadResponse(id=document.id)
     except HTTPException:
         await session.rollback()
@@ -207,14 +113,11 @@ async def upload_files_to_document(
 )
 async def delete_document(
     document_id: UUID,
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ) -> None:
-    repository = DocumentRepository(session)
-    document = await repository.get_document_by_id(document_id, current_user.id)
-    if document is None:
+    if not await service.delete(document_id, current_user.id):
         raise HTTPException(status_code=404, detail="Document not found")
-    await repository.delete(document)
     await delete_prefix(f"{document_id}/")
 
 
@@ -227,11 +130,10 @@ async def delete_document(
     status_code=status.HTTP_200_OK,
 )
 async def list_user_documents(
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = DocumentRepository(session)
-    return await repository.get_all(current_user.id)
+    return await service.list_owned(current_user.id)
 
 
 @router.get(
@@ -245,17 +147,16 @@ async def list_user_documents(
 async def list_document_pages(
     request: Request,
     document_id: UUID,
+    service: DocumentServiceDep,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = DocumentRepository(session)
-    document = await repository.get_document_by_id(document_id, current_user.id)
+    document = await service.get_owned(document_id, current_user.id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    pages = await repository.get_pages(
+    pages = await service.list_pages(
         document_id=document_id,
         owner_id=current_user.id,
         offset=(page - 1) * page_size,
@@ -285,11 +186,11 @@ async def list_document_pages(
 async def get_document_page(
     document_id: UUID,
     page_id: UUID,
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = DocumentRepository(session)
-    page = await repository.get_page_by_id(
+    page = await service.get_owned_page(
+        document_id=document_id,
         page_id=page_id,
         owner_id=current_user.id,
     )
@@ -314,17 +215,17 @@ async def get_document_page(
 async def get_page_transcription(
     document_id: UUID,
     page_id: UUID,
+    service: DocumentServiceDep,
+    transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    page = await DocumentRepository(session).get_page_by_id(
-        page_id=page_id, owner_id=current_user.id
+    page = await service.get_owned_page(
+        document_id=document_id, page_id=page_id, owner_id=current_user.id
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
 
-    repository = TranscriptionRepository(session)
-    transcription = await repository.get_page_transcription_by_page_id(page_id)
+    transcription = await transcription_service.get_page_transcription(page_id)
     if transcription is None:
         raise HTTPException(status_code=404, detail="Transcription not found")
     return transcription
@@ -340,15 +241,14 @@ async def get_page_transcription(
 async def download_document(
     document_id: UUID,
     background_tasks: BackgroundTasks,
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = DocumentRepository(session)
-    document = await repository.get_document_by_id(document_id, current_user.id)
+    document = await service.get_owned(document_id, current_user.id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    pages = await repository.get_all_pages_by_document_id(
+    pages = await service.list_all_pages(
         document_id=document_id,
         owner_id=current_user.id,
     )

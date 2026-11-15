@@ -26,8 +26,7 @@ class DocumentRepository:
         )
 
         self.session.add(document)
-        await self.session.commit()
-        await self.session.refresh(document)
+        await self.session.flush()
         return document
 
     async def create_pages(
@@ -46,7 +45,6 @@ class DocumentRepository:
             )
             for page in pages
         )
-        await self.session.commit()
 
     async def get_all(self, owner_id: UUID) -> list[Document]:
         result = await self.session.scalars(
@@ -108,20 +106,19 @@ class DocumentRepository:
         self,
         page_id: UUID,
         owner_id: UUID,
+        document_id: UUID | None = None,
     ) -> Page | None:
-        return await self.session.scalar(
-            select(Page)
-            .join(Document)
-            .where(
-                Page.id == page_id,
-                Document.owner_id == owner_id,
-            )
-        )
+        conditions = [Page.id == page_id, Document.owner_id == owner_id]
+        if document_id is not None:
+            conditions.append(Page.document_id == document_id)
+        return await self.session.scalar(select(Page).join(Document).where(*conditions))
+
+    async def get_page(self, page_id: UUID) -> Page | None:
+        return await self.session.scalar(select(Page).where(Page.id == page_id))
 
     async def delete(self, document: Document) -> None:
         await self.session.execute(delete(Page).where(Page.document_id == document.id))
         await self.session.delete(document)
-        await self.session.commit()
 
     async def delete_all_for_owner(self, owner_id: UUID) -> list[UUID]:
         documents = await self.get_all(owner_id)
@@ -131,6 +128,4 @@ class DocumentRepository:
                 delete(Page).where(Page.document_id == document.id)
             )
             await self.session.delete(document)
-        if documents:
-            await self.session.commit()
         return stored

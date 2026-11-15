@@ -82,10 +82,12 @@ class TranscriptionRepository:
     async def get_transcription_job_by_id(
         self,
         job_id: UUID,
+        owner_id: UUID | None = None,
     ) -> TranscriptionJob | None:
-        result = await self.session.scalars(
-            select(TranscriptionJob).where(TranscriptionJob.id == job_id)
-        )
+        conditions = [TranscriptionJob.id == job_id]
+        if owner_id is not None:
+            conditions.append(TranscriptionJob.owner_id == owner_id)
+        result = await self.session.scalars(select(TranscriptionJob).where(*conditions))
         return result.one_or_none()
 
     async def get_transcription_jobs_by_document_id(

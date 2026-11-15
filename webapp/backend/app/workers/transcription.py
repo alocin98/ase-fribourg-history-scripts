@@ -4,17 +4,13 @@ from pathlib import Path
 from uuid import UUID
 
 import httpx
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.transcriptions import TranscriptionLine
 from app.core.config import settings
 from app.infrastructure.database.session import session_factory
 from app.infrastructure.storage.s3 import download_file_to_path
-from app.models.documents import Page
 from app.models.transcriptions import PageTranscription
-from app.repositories.documents import DocumentRepository
-from app.repositories.transcriptions import TranscriptionRepository
+from app.services.transcriptions import TranscriptionService
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +21,12 @@ def needs_transcription(transcription: PageTranscription | None) -> bool:
     return transcription is None or transcription.lines is None
 
 
-async def page_transcription(session: AsyncSession, page_id: UUID) -> bool:
-    repository = TranscriptionRepository(session)
-
-    existing = await repository.get_page_transcription_by_page_id(page_id)
+async def page_transcription(service: TranscriptionService, page_id: UUID) -> bool:
+    existing = await service.get_page_transcription(page_id)
     if not needs_transcription(existing):
         return False
 
-    page = await session.scalar(select(Page).where(Page.id == page_id))
+    page = await service.get_page_for_worker(page_id)
     if page is None:
         return False
 
@@ -57,7 +51,13 @@ async def page_transcription(session: AsyncSession, page_id: UUID) -> bool:
                 )
         # 422 : le modèle n'a trouvé aucune ligne, la page est vide.
         if response.status_code == 422:
-            await repository.save_page_transcription(page_id, "", [], None, None)
+            await service.save_page_transcription(
+                page_id=page_id,
+                text="",
+                lines=[],
+                image_width=None,
+                image_height=None,
+            )
             return True
         response.raise_for_status()
         response_data = response.json()
@@ -80,7 +80,7 @@ async def page_transcription(session: AsyncSession, page_id: UUID) -> bool:
     if response_data.get("image_size"):
         image_width, image_height = response_data["image_size"]
 
-    await repository.save_page_transcription(
+    await service.save_page_transcription(
         page_id=page_id,
         text=text,
         lines=lines,
@@ -92,15 +92,14 @@ async def page_transcription(session: AsyncSession, page_id: UUID) -> bool:
 
 async def transcribe_document(job_id: UUID) -> None:
     async with session_factory() as session:
-        transcription_repository = TranscriptionRepository(session)
-        document_repository = DocumentRepository(session)
+        service = TranscriptionService(session)
 
-        job = await transcription_repository.get_transcription_job_by_id(job_id)
+        job = await service.get_worker_job(job_id)
 
         if job is None:
             return
 
-        pages = await document_repository.get_all_pages_by_document_id(
+        pages = await service.get_document_pages(
             document_id=job.document_id,
             owner_id=job.owner_id,
         )
@@ -110,53 +109,51 @@ async def transcribe_document(job_id: UUID) -> None:
         for page in pages:
             page_ids.append(page.id)
 
-        await transcription_repository.start_transcription_job(job_id)
+        await service.start_job(job_id)
 
         # Les pages déjà transcrites sont sautées, et une page en échec
         # n'empêche pas de transcrire les suivantes.
         failed = False
         for page_id in page_ids:
             try:
-                await page_transcription(session, page_id)
+                await page_transcription(service, page_id)
             except Exception:
                 logger.exception("Transcription of page %s failed", page_id)
                 await session.rollback()
                 failed = True
 
         if failed:
-            await transcription_repository.fail_transcription_job(job_id)
+            await service.fail_job(job_id)
             return
 
-        await transcription_repository.complete_transcription_job(job_id)
+        await service.complete_job(job_id)
 
 
 async def transcribe_page(job_id: UUID) -> None:
     async with session_factory() as session:
-        transcription_repository = TranscriptionRepository(session)
+        service = TranscriptionService(session)
 
-        job = await transcription_repository.get_transcription_job_by_id(job_id)
+        job = await service.get_worker_job(job_id)
 
         if job is None:
             return
 
-        existing = await transcription_repository.get_page_transcription_by_page_id(
-            job.page_id
-        )
+        existing = await service.get_page_transcription(job.page_id)
         if not needs_transcription(existing):
-            await transcription_repository.complete_transcription_job(job_id)
+            await service.complete_job(job_id)
             return
 
-        await transcription_repository.start_transcription_job(job_id)
+        await service.start_job(job_id)
 
         try:
-            if not await page_transcription(session, job.page_id):
-                await transcription_repository.complete_transcription_job(job_id)
+            if not await page_transcription(service, job.page_id):
+                await service.complete_job(job_id)
                 return
         except Exception:
             # Après un rollback, job est périmé : on n'utilise plus que job_id.
             logger.exception("Transcription job %s failed", job_id)
             await session.rollback()
-            await transcription_repository.fail_transcription_job(job_id)
+            await service.fail_job(job_id)
             return
 
-        await transcription_repository.complete_transcription_job(job_id)
+        await service.complete_job(job_id)

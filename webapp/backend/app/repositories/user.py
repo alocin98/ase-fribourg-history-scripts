@@ -3,7 +3,6 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import get_password_hash
 from app.models.user import User
 
 
@@ -23,12 +22,11 @@ class UserRepository:
         user = User(
             email=email,
             name=name,
-            password_hash=get_password_hash(password),
+            password_hash=password,
         )
 
         self.session.add(user)
-        await self.session.commit()
-        await self.session.refresh(user)
+        await self.session.flush()
 
         return user
 
@@ -38,20 +36,17 @@ class UserRepository:
         *,
         email: str | None = None,
         name: str | None = None,
-        password: str | None = None,
+        password_hash: str | None = None,
     ) -> User:
         if email is not None:
             user.email = email
         if name is not None:
             user.name = name
-        if password is not None:
-            user.password_hash = get_password_hash(password)
+        if password_hash is not None:
+            user.password_hash = password_hash
 
-        await self.session.commit()
-        await self.session.refresh(user)
-
+        await self.session.flush()
         return user
 
     async def delete(self, user: User) -> None:
         await self.session.delete(user)
-        await self.session.commit()

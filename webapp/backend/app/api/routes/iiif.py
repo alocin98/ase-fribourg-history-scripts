@@ -4,15 +4,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import Response
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.iiif import transform_image
+from app.api.dependencies.services import DocumentServiceDep
 from app.api.schemas.iiif import InfoResponse
-from app.infrastructure.database.session import get_db
 from app.infrastructure.storage.s3 import download_file_to_path
 from app.models.user import User
-from app.repositories.documents import DocumentRepository
+from app.services.documents import DocumentService
 
 router = APIRouter(prefix="/iiif/3", tags=["iiif"])
 
@@ -20,9 +19,9 @@ router = APIRouter(prefix="/iiif/3", tags=["iiif"])
 async def get_owned_page(
     page_id: UUID,
     current_user: User,
-    session: AsyncSession,
+    service: DocumentService,
 ):
-    page = await DocumentRepository(session).get_page_by_id(
+    page = await service.get_owned_page_by_id(
         page_id=page_id,
         owner_id=current_user.id,
     )
@@ -43,10 +42,10 @@ async def get_owned_page(
 async def iiif_info(
     page_id: UUID,
     request: Request,
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    page = await get_owned_page(page_id, current_user, session)
+    page = await get_owned_page(page_id, current_user, service)
 
     image_url = request.url_for(
         "iiif_image",
@@ -102,10 +101,10 @@ async def iiif_image(
     rotation: str,
     quality: str,
     image_format: str,
+    service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    page = await get_owned_page(page_id, current_user, session)
+    page = await get_owned_page(page_id, current_user, service)
 
     try:
         with NamedTemporaryFile(suffix=".image", delete=False) as source:
