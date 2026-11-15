@@ -25,7 +25,7 @@ class DocumentService:
             name=name,
             description=description,
         )
-        await self.session.commit()
+        await self.repository.commit()
         return document
 
     async def get_owned(self, document_id: UUID, owner_id: UUID) -> Document | None:
@@ -39,13 +39,13 @@ class DocumentService:
         *,
         document_id: UUID,
         owner_id: UUID,
-        offset: int,
+        after_page_number: int | None,
         limit: int,
-    ) -> list[Page]:
+    ) -> tuple[list[Page], bool]:
         return await self.repository.get_pages(
             document_id=document_id,
             owner_id=owner_id,
-            offset=offset,
+            after_page_number=after_page_number,
             limit=limit,
         )
 
@@ -56,7 +56,7 @@ class DocumentService:
         pages: list[dict[str, int | str]],
     ) -> None:
         await self.repository.create_pages(document_id=document_id, pages=pages)
-        await self.session.commit()
+        await self.repository.commit()
 
     async def get_owned_page(
         self,
@@ -90,10 +90,10 @@ class DocumentService:
         if document is None:
             return False
         await self.repository.delete(document)
-        await self.session.commit()
+        await self.repository.commit()
         return True
 
     async def delete_all_for_owner(self, owner_id: UUID) -> list[UUID]:
         stored = await self.repository.delete_all_for_owner(owner_id)
-        await self.session.commit()
+        await self.repository.commit()
         return stored

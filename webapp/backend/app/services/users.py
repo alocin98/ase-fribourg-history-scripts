@@ -25,8 +25,8 @@ class UserService:
             name=name,
             password=get_password_hash(password),
         )
-        await self.session.commit()
-        await self.session.refresh(user)
+        await self.repository.commit()
+        await self.repository.refresh(user)
         return user
 
     async def get(self, user_id: UUID) -> User | None:
@@ -54,10 +54,10 @@ class UserService:
             ),
         )
 
-        await self.session.commit()
-        await self.session.refresh(user)
+        await self.repository.commit()
+        await self.repository.refresh(user)
         return user
 
     async def delete(self, user: User) -> None:
         await self.repository.delete(user)
-        await self.session.commit()
+        await self.repository.commit()

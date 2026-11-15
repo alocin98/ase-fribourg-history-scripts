@@ -10,25 +10,30 @@ from app.repositories.transcriptions import TranscriptionRepository
 
 class TranscriptionService:
     def __init__(self, session: AsyncSession):
+        self.session = session
         self.document_repository = DocumentRepository(session)
         self.repository = TranscriptionRepository(session)
 
     async def create_document_job(
         self, *, document_id: UUID, owner_id: UUID
     ) -> TranscriptionJob:
-        return await self.repository.create_document_transcription_job(
+        job = await self.repository.create_document_transcription_job(
             document_id=document_id,
             owner_id=owner_id,
         )
+        await self.repository.commit()
+        return job
 
     async def create_page_job(
         self, *, document_id: UUID, page_id: UUID, owner_id: UUID
     ) -> TranscriptionJob:
-        return await self.repository.create_page_transcription_job(
+        job = await self.repository.create_page_transcription_job(
             document_id=document_id,
             page_id=page_id,
             owner_id=owner_id,
         )
+        await self.repository.commit()
+        return job
 
     async def get_job(self, job_id: UUID, owner_id: UUID) -> TranscriptionJob | None:
         return await self.repository.get_transcription_job_by_id(
@@ -39,13 +44,22 @@ class TranscriptionService:
     async def get_page_transcription(self, page_id: UUID) -> PageTranscription | None:
         return await self.repository.get_page_transcription_by_page_id(page_id)
 
+    async def get_owned_page_transcription(
+        self, *, document_id: UUID, page_id: UUID, owner_id: UUID
+    ) -> PageTranscription | None:
+        return await self.repository.get_owned_page_transcription(
+            document_id=document_id,
+            page_id=page_id,
+            owner_id=owner_id,
+        )
+
     async def get_worker_job(self, job_id: UUID) -> TranscriptionJob | None:
         return await self.repository.get_transcription_job_by_id(job_id)
 
     async def get_document_pages(
         self, *, document_id: UUID, owner_id: UUID
-    ) -> list[Page]:
-        return await self.document_repository.get_all_pages_by_document_id(
+    ) -> list[tuple[Page, PageTranscription | None]]:
+        return await self.repository.get_document_pages_with_transcriptions(
             document_id=document_id,
             owner_id=owner_id,
         )
@@ -54,13 +68,19 @@ class TranscriptionService:
         return await self.document_repository.get_page(page_id)
 
     async def start_job(self, job_id: UUID) -> TranscriptionJob | None:
-        return await self.repository.start_transcription_job(job_id)
+        job = await self.repository.start_transcription_job(job_id)
+        await self.repository.commit()
+        return job
 
     async def fail_job(self, job_id: UUID) -> TranscriptionJob | None:
-        return await self.repository.fail_transcription_job(job_id)
+        job = await self.repository.fail_transcription_job(job_id)
+        await self.repository.commit()
+        return job
 
     async def complete_job(self, job_id: UUID) -> TranscriptionJob | None:
-        return await self.repository.complete_transcription_job(job_id)
+        job = await self.repository.complete_transcription_job(job_id)
+        await self.repository.commit()
+        return job
 
     async def save_page_transcription(
         self,
@@ -78,3 +98,10 @@ class TranscriptionService:
             image_width=image_width,
             image_height=image_height,
         )
+        await self.repository.commit()
+
+    async def save_page_transcriptions(
+        self, transcriptions: list[dict[str, object]]
+    ) -> None:
+        await self.repository.save_page_transcriptions(transcriptions)
+        await self.repository.commit()

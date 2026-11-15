@@ -152,16 +152,16 @@ async def list_document_pages(
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
 ):
-    document = await service.get_owned(document_id, current_user.id)
-    if document is None:
-        raise HTTPException(status_code=404, detail="Document not found")
-
-    pages = await service.list_pages(
+    after_page_number: int | None = (page - 1) * page_size if page > 1 else None
+    pages, document_exists = await service.list_pages(
         document_id=document_id,
         owner_id=current_user.id,
-        offset=(page - 1) * page_size,
+        after_page_number=after_page_number,
         limit=page_size,
     )
+    if not document_exists:
+        raise HTTPException(status_code=404, detail="Document not found")
+
     return [
         PageRead(
             id=item.id,
