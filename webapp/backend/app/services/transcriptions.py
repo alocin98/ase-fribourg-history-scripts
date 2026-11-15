@@ -9,10 +9,21 @@ from app.repositories.transcriptions import TranscriptionRepository
 
 
 class TranscriptionService:
-    def __init__(self, session: AsyncSession):
+    def __init__(
+        self,
+        session: AsyncSession,
+        document_repository: DocumentRepository | None = None,
+        repository: TranscriptionRepository | None = None,
+    ):
         self.session = session
-        self.document_repository = DocumentRepository(session)
-        self.repository = TranscriptionRepository(session)
+        self.document_repository = (
+            document_repository
+            if document_repository is not None
+            else DocumentRepository(session)
+        )
+        self.repository = (
+            repository if repository is not None else TranscriptionRepository(session)
+        )
 
     async def create_document_job(
         self, *, document_id: UUID, owner_id: UUID

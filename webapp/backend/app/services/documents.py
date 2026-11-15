@@ -7,9 +7,13 @@ from app.repositories.documents import DocumentRepository
 
 
 class DocumentService:
-    def __init__(self, session: AsyncSession):
+    def __init__(
+        self, session: AsyncSession, repository: DocumentRepository | None = None
+    ):
         self.session = session
-        self.repository = DocumentRepository(session)
+        self.repository = (
+            repository if repository is not None else DocumentRepository(session)
+        )
 
     async def create(
         self,
