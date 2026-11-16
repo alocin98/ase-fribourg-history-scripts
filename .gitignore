@@ -5,3 +5,6 @@ data/manuscripts/test/
 __pycache__/
 data/manuscripts/_release/
 *.pyc
+webapp/backend/storage/
+.env
+.env.*
