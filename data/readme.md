@@ -42,3 +42,12 @@ data/manuscripts/
 ├── train/<group>/<page_id>.jpg | .txt | .xml
 └── test/<group>/...
 ```
+
+## Test sample
+
+`test_sample.zip` (~32 MB) holds 15 pages drawn at random (fixed seed) from the **test** split,
+at least 2 per group, for quickly trying out the backend and frontend without downloading the
+full dataset. It has the same layout as the full download:
+
+The `valais_*` pages are CC-BY-NC 4.0 (non-commercial); the rest are CC-BY 4.0 or public domain.
+Sources and licences are in the `source` column of `metadata.csv` and in `manuscripts/README.md`.
