@@ -1,15 +1,15 @@
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Security, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.csrf import csrf_header
+from app.api.dependencies.services import (
+    DocumentServiceDep,
+    TranscriptionServiceDep,
+)
 from app.api.schemas.transcriptions import TranscriptionResponse
-from app.infrastructure.database.session import get_db
 from app.models.user import User
-from app.repositories.documents import DocumentRepository
-from app.repositories.transcriptions import TranscriptionRepository
 from app.workers.queue import enqueue_document_transcription, enqueue_page_transcription
 
 router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
@@ -25,17 +25,15 @@ router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 async def create_document_transcription_job(
     document_id: UUID,
     background_tasks: BackgroundTasks,
+    document_service: DocumentServiceDep,
+    transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
-) -> None:
-    document = await DocumentRepository(session).get_document_by_id(
-        document_id, current_user.id
-    )
+) -> TranscriptionResponse:
+    document = await document_service.get_owned(document_id, current_user.id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    repository = TranscriptionRepository(session)
-    jobs = await repository.create_document_transcription_job(
+    jobs = await transcription_service.create_document_job(
         document_id=document_id, owner_id=current_user.id
     )
 
@@ -55,17 +53,17 @@ async def create_page_transcription(
     document_id: UUID,
     page_id: UUID,
     background_tasks: BackgroundTasks,
+    document_service: DocumentServiceDep,
+    transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    page = await DocumentRepository(session).get_page_by_id(
-        page_id=page_id, owner_id=current_user.id
+    page = await document_service.get_owned_page(
+        document_id=document_id, page_id=page_id, owner_id=current_user.id
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Document or Page not found")
 
-    repository = TranscriptionRepository(session)
-    jobs = await repository.create_page_transcription_job(
+    jobs = await transcription_service.create_page_job(
         document_id=document_id, page_id=page_id, owner_id=current_user.id
     )
 
@@ -82,18 +80,10 @@ async def create_page_transcription(
 )
 async def get_transcription_job_status(
     job_id: UUID,
+    transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = TranscriptionRepository(session)
-    job = await repository.get_transcription_job_by_id(job_id=job_id)
-
-    if job is None:
-        raise HTTPException(status_code=404, detail="Transcription job not found")
-
-    return TranscriptionResponse(job_id=job.id, status=job.status)
-    repository = TranscriptionRepository(session)
-    job = await repository.get_transcription_job_by_id(job_id=job_id)
+    job = await transcription_service.get_job(job_id=job_id, owner_id=current_user.id)
 
     if job is None:
         raise HTTPException(status_code=404, detail="Transcription job not found")

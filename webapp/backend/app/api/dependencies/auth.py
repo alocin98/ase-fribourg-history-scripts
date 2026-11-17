@@ -8,7 +8,6 @@ from app.infrastructure.database.session import get_db
 from app.models.sessions import AuthSession
 from app.models.user import User
 from app.repositories.sessions import SessionRepository
-from app.repositories.user import UserRepository
 
 
 async def get_current_session(
@@ -30,16 +29,31 @@ async def get_current_session(
     return auth_session
 
 
-async def get_current_user(
-    auth_session: Annotated[AuthSession, Depends(get_current_session)],
+async def get_current_session_and_user(
+    request: Request,
     session: Annotated[AsyncSession, Depends(get_db)],
+) -> tuple[AuthSession, User]:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+    )
+
+    token = request.cookies.get(settings.SESSION_COOKIE_NAME)
+    if not token:
+        raise credentials_exception
+
+    session_and_user = await SessionRepository(session).get_valid_session_and_user(
+        token
+    )
+    if session_and_user is None:
+        raise credentials_exception
+    return session_and_user
+
+
+async def get_current_user(
+    auth_session_and_user: Annotated[
+        tuple[AuthSession, User], Depends(get_current_session_and_user)
+    ],
 ) -> User:
-    user = await UserRepository(session).get_by_id(auth_session.user_id)
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
-
+    _, user = auth_session_and_user
     return user

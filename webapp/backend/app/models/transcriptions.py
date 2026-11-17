@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey, String, func
+from sqlalchemy import ForeignKey, Index, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -11,6 +11,12 @@ from app.infrastructure.database.base import Base
 
 class TranscriptionJob(Base):
     __tablename__ = "transcription_jobs"
+    __table_args__ = (
+        Index("ix_transcription_jobs_owner_created", "owner_id", "created_at"),
+        Index("ix_transcription_jobs_document_created", "document_id", "created_at"),
+        Index("ix_transcription_jobs_page_id", "page_id"),
+        Index("ix_transcription_jobs_status_created", "status", "created_at"),
+    )
 
     id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4

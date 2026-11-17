@@ -26,8 +26,7 @@ class DocumentRepository:
         )
 
         self.session.add(document)
-        await self.session.commit()
-        await self.session.refresh(document)
+        await self.session.flush()
         return document
 
     async def create_pages(
@@ -46,7 +45,6 @@ class DocumentRepository:
             )
             for page in pages
         )
-        await self.session.commit()
 
     async def get_all(self, owner_id: UUID) -> list[Document]:
         result = await self.session.scalars(
@@ -72,21 +70,25 @@ class DocumentRepository:
         self,
         document_id: UUID,
         owner_id: UUID,
-        offset: int,
+        after_page_number: int | None,
         limit: int,
-    ) -> list[Page]:
-        result = await self.session.scalars(
-            select(Page)
-            .join(Document)
+    ) -> tuple[list[Page], bool]:
+        page_join = Page.document_id == Document.id
+        if after_page_number is not None:
+            page_join = page_join & (Page.page_number > after_page_number)
+        statement = (
+            select(Document, Page)
+            .outerjoin(Page, page_join)
             .where(
-                Page.document_id == document_id,
+                Document.id == document_id,
                 Document.owner_id == owner_id,
             )
             .order_by(Page.page_number)
-            .offset(offset)
-            .limit(limit)
         )
-        return list(result.all())
+        rows = (await self.session.execute(statement.limit(limit))).all()
+        if not rows:
+            return [], False
+        return [page for _, page in rows if page is not None], True
 
     async def get_all_pages_by_document_id(
         self,
@@ -108,29 +110,33 @@ class DocumentRepository:
         self,
         page_id: UUID,
         owner_id: UUID,
+        document_id: UUID | None = None,
     ) -> Page | None:
-        return await self.session.scalar(
-            select(Page)
-            .join(Document)
-            .where(
-                Page.id == page_id,
-                Document.owner_id == owner_id,
-            )
-        )
+        conditions = [Page.id == page_id, Document.owner_id == owner_id]
+        if document_id is not None:
+            conditions.append(Page.document_id == document_id)
+        return await self.session.scalar(select(Page).join(Document).where(*conditions))
+
+    async def get_page(self, page_id: UUID) -> Page | None:
+        return await self.session.scalar(select(Page).where(Page.id == page_id))
 
     async def delete(self, document: Document) -> None:
         await self.session.execute(delete(Page).where(Page.document_id == document.id))
         await self.session.delete(document)
-        await self.session.commit()
 
     async def delete_all_for_owner(self, owner_id: UUID) -> list[UUID]:
-        documents = await self.get_all(owner_id)
-        stored = [document.id for document in documents]
-        for document in documents:
-            await self.session.execute(
-                delete(Page).where(Page.document_id == document.id)
-            )
-            await self.session.delete(document)
-        if documents:
-            await self.session.commit()
+        result = await self.session.scalars(
+            select(Document.id).where(Document.owner_id == owner_id)
+        )
+        stored = list(result.all())
+        if not stored:
+            return []
+
+        await self.session.execute(delete(Page).where(Page.document_id.in_(stored)))
+        await self.session.execute(
+            delete(Document).where(Document.owner_id == owner_id)
+        )
         return stored
+
+    async def commit(self):
+        await self.session.commit()

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.security import create_session_token, hash_session_token
 from app.models.sessions import AuthSession
+from app.models.user import User
 
 
 class SessionRepository:
@@ -34,6 +35,20 @@ class SessionRepository:
             )
         )
         return auth_session
+
+    async def get_valid_session_and_user(
+        self, token: str
+    ) -> tuple[AuthSession, User] | None:
+        result = await self.session.execute(
+            select(AuthSession, User)
+            .join(User, User.id == AuthSession.user_id)
+            .where(
+                AuthSession.token_hash == hash_session_token(token),
+                AuthSession.expires_at > datetime.now(UTC),
+            )
+        )
+        row = result.one_or_none()
+        return row if row is None else (row[0], row[1])
 
     async def revoke(self, auth_session: AuthSession) -> None:
         await self.session.delete(auth_session)
