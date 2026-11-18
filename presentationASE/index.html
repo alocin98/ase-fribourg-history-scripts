@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manuscript AI · ASE</title>
+<link rel="stylesheet" href="css/deck.css">
+</head>
+<body>
+<div id="viewport"><div id="stage">
+<header id="topbar"></header>
+
+<!-- ============================================================ 1 title -->
+<section class="slide" data-viz="scan" data-chrome="off">
+  <div class="left">
+    <p class="kicker">Advanced Software Engineering · 28/10/2026</p>
+    <h1>Manuscript AI</h1>
+    <p class="lead">A web app where historians <b>upload scans</b> of handwritten documents, get them <b>transcribed</b> by a model, and analyse the text.</p>
+    <p class="lead" style="font-size:26px">Group 6 · Polina, Amaury, Ali, Fatou, Nicolas</p>
+    <p class="muted" style="font-size:20px;margin-top:40px">University of Fribourg · Autumn 2026<br>Repository: <code>alocin98/ase-fribourg-history-scripts</code></p>
+  </div>
+  <div class="right"><div class="viz"></div><div class="src">Real output of our ML backend on <code>samples/english_page_test.jpg</code></div></div>
+  <aside class="notes">Opening (Ali, a few seconds). We are group 6, and our project is Manuscript AI: a web app for historians. They upload scans of handwritten pages, our model transcribes them, and the app shows the text next to the image. On the right is the real output of our model on a test page: one box per line, coloured by the model's confidence.</aside>
+</section>
+
+<!-- ============================================================ 2 agenda -->
+<section class="slide full">
+  <div class="left">
+    <p class="kicker">Agenda</p>
+    <h2>Five parts, five speakers</h2>
+    <p class="lead">From what the app does today to what we will build in the second half.</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:22px;margin-top:40px">
+      <div class="card" style="padding:26px"><div class="pill blue">1</div><h3 style="font-size:30px;margin:16px 0 8px">Live demo</h3><div class="muted" style="font-size:22px">the working software and its idea</div><div style="font-size:21px;margin-top:18px;color:var(--ink2)">Ali · 2 min</div></div>
+      <div class="card" style="padding:26px"><div class="pill blue">2</div><h3 style="font-size:30px;margin:16px 0 8px">Technology stack</h3><div class="muted" style="font-size:22px">model, backend, ML backend, frontend</div><div style="font-size:21px;margin-top:18px;color:var(--ink2)">Polina, Amaury, Ali, Fatou · 5 min</div></div>
+      <div class="card" style="padding:26px"><div class="pill blue">3</div><h3 style="font-size:30px;margin:16px 0 8px">User stories</h3><div class="muted" style="font-size:22px">how we manage them, one example</div><div style="font-size:21px;margin-top:18px;color:var(--ink2)">Nicolas · 2 min</div></div>
+      <div class="card" style="padding:26px"><div class="pill blue">4</div><h3 style="font-size:30px;margin:16px 0 8px">CI / CD</h3><div class="muted" style="font-size:22px">what happens when a branch is merged</div><div style="font-size:21px;margin-top:18px;color:var(--ink2)">Nicolas · 1.5 min</div></div>
+      <div class="card" style="padding:26px"><div class="pill blue">5</div><h3 style="font-size:30px;margin:16px 0 8px">Outlook</h3><div class="muted" style="font-size:22px">plans for the second half</div><div style="font-size:21px;margin-top:18px;color:var(--ink2)">Ali · 2 min</div></div>
+    </div>
+  </div>
+  <aside class="notes">Five parts. First a live demo, then the technology stack, presented by the four people who built each part. Then Nicolas explains how we manage user stories and what our CI does when a branch is merged. Last, our plans for the second half of the project.</aside>
+</section>
+
+<!-- ============================================================ 3 demo -->
+<section class="slide" data-section="Demo" data-viz="demo">
+  <div class="left">
+    <p class="kicker">1 · Live demo — Ali</p>
+    <h2>From a scan to a transcription</h2>
+    <ul class="steps">
+      <li data-step="1">Create a <b>document</b> and upload a <b>ZIP</b> of page scans<small>PNG / JPG pages, extracted and checked by the backend</small></li>
+      <li data-step="2"><b>Preview</b> the pages of the document</li>
+      <li data-step="3">Click <b>Transcribe</b>: one page or the whole document<small>runs as a background job, the page shows the progress</small></li>
+      <li data-step="4">Read the text <b>line by line</b>, with the model’s <b>confidence</b></li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div><div class="src">Schematic of the app (fallback if the live demo fails) · text and confidences = real model output</div></div>
+  <aside class="notes">Live demo on https://manuscript-ai.coffee-journal.com (dev: manuscript-ai-dev.coffee-journal.com). Before the talk: log in, and transcribe a whole document in advance; finished pages are skipped, so it comes back instantly. Live, transcribe only one short page: a full page takes about 35 seconds on CPU. If the app is down, step through this slide instead: it shows the same four screens.</aside>
+</section>
+
+<!-- ============================================================ 4 architecture -->
+<section class="slide" data-section="Tech stack" data-viz="arch">
+  <div class="left">
+    <p class="kicker">2 · Technology stack — Polina</p>
+    <h2>Four services</h2>
+    <ul class="steps">
+      <li data-step="1"><b>Frontend</b>: React single-page app, served by nginx</li>
+      <li data-step="2"><b>Backend</b>: FastAPI under <code>/api</code>, with PostgreSQL and a volume for the page images</li>
+      <li data-step="3"><b>ML backend</b>: a separate FastAPI service that runs the model<small>one endpoint, called only by the backend</small></li>
+      <li data-step="4">Everything in <b>Docker</b>, deployed by <b>Coolify</b>; Traefik routes and adds HTTPS</li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">The overview before each part. The browser only talks to the frontend and to the backend API, on the same domain. The backend owns the data: users, documents, pages and transcriptions in PostgreSQL, and the images on a disk volume. The model runs in its own container, so the heavy ML dependencies stay out of the web backend. Each part has its own Dockerfile, and Coolify deploys them.</aside>
+</section>
+
+<!-- ============================================================ 5 model -->
+<section class="slide" data-section="Tech stack" data-viz="pipeline">
+  <div class="left">
+    <p class="kicker">2 · Technology stack — Polina</p>
+    <h2>The model: find lines, then read them</h2>
+    <ul class="steps">
+      <li data-step="1">Goal of the MVP: read a <b>whole handwritten page</b></li>
+      <li data-step="2"><b>Kraken BLLA</b> finds the text lines of the page<small>pretrained default model; fragments on the same baseline are merged</small></li>
+      <li data-step="3"><b>TrOCR</b> (<code>trocr-small-handwritten</code>) reads one line at a time<small>Microsoft, fine-tuned on English handwriting (IAM)</small></li>
+      <li data-step="4">Chosen and tested in a notebook, then moved into the ML backend<small><code>ml-models/english_cursive_mvp.ipynb</code> · story #18</small></li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div><div class="src">Real BLLA boxes and TrOCR text on <code>english_page_test.jpg</code></div></div>
+  <aside class="notes">How we chose the model. TrOCR is a line recogniser: it is very good on one line of handwriting, but it cannot read a whole page. So we need a segmenter in front of it: Kraken's BLLA, which ships with a pretrained model and returns one polygon per line. On light cursive it sometimes splits a line in two, so we merge fragments with the same baseline height: here 19 fragments become 9 lines. Both models are pretrained, and we tested the pair in a notebook first. (Polina: add your own selection criteria here.)</aside>
+</section>
+
+<!-- ============================================================ 6 backend -->
+<section class="slide" data-section="Tech stack" data-viz="backend">
+  <div class="left">
+    <p class="kicker">2 · Technology stack — Amaury</p>
+    <h2>The backend</h2>
+    <ul class="steps">
+      <li data-step="1"><b>FastAPI</b>, <b>SQLAlchemy 2</b> (async) and <b>PostgreSQL 16</b>; Alembic migrations run at start<small>routes → repositories → models</small></li>
+      <li data-step="2"><b>Session</b> login: cookie + <b>CSRF</b> token, passwords hashed with Argon2</li>
+      <li data-step="3"><b>Upload</b>: the ZIP is checked, the pages go to disk, their metadata to the database</li>
+      <li data-step="4"><b>Transcription</b> runs as a job: <code>202</code> + job id at once, then the client polls the status</li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">The backend is the centre of the app. Route handlers validate the request and hand persistence to repository classes. Login creates a server-side session with a cookie, and every write needs a CSRF token. Uploaded ZIPs are checked for unsafe paths and non-image files; images stay on disk, only paths and sizes go to PostgreSQL. A transcription can take minutes, so the request returns 202 with a job id at once; a background task calls the ML backend page by page, and the frontend polls the job status.</aside>
+</section>
+
+<!-- ============================================================ 7 ml backend -->
+<section class="slide" data-section="Tech stack" data-viz="mlapi">
+  <div class="left">
+    <p class="kicker">2 · Technology stack — Ali</p>
+    <h2>The ML backend</h2>
+    <ul class="steps">
+      <li data-step="1"><b>One endpoint</b>: <code>POST /predict</code> with the page image<small>models loaded once at start, weights baked into the image</small></li>
+      <li data-step="2">It returns the text, and for each line its <b>box</b> in the image</li>
+      <li data-step="3">… and a <b>confidence</b> per line and per word<small>mean probability of their tokens</small></li>
+      <li data-step="4">Making it run in Docker: pinned versions, memory limits</li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div><div class="src">Real response for <code>english_page_test.jpg</code> (shortened) · versions and memory: <code>webapp/ml-backend/readme.md</code></div></div>
+  <aside class="notes">I packaged Polina's notebook as a service with a single endpoint. It takes a page and returns the full text, plus one entry per line with its box and its confidence: that is what makes the frontend view possible. The confidence is the mean probability the model gave to its own tokens; it is not compared to a correct text. Two practical problems: kraken forces torch 2.4, which can't load the usual TrOCR weights, so we pin the safetensors version; and BLLA ran out of memory in a 4 GB Docker VM until we turned oneDNN off.</aside>
+</section>
+
+<!-- ============================================================ 8 frontend -->
+<section class="slide" data-section="Tech stack" data-viz="frontend">
+  <div class="left">
+    <p class="kicker">2 · Technology stack — Fatou</p>
+    <h2>The frontend</h2>
+    <ul class="steps">
+      <li data-step="1"><b>React 19</b> + <b>TypeScript</b>, built with <b>Vite</b>, styled with <b>Tailwind</b><small>React Router · i18next (English / French) · Vitest</small></li>
+      <li data-step="2">Each line is <b>coloured</b> by its confidence<small>green ≥ 90%, orange 70–89%, red &lt; 70%</small></li>
+      <li data-step="3">Hovering a line <b>highlights its box</b> on the page, and back</li>
+      <li data-step="4">A click opens the line: its <b>image snippet</b> and each <b>word’s confidence</b></li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div><div class="src">Schematic of the document page · data = real model output</div></div>
+  <aside class="notes">The frontend is a React and TypeScript app, built by Vite and served by nginx in production. It has login and registration, the document dashboard, upload, and the document page shown here. The transcription is shown line by line with a colour, so a historian sees at once which lines to check by hand. Hovering links the text and the image both ways, and a click opens the line with the confidence of each word.</aside>
+</section>
+
+<!-- ============================================================ 9 user stories -->
+<section class="slide" data-section="User stories" data-viz="stories">
+  <div class="left">
+    <p class="kicker">3 · User stories — Nicolas</p>
+    <h2>How we manage user stories</h2>
+    <ul class="steps">
+      <li data-step="1">A <b>GitHub issue</b> with the label <code>User Story</code>, written from the user’s side</li>
+      <li data-step="2">Always the same template: <b>story</b>, <b>description</b>, <b>acceptance tests</b></li>
+      <li data-step="3"><b>Sub-issues</b> are created by team members, because they know what to do within their part of the app<small>Frontend · Backend · ML</small></li>
+      <li data-step="4">Done when it meets our <b>Definition of Done</b></li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">Each user-visible feature is a GitHub issue with the User Story label. The template has three parts: the story in one sentence, a description of what each layer must do, and acceptance tests a teammate can click through. The sub-issues are created by the team members themselves, for frontend, backend and ML, because they know what has to be done in their part of the application. A sub-issue is done only when it meets our Definition of Done: tests, review, docs, and a smoke test on dev.</aside>
+</section>
+
+<!-- ============================================================ 10 example story (kept) -->
+<section class="slide" data-section="User stories" data-viz="storyshot">
+  <div class="left">
+    <p class="kicker">3 · User stories — Nicolas</p>
+    <h2>Example: page transcription</h2>
+    <ul class="steps">
+      <li data-step="1"><b>Story</b>: “As a user, I want to process my uploaded images to a transcription text.”</li>
+      <li data-step="2"><b>Description</b>: what the frontend, the backend and the ML part each have to do</li>
+      <li data-step="3"><b>Acceptance tests</b>: the clicks a reviewer does to check it</li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div><div class="src">Issue #19 on GitHub</div></div>
+  <aside class="notes">Our example is story 19, page transcription: the core of the MVP. The description already fixes the architecture: a separate ML container behind one interface, and one button in the frontend. The acceptance tests are exactly the steps of the demo you just saw.</aside>
+</section>
+
+<!-- ============================================================ 11 road to MVP (kept) -->
+<section class="slide" data-section="User stories" data-viz="mvp">
+  <div class="left">
+    <p class="kicker">3 · User stories — Nicolas</p>
+    <h2>Road to the MVP</h2>
+    <ul class="steps">
+      <li data-step="1">We started from a <b>mockup</b> of the MVP</li>
+      <li data-step="2">We track every story on a <b>GitHub project board</b><small>ready → in progress → in review → done</small></li>
+      <li data-step="3">Released to production <b>step by step</b></li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">Before coding, we drew the MVP: a document list, a page list with a preview, and the transcribe button. We follow the stories on a GitHub project board, filtered on the User Story label: ready, in progress, in review, done. Six stories are done, including page transcription; the confidence display is in review, and the dev tasks story is in progress. Then dev was released to main in steps: production deployments on the 7th, 13th and 22nd of October.</aside>
+</section>
+
+<!-- ============================================================ 12 git workflow (kept) -->
+<section class="slide" data-section="CI / CD" data-viz="gitflow">
+  <div class="left">
+    <p class="kicker">4 · CI / CD — Nicolas</p>
+    <h2>Git workflow</h2>
+    <ul class="steps">
+      <li data-step="1">Work on a <b>feature branch</b> from <code>dev</code>: <code>feat/…</code> or <code>fix/…</code></li>
+      <li data-step="2">Open a <b>pull request</b>: automatic checks, and a review by a teammate</li>
+      <li data-step="3">Merged into <code>dev</code> → deployed to the <b>dev</b> site</li>
+      <li data-step="4">Each <b>Tuesday evening</b>, <code>dev</code> is merged into <code>main</code> → <b>production</b></li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">Nobody pushes to dev or main directly. A feature lives on its own branch, then goes through a pull request: the CI checks run automatically, and another teammate must approve. The checks are three GitHub Actions workflows, one per part, and only the part that changed is checked: format, lint, tests and a Docker build. Once merged into dev, Coolify deploys it to the dev site, where we test it. Every Tuesday evening dev is merged into main, which deploys production. Commit messages follow a type(scope): description convention.</aside>
+</section>
+
+<!-- ============================================================ 13 outlook -->
+<section class="slide" data-section="Outlook" data-viz="roadmap">
+  <div class="left">
+    <p class="kicker">5 · Outlook — Ali</p>
+    <h2>The second half</h2>
+    <ul class="steps">
+      <li data-step="1"><b>Information extraction</b> with an LLM: names and dates, shown in the frontend</li>
+      <li data-step="2"><b>2–3 models</b> the user can compare and choose from<small>improve and benchmark the model (#36)</small></li>
+      <li data-step="3"><b>IIIF</b>: open the images to standard viewers; storage on S3 / MinIO<small>first draft: PR #55</small></li>
+      <li data-step="4"><b>End-to-end</b> and API tests in the pipeline (#54)</li>
+    </ul>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">The MVP reads the text; the final software should help to analyse it. First, an LLM extracts information such as names and dates from the transcription, and the frontend shows them linked to the text. Second, the user can choose between two or three models and compare them, which means we also need a benchmark. Third, IIIF, the standard for sharing images of heritage documents, with S3-compatible storage. And end-to-end tests, so that the pipeline checks the whole app.</aside>
+</section>
+
+<!-- ============================================================ 14 thanks -->
+<section class="slide" data-viz="scan" data-chrome="off">
+  <div class="left">
+    <h1>Thanks</h1>
+    <p class="lead">For listening to us. More to come later.</p>
+    <p class="muted" style="font-size:21px;margin-top:40px;line-height:1.6">App: <code>manuscript-ai.coffee-journal.com</code><br>
+      Dev: <code>manuscript-ai-dev.coffee-journal.com</code><br>
+      Code: <code>alocin98/ase-fribourg-history-scripts</code></p>
+  </div>
+  <div class="right"><div class="viz"></div></div>
+  <aside class="notes">Thank you. Questions?</aside>
+</section>
+
+<div id="progress"></div>
+<div id="pageno"></div>
+<div id="hint">→ / space: next · ←: back · N: notes · F: full screen · H: help</div>
+</div></div>
+<div id="notes"></div>
+<div id="help"><kbd>→</kbd> <kbd>space</kbd> next step · <kbd>←</kbd> previous<br><kbd>↓</kbd> <kbd>↑</kbd> next / previous slide<br><kbd>N</kbd> notes · <kbd>P</kbd> presenter view · <kbd>F</kbd> full screen<br>number + <kbd>Enter</kbd>: go to slide</div>
+<script type="module" src="js/deck.js"></script>
+</body>
+</html>

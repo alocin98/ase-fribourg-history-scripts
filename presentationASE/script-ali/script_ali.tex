@@ -1,0 +1,164 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[english,french]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{ink}{HTML}{1F2937}
+\definecolor{accent}{HTML}{2563EB}
+\definecolor{warn}{HTML}{C2410C}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist{itemsep=2pt,topsep=3pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Manuscript AI · ASE groupe 6}
+\rhead{\small Script d'Ali · 28/10/2026}
+\cfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Texte à dire (en anglais) : fond bleu clair, barre à gauche
+\newsavebox{\boxcontent}
+\newenvironment{say}
+  {\par\smallskip\noindent\begin{lrbox}{\boxcontent}\begin{minipage}{\dimexpr\linewidth-19pt}\vspace{6pt}\selectlanguage{english}\setlength{\parskip}{5pt}}
+  {\vspace{6pt}\end{minipage}\end{lrbox}{\setlength{\fboxsep}{0pt}\colorbox{accent!6}{\textcolor{accent}{\vrule width 3pt}\hspace{8pt}\usebox{\boxcontent}\hspace{8pt}}}\par\smallskip}
+% Encadré avec titre
+\newenvironment{encadre}[2]
+  {\par\smallskip\noindent\def\encadrecolor{#1}\begin{lrbox}{\boxcontent}\begin{minipage}{\dimexpr\linewidth-17pt}\vspace{2pt}{\bfseries\color{#1}#2}\par}
+  {\vspace{2pt}\end{minipage}\end{lrbox}{\setlength{\fboxsep}{8pt}\fcolorbox{\encadrecolor}{\encadrecolor!6}{\usebox{\boxcontent}}}\par\smallskip}
+
+\newcommand{\slide}[3]{\vspace{10pt}{\color{ink}\large\bfseries Diapo #1 -- #2}\hfill{\color{accent}\bfseries #3}\par\vspace{-2pt}{\color{ink}\rule{\linewidth}{0.4pt}}\par}
+\newcommand{\idee}[1]{\textbf{L'idée :} #1\par}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Mes parties de la présentation}\\[4pt]
+  {\large Manuscript AI · Advanced Software Engineering · 28/10/2026}
+\end{center}
+
+\vspace{4pt}
+Je présente \textbf{5 moments} : l'ouverture (diapos 1--2), la \textbf{démo} (diapo 3, 2 min), le \textbf{ML backend} (diapo 7, environ 1 min 15, car les 5 min de la partie \og stack\fg{} sont partagées entre quatre personnes) et l'\textbf{outlook} (diapo 13, 2 min).
+Les encadrés bleus contiennent le texte à dire, en anglais.
+
+\begin{center}
+\begin{tabular}{clll}
+  \textbf{Diapo} & \textbf{Partie} & \textbf{Durée} & \textbf{Ensuite} \\\hline
+  1--2 & Titre, agenda & $\approx$ 30 s & \\
+  3 & Démo live & 2 min & Polina \\
+  7 & ML backend & $\approx$ 1 min 15 & Fatou \\
+  13 & Outlook & 2 min & Thanks \\
+\end{tabular}
+\end{center}
+
+%% ------------------------------------------------------------------ 1
+\slide{1}{Titre}{$\approx$ 15 s}
+\idee{dire ce qu'est l'app en une phrase et montrer que l'image à droite est une vraie sortie du modèle.}
+\begin{say}
+``Hi, we are group 6, and our project is \textbf{Manuscript AI}. It's a web app for historians: they upload scans of handwritten pages, our model transcribes them, and the app shows the text next to the image. What you see on the right is the real output of our model on a test page: one box per line, coloured by how confident the model is.''
+\end{say}
+
+%% ------------------------------------------------------------------ 2
+\slide{2}{Agenda}{$\approx$ 15 s}
+\idee{ne pas lire les cartes une par une.}
+\begin{say}
+``We have five parts. I'll start with a live demo. Then the four of us who built the stack each present their part. Nicolas explains how we manage user stories and our CI, and I'll finish with our plans for the second half.''
+\end{say}
+
+%% ------------------------------------------------------------------ 3
+\slide{3}{Démo live}{2 min}
+C'est ma partie la plus risquée.
+
+\begin{encadre}{warn}{Avant la présentation (obligatoire)}
+\begin{enumerate}[leftmargin=*]
+  \item Se connecter sur \texttt{manuscript-ai.coffee-journal.com}.
+  \item \textbf{Transcrire un document entier à l'avance.} Les pages déjà faites sont sautées, donc ce document revient tout de suite.
+  \item Avoir une \textbf{page courte} prête pour la transcription en direct : une page complète prend environ 35 s sur CPU.
+  \item Garder les diapos ouvertes dans un autre onglet en cas de problème.
+\end{enumerate}
+\end{encadre}
+
+Pendant la démo, suivre les 4 étapes de la diapo :
+\begin{say}
+``Let me show you the app. \textbf{First}, I create a document and upload a ZIP of page scans. The backend extracts and checks the images.
+
+\textbf{Second}, I can preview the pages of the document.
+
+\textbf{Third}, I click \emph{Transcribe}, either for one page or for the whole document. It runs as a background job, so the page just shows the progress. A full page takes about half a minute on CPU, so here's one I prepared earlier\dots
+
+\textbf{Fourth}, here's the result: the text line by line, each line coloured by the model's confidence. Green lines are probably right, red ones are the lines a historian should check by hand.''
+\end{say}
+
+\textbf{Si l'app ne répond pas :} ne pas s'attarder. Dire la phrase ci-dessous, puis avancer avec $\rightarrow$ dans la diapo 3. Elle montre les mêmes 4 écrans, avec de vraies données.
+\begin{say}
+``The server doesn't want to play today, so here are the same four screens.''
+\end{say}
+
+\textbf{Conseil :} pendant les $\approx$ 30 s d'attente, ne pas rester silencieux. Expliquer ce qui se passe, ce qui annonce aussi les parties suivantes :
+\begin{say}
+``Behind the scenes, the backend sends each page to our ML service\dots''
+\end{say}
+
+Passage de parole : \textit{\foreignlanguage{english}{``Polina will now explain how the model works.''}}
+
+%% ------------------------------------------------------------------ 7
+\slide{7}{ML backend}{$\approx$ 1 min 15}
+\idee{j'ai transformé le notebook de Polina en service, et ce service renvoie plus que du texte, ce qui rend possible la vue du frontend. Finir par les deux problèmes pratiques, parce qu'ils montrent un vrai travail d'ingénierie.}
+\begin{say}
+``I took Polina's notebook and turned it into a service with \textbf{one endpoint}: \texttt{POST /predict}, with a page image. The models are loaded once when the container starts, and the weights are inside the Docker image, so nothing is downloaded at runtime.
+
+It returns the full text, and for \textbf{each line its box} in the image\dots
+
+\dots and a \textbf{confidence} per line and per word. That's the mean probability the model gave to its own tokens. So it's the model's own certainty, not an accuracy against a correct text. This is what lets Fatou colour the lines in the frontend.
+
+Getting it to run in Docker took two fixes. Kraken forces torch 2.4, which can't load the usual TrOCR weights, so we pin a version of the model that ships safetensors weights. And the line detector ran out of memory in a 4\,GB Docker VM until we turned oneDNN off.''
+\end{say}
+
+\textbf{Questions possibles}
+\begin{itemize}[leftmargin=*]
+  \item \textit{Why a separate service?} Les dépendances ML (torch, kraken) sont lourdes et restent hors du backend web. On peut aussi le faire évoluer ou le changer sans toucher au reste, ce qui sera utile pour les 2--3 modèles prévus.
+  \item \textit{Is the confidence reliable?} Elle mesure la certitude du modèle, pas sa justesse : un modèle peut se tromper avec assurance. C'est une aide pour savoir quoi relire, et c'est justement pour ça qu'on veut un benchmark (\#36).
+  \item \textit{Why so slow?} Ça tourne sur CPU, et TrOCR lit les lignes une par une. C'est aussi pour ça que la transcription est un job en arrière-plan.
+\end{itemize}
+
+Passage de parole : \textit{\foreignlanguage{english}{``Fatou will show how the frontend uses this.''}}
+
+%% ------------------------------------------------------------------ 13
+\slide{13}{Outlook}{2 min}
+\idee{le MVP \emph{lit} le texte, la version finale doit aider à l'\emph{analyser}. Ensuite, passer les 4 points, environ 25 s chacun.}
+\begin{say}
+``The MVP reads the text. The final software should help historians \textbf{analyse} it. Four things for the second half:
+
+\textbf{One}, information extraction with an LLM: names, dates, places pulled from the transcription and shown in the frontend, linked to the text.
+
+\textbf{Two}, let the user choose between two or three models and compare them. For that we first need to improve and \textbf{benchmark} our model, that's issue 36.
+
+\textbf{Three}, \textbf{IIIF}, the standard way libraries and archives share images of heritage documents, so our images can be opened in standard viewers. We'd also move storage to S3-compatible storage like MinIO. There's already a first draft in PR 55.
+
+\textbf{Four}, end-to-end and API tests in the pipeline, so CI checks the whole app and not just each part. That's issue 54.''
+\end{say}
+
+%% ------------------------------------------------------------------ 14
+\slide{14}{Thanks}{}
+\begin{say}
+``Thank you for listening. We're happy to take questions.''
+\end{say}
+
+%% ------------------------------------------------------------------
+\vspace{8pt}
+\begin{encadre}{ink}{Conseils}
+\begin{itemize}[leftmargin=*]
+  \item Appuyer sur \textbf{P} pour ouvrir la fenêtre présentateur : notes de chaque diapo, diapo suivante et chrono.
+  \item La démo est la partie qui dépasse le plus souvent. Si je vais trop loin, couper l'étape 2 (preview).
+  \item Lancer les diapos : double-clic sur \texttt{start.command} (port 8766).
+\end{itemize}
+\end{encadre}
+
+\end{document}
