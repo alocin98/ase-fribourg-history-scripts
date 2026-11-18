@@ -1,6 +1,7 @@
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TranscriptionResponse(BaseModel):
@@ -35,3 +36,20 @@ class PageTranscriptionRead(BaseModel):
     # Taille de l'image vue par le modèle, None pour les anciennes transcriptions.
     image_width: int | None
     image_height: int | None
+
+
+class EntityRecognitionRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=100_000)
+    threshold: float = Field(default=0.5, ge=0, le=1)
+
+
+class RecognizedEntity(BaseModel):
+    text: str
+    label: Literal["person", "date", "location"]
+    start: int
+    end: int
+    score: float
+
+
+class EntityRecognitionResponse(BaseModel):
+    entities: list[RecognizedEntity]

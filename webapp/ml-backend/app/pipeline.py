@@ -10,6 +10,7 @@ import threading
 from importlib import resources
 
 import torch
+from gliner import GLiNER
 from kraken import blla
 from kraken.lib import vgsl
 from PIL import Image, ImageOps
@@ -18,6 +19,8 @@ from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 TROCR_MODEL = os.environ.get("TROCR_MODEL", "microsoft/trocr-small-handwritten")
 TROCR_REVISION = os.environ.get("TROCR_REVISION")
 DEVICE = os.environ.get("DEVICE", "cpu")
+GLINER_MODEL = os.environ.get("GLINER_MODEL", "urchade/gliner_small-v2.1")
+ENTITY_LABELS = ("person", "date", "location")
 
 # BLLA redimensionne la page à 1800 px de haut, donc la mémoire croît avec le ratio
 # largeur/hauteur. Avec oneDNN, une page de ratio 1,38 tue déjà un conteneur dans une
@@ -207,3 +210,27 @@ class Pipeline:
             result["lines"][i]["confidence"] = lines[i]["confidence"]
             result["lines"][i]["words"] = lines[i]["words"]
         return result
+
+
+class EntityRecognizer:
+    """Extracts named entities from OCR text with a pretrained GLiNER model."""
+
+    def __init__(self):
+        self.model = GLiNER.from_pretrained(GLINER_MODEL)
+        self._lock = threading.Lock()
+
+    def __call__(self, text: str, threshold: float = 0.5):
+        with self._lock:
+            entities = self.model.predict_entities(
+                text, list(ENTITY_LABELS), threshold=threshold
+            )
+        return [
+            {
+                "text": entity["text"],
+                "label": entity["label"],
+                "start": entity["start"],
+                "end": entity["end"],
+                "score": entity["score"],
+            }
+            for entity in entities
+        ]
