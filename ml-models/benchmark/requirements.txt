@@ -1,0 +1,6 @@
+# Shared by both environments: scoring, language detection, reports, checks.
+pillow==13.0.0
+rapidfuzz==3.14.6
+lingua-language-detector==2.2.0
+ruff
+pytest

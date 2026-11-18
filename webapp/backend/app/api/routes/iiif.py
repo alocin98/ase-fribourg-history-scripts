@@ -1,0 +1,150 @@
+import os
+from tempfile import NamedTemporaryFile
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import Response
+
+from app.api.dependencies.auth import get_current_user
+from app.api.dependencies.iiif import transform_image
+from app.api.dependencies.services import DocumentServiceDep
+from app.api.schemas.iiif import InfoResponse
+from app.infrastructure.storage.s3 import download_file_to_path
+from app.models.user import User
+from app.services.documents import DocumentService
+
+router = APIRouter(prefix="/iiif/3", tags=["iiif"])
+
+
+async def get_owned_page(
+    page_id: UUID,
+    current_user: User,
+    service: DocumentService,
+):
+    page = await service.get_owned_page_by_id(
+        page_id=page_id,
+        owner_id=current_user.id,
+    )
+
+    if page is None:
+        raise HTTPException(status_code=404, detail="Page not found")
+
+    return page
+
+
+@router.get(
+    "/{page_id}/info.json",
+    response_model=InfoResponse,
+    name="iiif_info",
+    description="Get IIIF Image API information for a specific page. This endpoint provides metadata about the image, including its dimensions and available formats.",
+    status_code=status.HTTP_200_OK,
+)
+async def iiif_info(
+    page_id: UUID,
+    request: Request,
+    service: DocumentServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    page = await get_owned_page(page_id, current_user, service)
+
+    # Prefer the public host (proxy) so tile URLs stay on the same origin as the app.
+    forwarded_host = request.headers.get("x-forwarded-host")
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    if forwarded_host:
+        scheme = forwarded_proto or request.url.scheme
+        image_id = f"{scheme}://{forwarded_host}{request.url.path}".removesuffix(
+            "/info.json"
+        )
+    else:
+        image_url = request.url_for(
+            "iiif_image",
+            page_id=str(page_id),
+            region="full",
+            size="full",
+            rotation="0",
+            quality="default",
+            image_format="jpg",
+        )
+        image_id = str(image_url).removesuffix("/full/full/0/default.jpg")
+
+    scale_factors = []
+    scale = 1
+
+    while scale < max(page.width, page.height):
+        scale_factors.append(scale)
+        scale *= 2
+
+    scale_factors.append(scale)
+
+    return InfoResponse(
+        context="http://iiif.io/api/image/3/context.json",
+        id=image_id,
+        type="ImageService3",
+        protocol="http://iiif.io/api/image",
+        profile=["level2"],
+        width=page.width,
+        height=page.height,
+        format="jpg",
+        maxWidth=page.width,
+        maxHeight=page.height,
+        extraFormats=["png", "webp"],
+        tiles=[
+            {
+                "width": 512,
+                "height": 512,
+                "scaleFactors": scale_factors,
+            }
+        ],
+    )
+
+
+@router.get(
+    "/{page_id}/{region}/{size}/{rotation}/{quality}.{image_format}",
+    name="iiif_image",
+    description="Get a transformed IIIF image for a specific page. This endpoint allows users to request a specific region, size, rotation, quality, and format of the image. Example: /iiif/3/{page_id}/full/full/0/default.jpg",
+    status_code=status.HTTP_200_OK,
+)
+async def iiif_image(
+    page_id: UUID,
+    region: str,
+    size: str,
+    rotation: str,
+    quality: str,
+    image_format: str,
+    service: DocumentServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    page = await get_owned_page(page_id, current_user, service)
+
+    try:
+        with NamedTemporaryFile(suffix=".image", delete=False) as source:
+            source_path = source.name
+
+        try:
+            await download_file_to_path(page.image_key, source_path)
+            transformed = transform_image(
+                source_path,
+                region=region,
+                size=size,
+                rotation=rotation,
+                quality=quality,
+                image_format=image_format,
+            )
+        finally:
+            os.unlink(source_path)
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=404,
+            detail="Image not found",
+        ) from error
+
+    return Response(
+        content=transformed.content,
+        media_type=transformed.media_type,
+        headers={
+            "X-IIIF-Width": str(transformed.width),
+            "X-IIIF-Height": str(transformed.height),
+        },
+    )

@@ -94,3 +94,23 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
   if (response.status === 204) return undefined as T
   return response.json() as Promise<T>
 }
+
+function filenameFromDisposition(header: string | null): string | null {
+  if (!header) return null
+  const utf = /filename\*=UTF-8''([^;]+)/i.exec(header)
+  if (utf?.[1]) return decodeURIComponent(utf[1].trim())
+  const plain = /filename="?([^";]+)"?/i.exec(header)
+  return plain?.[1]?.trim() || null
+}
+
+// Pour les téléchargements (PDF, ZIP, …) : renvoie le fichier binaire et un nom éventuel.
+export async function requestBlob(
+  path: string,
+  init: RequestInit = {},
+): Promise<{ blob: Blob; filename: string | null }> {
+  const response = await send(path, init)
+  return {
+    blob: await response.blob(),
+    filename: filenameFromDisposition(response.headers.get('Content-Disposition')),
+  }
+}

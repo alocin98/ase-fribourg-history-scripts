@@ -3,8 +3,6 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.user import UserCreate, UserUpdate
-from app.core.security import get_password_hash
 from app.models.user import User
 
 
@@ -20,33 +18,41 @@ class UserRepository:
         result = await self.session.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
-    async def create(self, data: UserCreate) -> User:
+    async def create(self, *, email: str, name: str, password: str) -> User:
         user = User(
-            email=data.email,
-            name=data.name,
-            password_hash=get_password_hash(data.password),
+            email=email,
+            name=name,
+            password_hash=password,
         )
 
         self.session.add(user)
-        await self.session.commit()
-        await self.session.refresh(user)
+        await self.session.flush()
 
         return user
 
-    async def update(self, user: User, data: UserUpdate) -> User:
-        values = data.model_dump(exclude_unset=True)
+    async def update(
+        self,
+        user: User,
+        *,
+        email: str | None = None,
+        name: str | None = None,
+        password_hash: str | None = None,
+    ) -> User:
+        if email is not None:
+            user.email = email
+        if name is not None:
+            user.name = name
+        if password_hash is not None:
+            user.password_hash = password_hash
 
-        if "password" in values:
-            user.password_hash = get_password_hash(values.pop("password"))
-
-        for field, value in values.items():
-            setattr(user, field, value)
-
-        await self.session.commit()
-        await self.session.refresh(user)
-
+        await self.session.flush()
         return user
 
     async def delete(self, user: User) -> None:
         await self.session.delete(user)
+
+    async def commit(self):
         await self.session.commit()
+
+    async def refresh(self, user: User):
+        await self.session.refresh(user)

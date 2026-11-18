@@ -1,0 +1,3 @@
+# Vision-language baselines on Apple Silicon.
+-r requirements.txt
+mlx-vlm==0.7.12

@@ -3,8 +3,8 @@
 
 import { ApiError, ensureCsrf, request } from './client'
 
-const POLL_INTERVAL_MS = 300
-const POLL_TIMEOUT_MS = 3 * 60 * 1000
+const POLL_INTERVAL_MS = 30000
+const POLL_TIMEOUT_MS = 3 * 60 * 10000
 // Une page prend quelques dizaines de secondes sur CPU ; marge large par page.
 const PAGE_TIMEOUT_MS = 2 * 60 * 1000
 const PENDING_STATUSES = new Set([
@@ -191,4 +191,31 @@ export async function transcribeDocument(
   }
 
   throw new DOMException('Aborted', 'AbortError')
+}
+
+export type TranscriptionSearchHit = {
+  document_id: string
+  document_name: string
+  page_id: string
+  page_number: number
+  line_index: number
+  line_text: string
+}
+
+// Route attendue : GET /transcriptions/search?q=...
+export async function searchTranscriptions(
+  query: string,
+  signal?: AbortSignal,
+): Promise<TranscriptionSearchHit[]> {
+  const trimmed = query.trim()
+  if (!trimmed) return []
+  try {
+    return await request<TranscriptionSearchHit[]>(
+      `/transcriptions/search?q=${encodeURIComponent(trimmed)}`,
+      { signal },
+    )
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 404 || error.status === 501)) return []
+    throw error
+  }
 }

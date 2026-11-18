@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { AuthProvider, useAuth } from './auth/AuthProvider'
 import DocumentOverviewPage from './pages/Dashboard/DocumentOverviewPage'
 import DocumentsPage from './pages/Dashboard/DocumentsPage'
-import ProfilePage from './pages/Dashboard/ProfilePage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import WelcomePage from './pages/WelcomePage'
@@ -61,7 +60,6 @@ function App() {
           <Route element={<RequireAuth />}>
             <Route path="/app" element={<Navigate to="/app/documents" replace />} />
             <Route path="/app/documents" element={<DocumentsPage />} />
-            <Route path="/app/profile" element={<ProfilePage />} />
             <Route path="/app/documents/:documentId/overview" element={<DocumentOverviewPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

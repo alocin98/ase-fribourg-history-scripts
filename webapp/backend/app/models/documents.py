@@ -1,14 +1,15 @@
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import Base
+from app.infrastructure.database.base import Base
 
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = (Index("ix_documents_owner_id_id", "owner_id", "id"),)
 
     id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
@@ -25,6 +26,9 @@ class Document(Base):
 
 class Page(Base):
     __tablename__ = "pages"
+    __table_args__ = (
+        Index("ix_pages_document_id_page_number", "document_id", "page_number"),
+    )
 
     id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
@@ -39,4 +43,4 @@ class Page(Base):
     height: Mapped[int]
     mime_type: Mapped[str] = mapped_column(String(100))
     page_number: Mapped[int]
-    image_path: Mapped[str] = mapped_column(String(500))
+    image_key: Mapped[str] = mapped_column(String(500))

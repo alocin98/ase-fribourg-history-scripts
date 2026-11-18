@@ -1,28 +1,16 @@
-import shutil
-from pathlib import Path
-from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, Response, Security, status
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import csrf_header, get_current_user
+from app.api.dependencies.auth import get_current_user
+from app.api.dependencies.csrf import csrf_header
+from app.api.dependencies.services import DocumentServiceDep, UserServiceDep
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
 from app.core.config import settings
-from app.core.db import get_db
+from app.infrastructure.storage.s3 import delete_prefix
 from app.models.user import User
-from app.repositories.documents import DocumentRepository
-from app.repositories.user import UserRepository
+from app.services.users import UserAlreadyExistsError
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-def _remove_storage(document_id: UUID) -> None:
-    root = Path(settings.STORAGE_ROOT).resolve()
-    folder = (root / str(document_id)).resolve()
-    if folder.parent != root:
-        return
-    shutil.rmtree(folder, ignore_errors=True)
 
 
 @router.post(
@@ -35,20 +23,16 @@ def _remove_storage(document_id: UUID) -> None:
 )
 async def create_user(
     data: UserCreate,
-    session: AsyncSession = Depends(get_db),
+    user_service: UserServiceDep,
 ):
-    repository = UserRepository(session)
-
-    if await repository.get_by_email(data.email):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="A user with this email already exists",
-        )
-
     try:
-        return await repository.create(data)
-    except IntegrityError as e:
-        await session.rollback()
+        return await user_service.create(
+            email=data.email,
+            name=data.name,
+            password=data.password,
+        )
+    except (IntegrityError, UserAlreadyExistsError) as e:
+        await user_service.session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="A user with this email already exists",
@@ -65,24 +49,18 @@ async def create_user(
 )
 async def update_current_user(
     data: UserUpdate,
+    user_service: UserServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = UserRepository(session)
-
-    if data.email is not None:
-        existing_user = await repository.get_by_email(data.email)
-
-        if existing_user is not None and existing_user.id != current_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="A user with this email already exists",
-            )
-
     try:
-        return await repository.update(current_user, data)
-    except IntegrityError as e:
-        await session.rollback()
+        return await user_service.update(
+            current_user,
+            email=data.email,
+            name=data.name,
+            password=data.password,
+        )
+    except (IntegrityError, UserAlreadyExistsError) as e:
+        await user_service.session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User update violates a database constraint",
@@ -97,11 +75,10 @@ async def update_current_user(
     status_code=status.HTTP_200_OK,
 )
 async def read_current_user(
+    user_service: UserServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ):
-    repository = UserRepository(session)
-    user = await repository.get_by_id(current_user.id)
+    user = await user_service.get(current_user.id)
 
     if user is None:
         raise HTTPException(
@@ -119,11 +96,12 @@ async def read_current_user(
 )
 async def delete_current_user(
     response: Response,
+    document_service: DocumentServiceDep,
+    user_service: UserServiceDep,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
 ) -> None:
-    stored = await DocumentRepository(session).delete_all_for_owner(current_user.id)
+    stored = await document_service.delete_all_for_owner(current_user.id)
     for document_id in stored:
-        _remove_storage(document_id)
-    await UserRepository(session).delete(current_user)
+        await delete_prefix(f"{document_id}/")
+    await user_service.delete(current_user)
     response.delete_cookie(key=settings.SESSION_COOKIE_NAME)

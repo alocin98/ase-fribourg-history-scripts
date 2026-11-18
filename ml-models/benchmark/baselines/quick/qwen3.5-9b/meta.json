@@ -1,0 +1,68 @@
+{
+  "system": "qwen3.5-9b",
+  "task": "htr",
+  "set": "quick",
+  "options": {},
+  "info": {
+    "model": "mlx-community/Qwen3.5-9B-8bit",
+    "runtime": "mlx-vlm 0.7.12",
+    "max_side": 2048,
+    "max_tokens": 4096,
+    "temperature": 0.0,
+    "prompt": [
+      {
+        "role": "system",
+        "content": "You are an expert in diplomatic transcription of historical documents from various languages. Your task is to extract the full text from a given page. Only output the transcribed text between <output> and </output> tags."
+      },
+      {
+        "role": "user",
+        "content": "Follow these instructions:\n\n1. You will be provided with a scanned document page.\n\n2. Perform transcription on the entirety of the page, converting all visible text into the following format. Include handwritten and print text, if any. Include tables, captions, headers, main text and all other visible text.\n\n3. If you encounter any non-text elements, simply skip them without attempting to describe them.\n\n4. Do not modernize or standardize the text. For example, if the transcription is using \"ſ\" instead of \"s\" or \"а\" instead of \"a\", keep it that way.\n\n5. When you come across text in languages other than English, transcribe it as accurately as possible without translation.\n\n6. Output the OCR result in the following format:\n\n<output>\nextracted text here\n</output>\n\nRemember, your goal is to accurately transcribe the text from the scanned page as much as possible. Process the entire page, even if it contains a large amount of text, and provide clear, well-formatted output. Pay attention to the appropriate reading order and layout of the text."
+      }
+    ]
+  },
+  "page_ids": [
+    "cremma_medieval__vaticane_reg_lat_1616-otinel_reg-lat-1616_094v__72e958",
+    "cremma_mss17__correspondance-dom-bernard-de-montfaucon_f101__ad8acd",
+    "denver_jcrs__page_B002_01_0105_0016_013__a341a5",
+    "denver_jcrs__page_B002_01_0107_0132_008__007d49",
+    "denver_jcrs__page_B002_01_0108_0048_004__d2726f",
+    "dresden_hofdiarium__K.117_0001_00000007.tif.original__a4b19a",
+    "gallicorpora_15e__btv1b84260029_btv1b84260029_f271__962d37",
+    "htromance_medieval_fr__bnf-fr-1669_btv1b9059692s_f5__7fe570",
+    "htromance_medieval_fr__bnf-fr-574_btv1b84526412_f22__e2a5ab",
+    "joseph_hooker__JDH_2_16_173_002__3b3f96",
+    "joseph_hooker__JDH_2_3_6_80_002__de3677",
+    "koenigsfelden__page_U-17_0472_r__223dde",
+    "koenigsfelden__page_U-17_0763_r__78eee0",
+    "koenigsfelden__page_U-17_0858_r__230d21",
+    "koenigsfelden__page_U-17_0927g_r__94b5d0",
+    "mkn_kurrent__GT-PAGE_00000449__ba1204",
+    "mkn_kurrent__GT-PAGE_00000469__7d638f",
+    "mkn_kurrent__GT-PAGE_00000473__df0f95",
+    "mkn_kurrent__GT-PAGE_00000500__28ea15",
+    "mkn_kurrent__GT-PAGE_00000540__cbc6db",
+    "poilus_testaments__batch-1_TestamentsDePoilus_will_AD78_0066-0__659051",
+    "poilus_testaments__batch-1_TestamentsDePoilus_will_AN_0241-0__8e8efc",
+    "poilus_testaments__batch-2_TestamentsDePoilus_will_AD78_0030-0__3199dc",
+    "poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0199-0__d64753",
+    "poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0240-0__4f5804",
+    "revolutionary_city__data_apsrevcity-1017__cc9463",
+    "revolutionary_city__data_apsrevcity_7424__7cb839",
+    "revolutionary_city__data_hsprevcity-1678__acdd93",
+    "revolutionary_city__data_hsprevcity-9164__c58bf3",
+    "revolutionary_city__data_hsprevcity-9366__f626db"
+  ],
+  "hardware": {
+    "machine": "arm64",
+    "cpu": "Apple M5",
+    "memory_gb": 24.0,
+    "os": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.12.14"
+  },
+  "git_commit": "44c2e06-dirty",
+  "started": "2026-11-16T12:44:42",
+  "load_seconds": 4.38,
+  "finished": "2026-11-16T13:44:00",
+  "failed_pages": 0,
+  "peak_rss_gb": 3.63
+}

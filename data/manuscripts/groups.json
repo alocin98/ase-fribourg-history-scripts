@@ -1,0 +1,166 @@
+{
+  "boundaries": {
+    "de": 1700,
+    "fr": 1700,
+    "en": 1800
+  },
+  "max_year": 1950,
+  "groups": {
+    "de_post1700": {
+      "test": 50,
+      "train": 200
+    },
+    "de_pre1700": {
+      "test": 50,
+      "train": 196
+    },
+    "en_post1800": {
+      "test": 50,
+      "train": 200
+    },
+    "en_pre1800": {
+      "test": 50,
+      "train": 200
+    },
+    "fr_post1700": {
+      "test": 50,
+      "train": 199
+    },
+    "fr_pre1700": {
+      "test": 50,
+      "train": 200
+    }
+  },
+  "sources": {
+    "koenigsfelden": {
+      "title": "Charters and Records of Königsfelden Abbey and Bailiwick (1308-1662)",
+      "url": "https://zenodo.org/records/5179361",
+      "license": "CC-BY-4.0"
+    },
+    "stabs_basel": {
+      "title": "HTR GT Set: StABS Ratsbücher O10 / Urfehdenbuch (Basel, 1563-1569)",
+      "url": "https://zenodo.org/records/5153263",
+      "license": "CC-BY-NC-SA-4.0"
+    },
+    "enhg_lit463": {
+      "title": "Diplomatic HTR GT for an Early New High German manuscript (BayHStA Lit 463, 1480-1485)",
+      "url": "https://zenodo.org/records/21257167",
+      "license": "CC-BY-4.0"
+    },
+    "canonesses_oct842": {
+      "title": "Augustinian canonesses manuscripts: Ms. germ. oct. 842 (15th c.)",
+      "url": "https://zenodo.org/records/17978574",
+      "license": "CC-BY-4.0"
+    },
+    "canonesses_fol1045": {
+      "title": "Augustinian canonesses manuscripts: Ms. germ. fol. 1045 (15th c.)",
+      "url": "https://zenodo.org/records/17978574",
+      "license": "CC-BY-4.0"
+    },
+    "dresden_hofdiarium": {
+      "title": "Ground Truth Sets: Dresdner Hofdiarium (SLUB)",
+      "url": "https://zenodo.org/records/15303398",
+      "license": "CC-BY-4.0 / CC-BY-NC-SA-4.0 (K.80)"
+    },
+    "mkn_kurrent": {
+      "title": "mkn-kurrent-gt: Moravian Knowledge Network Kurrent GT",
+      "url": "https://github.com/bertsky/mkn-kurrent-gt",
+      "license": "Public Domain Mark 1.0"
+    },
+    "valais_de": {
+      "title": "Recensement Valaisan (Valais Time Machine)",
+      "url": "https://github.com/PonteIneptique/valais-recensement",
+      "license": "CC-BY-NC 4.0"
+    },
+    "cremma_medieval": {
+      "title": "CREMMA Medieval",
+      "url": "https://github.com/HTR-United/cremma-medieval",
+      "license": "CC-BY-4.0"
+    },
+    "gallicorpora_15e": {
+      "title": "Gallicorpora: HTR manuscrits du 15e siècle",
+      "url": "https://github.com/Gallicorpora/HTR-MSS-15e-Siecle",
+      "license": "CC-BY-4.0"
+    },
+    "htromance_medieval_fr": {
+      "title": "HTRomance Medieval French",
+      "url": "https://github.com/HTRomance-Project/medieval-french",
+      "license": "CC-BY-4.0"
+    },
+    "decameron_fr": {
+      "title": "DecameronFR",
+      "url": "https://github.com/PSL-Chartes-HTR-Students/TNAH-2021-DecameronFR",
+      "license": "CC-BY-4.0"
+    },
+    "cremma_mss16": {
+      "title": "CREMMA MSS 16",
+      "url": "https://github.com/HTR-United/CREMMA-MSS-16",
+      "license": "CC-BY-4.0"
+    },
+    "chateau_chavigny": {
+      "title": "Château de Chavigny",
+      "url": "https://github.com/PSL-Chartes-HTR-Students/HN2021-ChateauChavigny",
+      "license": "CC-BY-4.0"
+    },
+    "cremma_mss17": {
+      "title": "CREMMA Manuscrits du 17e",
+      "url": "https://github.com/HTR-United/CREMMA-MSS-17",
+      "license": "CC-BY-4.0"
+    },
+    "fondue_fr_mss18": {
+      "title": "FoNDUE FR MSS 18",
+      "url": "https://github.com/FoNDUE-HTR/FONDUE-FR-MSS-18",
+      "license": "CC-BY-4.0"
+    },
+    "cremma_mss18": {
+      "title": "CREMMA Manuscrits du 18e",
+      "url": "https://github.com/HTR-United/CREMMA-MSS-18",
+      "license": "CC-BY-4.0"
+    },
+    "lectaurep_bronod": {
+      "title": "Notaires de Paris - Bronod",
+      "url": "https://github.com/HTR-United/lectaurep-bronod",
+      "license": "CC-BY-4.0"
+    },
+    "cremma_mss19": {
+      "title": "CREMMA Manuscrits du 19e",
+      "url": "https://github.com/HTR-United/CREMMA-MSS-19",
+      "license": "CC-BY-4.0"
+    },
+    "berlioz": {
+      "title": "Projet Correspondance Berlioz",
+      "url": "https://github.com/PSL-Chartes-HTR-Students/TNAH-2021-Projet-Correspondance-Berlioz",
+      "license": "CC-BY-4.0"
+    },
+    "lectaurep_mariages": {
+      "title": "Notaires de Paris - Mariages et Divorces",
+      "url": "https://github.com/HTR-United/lectaurep-mariages-et-divorces",
+      "license": "CC-BY-4.0"
+    },
+    "poilus_testaments": {
+      "title": "CREMMA-AN Testaments de Poilus",
+      "url": "https://github.com/HTR-United/CREMMA-AN-TestamentsDePoilus",
+      "license": "CC-BY-4.0"
+    },
+    "valais_fr": {
+      "title": "Recensement Valaisan (Valais Time Machine)",
+      "url": "https://github.com/PonteIneptique/valais-recensement",
+      "license": "CC-BY-NC 4.0"
+    },
+    "revolutionary_city": {
+      "title": "The Revolutionary City Corpus (1758-1805): HTR Ground Truth",
+      "url": "https://zenodo.org/records/15776323",
+      "license": "CC-BY-4.0"
+    },
+    "joseph_hooker": {
+      "title": "Joseph Hooker HTR",
+      "url": "https://github.com/jschaefer738b/JosephHookerHTR",
+      "license": "CC-BY-SA-4.0"
+    },
+    "denver_jcrs": {
+      "title": "University of Denver JCRS HTR Train Set",
+      "url": "https://zenodo.org/records/4243023",
+      "license": "CC-BY-4.0"
+    }
+  }
+}
