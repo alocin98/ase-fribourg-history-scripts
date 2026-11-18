@@ -219,9 +219,19 @@ HOW_TO_READ = """## How to read this
 HOW_TO_READ_LID = """## How to read this
 
 - **Accuracy**: pages whose detected language equals the dataset label. A page without
-  usable text counts as wrong.
-- Approach A transcribes the first 10 lines with McCATMuS and gives that text to lingua,
-  which chooses between German, French, English and Latin."""
+  usable text counts as wrong."""
+
+METHOD_LID = """## Method
+
+Approach A, in two steps:
+
+1. **Transcribe**: Kraken's default layout model finds the text lines, and the first 10
+   are read with [McCATMuS](https://doi.org/10.5281/zenodo.13788177), a multilingual
+   handwriting model for the 16th to 21st century (trained mostly on French).
+2. **Detect**: [lingua](https://github.com/pemistahl/lingua-py) scores that text for
+   German, French, English and Latin only, and the language with the highest confidence
+   wins. Limiting the candidates to the archive's languages keeps it robust on noisy
+   transcriptions."""
 
 
 def transcription_report(run: Run, baselines: list[Run], details: bool):
@@ -343,6 +353,7 @@ def language_report(run: Run, details: bool):
     out = [
         f"# {run.label} on the `{run.set_name}` set ({len(scores)} pages)",
         data_section([s.page for s in scores], run.set_name),
+        METHOD_LID,
     ]
     by_language = group_by(scores, lambda s: s.page.language)
     rows = [
