@@ -1,0 +1,40 @@
+08_Lettre_Hooker
+Identifiant : joseph_hooker__JDH_2_16_173_002__3b3f96
+Langue : en — source : joseph_hooker
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+the microscope that Henslow used,
+if so I will give it.
+What a good paper Gunther has
+made on the Swainson letters -- I
+must do something with Bentham's
+correspondence.
+Ever affecty yr
+Jos D Hooker
+
+
+================ PRÉDICTION QWEN ================
+The microscope that Henslow used,
+if so I will give it.
+
+What a good paper Gunther has
+made in the Swainson letter - I
+must do something with Bentham's
+correspondence.
+
+Elen Albert
+J. B. Hooker:
+
+================ PRÉDICTION CHURRO ================
+The microscope that Henslow need,
+if u will give it.
+What a good paper Gunther has
+made on the Swainson letter. I
+must do something with Bentham's
+correspondence.
+Ever affectyly
+JDHooker.

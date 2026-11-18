@@ -1,0 +1,21 @@
+{
+  "page_id": "joseph_hooker__JDH_2_3_6_80_002__de3677",
+  "text": "to Sch. Haworth's Ceph. Species.\nA good many have been sent to\nhim to be named with a very\ngood result. Haw has sent also\na my large collection of the African\norchideae, including species not\nin Hook. Hook.\n\nThere are several Orchid Species\nnew to me, evidently from Lamberts.\nWell again, which contained many\nof Mr. Harnett's plants. My as\nwell is a state for description.\n\nI do know when Lamberts\norchideum is? Most of it\nwent abroad.\n\nThere is a beautiful Smilax species.",
+  "lines": [],
+  "timings": {
+    "recognition": 16.953733750036918,
+    "total": 16.953733750036918
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nto Sch. Haworth's Ceph. Species.\nA good many have been sent to\nhim to be named with a very\ngood result. Haw has sent also\na my large collection of the African\norchideae, including species not\nin Hook. Hook.\n\nThere are several Orchid Species\nnew to me, evidently from Lamberts.\nWell again, which contained many\nof Mr. Harnett's plants. My as\nwell is a state for description.\n\nI do know when Lamberts\norchideum is? Most of it\nwent abroad.\n\nThere is a beautiful Smilax species.\n</output>",
+    "image_size": [
+      1318,
+      2048
+    ],
+    "prompt_tokens": 2919,
+    "generation_tokens": 140,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0199-0__d64753",
+  "text": "44192 Page unique\n1\nmy\n2\nCeci est mon testament\nJ’institue ma femme, Héloïse\nBouché. Ma légataire universelle et\nlui lègue en pleine propriété la\ntotalité de ce que la loi me permet\nde disposer. J’exprime même le\ndésir formel de lui voir attribuer\nsans aucune réserve la totalité de\nma fortune Mobilière et immobilière.\nCeci est ma volonté dernière. Je révoque\ntout testament antérieur.\nHerblay-Sec le cinq décembre\nmil-neuf-cent quatorze.\nJean Delmet\n1918",
+  "lines": [],
+  "timings": {
+    "recognition": 32.248816333012655,
+    "total": 32.248816333012655
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>French</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Single sheet of lined paper, handwritten in dark ink. Archival stamp present.</PhysicalDescription>\n    <Description>Last will and testament of Jean Delmet, dated December 5, 1914, written in Herblay-Sec.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Header>\n      <Heading type=\"other\">\n        <Line>44192 Page unique</Line>\n      </Heading>\n      <PageNumber>1</PageNumber>\n    </Header>\n    <Body>\n      <MarginalNote placement=\"top_margin\">\n        <Line>my</Line>\n      </MarginalNote>\n      <MarginalNote placement=\"top_margin\">\n        <Line>2</Line>\n      </MarginalNote>\n      <Paragraph>\n        <Line>Ceci est mon testament</Line>\n        <Line>J’institue ma femme, Héloïse</Line>\n        <Line>Bouché. Ma légataire universelle et</Line>\n        <Line>lui lègue en pleine propriété la</Line>\n        <Line>totalité de ce que la loi me permet</Line>\n        <Line>de disposer. J’exprime même le</Line>\n        <Line>désir formel de lui voir attribuer</Line>\n        <Line>sans aucune réserve la totalité de</Line>\n        <Line>ma fortune Mobilière et immobilière.</Line>\n        <Line>Ceci est ma volonté dernière. Je révoque</Line>\n        <Line>tout testament antérieur.</Line>\n      </Paragraph>\n      <DateLine>\n        <Line>Herblay-Sec le cinq décembre</Line>\n        <Line>mil-neuf-cent quatorze.</Line>\n      </DateLine>\n      <Paragraph>\n        <Line>Jean Delmet</Line>\n      </Paragraph>\n      <Stamp description=\"ARCHIVES NATIONALES\"/>\n      <MarginalNote placement=\"left_margin\">\n        <Line>1918</Line>\n      </MarginalNote>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1378,
+      2500
+    ],
+    "prompt_tokens": 4388,
+    "generation_tokens": 492,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

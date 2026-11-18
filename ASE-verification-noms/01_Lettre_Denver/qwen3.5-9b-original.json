@@ -1,0 +1,21 @@
+{
+  "page_id": "denver_jcrs__page_B002_01_0108_0048_004__d2726f",
+  "text": "Maplewood, Mo. Nov. 17th 193\n\nDr. C. S. Shaver\nDenver Colo.\n\nDear Friend,\n\nYour kind letter & hand and contents noted. In reply wish to thank you for the consideration shown my Brother Saul Lissman will ask you to kindly advise as to his condition. Will appreciate any favor you may show us in this matter.\n\nWith best wishes Sam. Sincerely yours\n\nAnna Lerman.\nMaplewood Mo\n\nEnclosed please find stamped envelope",
+  "lines": [],
+  "timings": {
+    "recognition": 18.438320750021376,
+    "total": 18.438320750021376
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nMaplewood, Mo. Nov. 17th 193\n\nDr. C. S. Shaver\nDenver Colo.\n\nDear Friend,\n\nYour kind letter & hand and contents noted. In reply wish to thank you for the consideration shown my Brother Saul Lissman will ask you to kindly advise as to his condition. Will appreciate any favor you may show us in this matter.\n\nWith best wishes Sam. Sincerely yours\n\nAnna Lerman.\nMaplewood Mo\n\nEnclosed please find stamped envelope\n</output>",
+    "image_size": [
+      1743,
+      2048
+    ],
+    "prompt_tokens": 3751,
+    "generation_tokens": 117,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

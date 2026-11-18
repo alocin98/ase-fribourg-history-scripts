@@ -1,0 +1,61 @@
+06_Testament_AN_0199
+Identifiant : poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0199-0__d64753
+Langue : fr — source : poilus_testaments
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+Ceci est mon testament
+J’institue ma femme. Stéphanie
+Bouché. ma légataire universelle et
+lui lègue en pleine propriété la
+totalité de ce que la loi me permet
+de disposer. J’exprime même le
+désir formel de lui voir attribuer
+sans aucune réserve la totalité de
+ma fortune mobilière et immobilière.
+Ceci est ma volonté dernière. Je révoque
+tout testament antérieur
+Herlin-le-Sec le cinq décembre
+Mil-neuf-cent-quatorze.
+Jean Robinet
+
+
+================ PRÉDICTION QWEN ================
+Ceci est mon testament.
+J'institue ma femme, Estherie
+Bouche, ma légataire universelle et
+lui lègue en pleine propriété la
+totalité de ce que la loi ne permet
+de disposer. J'exprime même le
+désir formel de lui voir attribuer
+sans aucune réserve la totalité de
+ma fortune mobilière et immobilière.
+Ceci est ma volonté dernière. Je révoque
+tout testament antérieur.
+Herblay-le-Sec, le cinq décembre
+mil neuf cent quatorze.
+Jean R.
+
+================ PRÉDICTION CHURRO ================
+44192 Page unique
+1
+my
+2
+Ceci est mon testament
+J’institue ma femme, Héloïse
+Bouché. Ma légataire universelle et
+lui lègue en pleine propriété la
+totalité de ce que la loi me permet
+de disposer. J’exprime même le
+désir formel de lui voir attribuer
+sans aucune réserve la totalité de
+ma fortune Mobilière et immobilière.
+Ceci est ma volonté dernière. Je révoque
+tout testament antérieur.
+Herblay-Sec le cinq décembre
+mil-neuf-cent quatorze.
+Jean Delmet
+1918

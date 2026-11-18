@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0240-0__4f5804",
+  "text": "Page 1\n\nCelle est ma dernière volonté.\nJe soussigné Claude Curon demeurant à Paris\nrue Bruller 3 Numéro trois lègue à ma mort\ntout mes biens notamment un titre nominatif\nde dix obligations est anciennes 3%\nà mon neveu et filleul André Curon,\nfils de Jean Curon, demeurant à Bronmont-Lamotte\n(Doy de Vème).\n\nFait par moi, sain de corps et d'esprit en mon\ndomicile, 3 rue Bruller Paris le trois août mil neuf cent\nquatorze\n\nClaude Jean-Baptiste Curon\n\nSigné par Nous Juge pour Monsieur\nle Président du Tribunal Civil de la Seine\nParis, le premier octobre 1915\n\nEnregistré à Paris (4e Notaires) le... 7 OCT 1915\nVol. 694 B. f° 36... C° 18... Reçu... neuf francs 38 —",
+  "lines": [],
+  "timings": {
+    "recognition": 23.16705179202836,
+    "total": 23.16705179202836
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nPage 1\n\nCelle est ma dernière volonté.\nJe soussigné Claude Curon demeurant à Paris\nrue Bruller 3 Numéro trois lègue à ma mort\ntout mes biens notamment un titre nominatif\nde dix obligations est anciennes 3%\nà mon neveu et filleul André Curon,\nfils de Jean Curon, demeurant à Bronmont-Lamotte\n(Doy de Vème).\n\nFait par moi, sain de corps et d'esprit en mon\ndomicile, 3 rue Bruller Paris le trois août mil neuf cent\nquatorze\n\nClaude Jean-Baptiste Curon\n\nSigné par Nous Juge pour Monsieur\nle Président du Tribunal Civil de la Seine\nParis, le premier octobre 1915\n\nEnregistré à Paris (4e Notaires) le... 7 OCT 1915\nVol. 694 B. f° 36... C° 18... Reçu... neuf francs 38 —\n</output>",
+    "image_size": [
+      1164,
+      2048
+    ],
+    "prompt_tokens": 2599,
+    "generation_tokens": 230,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

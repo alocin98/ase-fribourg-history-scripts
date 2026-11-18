@@ -1,0 +1,66 @@
+09_Lettre_Hooker
+Identifiant : joseph_hooker__JDH_2_3_6_80_002__de3677
+Langue : en — source : joseph_hooker
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+to set of Kewate's Ceylon species
+A good many had been Lent to
+Kew to be named with a very
+bad result. Kew has sent also
+a vey large proportion of the Roglean
+distribution, including species not
+in Herb. Hook
+There are several Nepal species
+new to me evidently from Lamberts
+Herbarium which contained many
+of Bud Hamelton plants -- They are
+not in a state fit for description.
+Is it known where Lamberts
+Herbarium is ? Most oode of it
+went abroad.
+New is a beautiful small species
+
+
+================ PRÉDICTION QWEN ================
+to Sch. Haworth's Ceph. Species.
+A good many have been sent to
+him to be named with a very
+good result. Haw has sent also
+a my large collection of the African
+orchideae, including species not
+in Hook. Hook.
+
+There are several Orchid Species
+new to me, evidently from Lamberts.
+Well again, which contained many
+of Mr. Harnett's plants. My as
+well is a state for description.
+
+I do know when Lamberts
+orchideum is? Most of it
+went abroad.
+
+There is a beautiful Smilax species.
+
+================ PRÉDICTION CHURRO ================
+42
+a set of Kew's Ceylon species
+A good many had been sent to
+Kew to be named with a very
+bad result. Kew has sent also
+a very large proportion of the Roglean
+distribution, including species not
+in Herb. Hook
+There are several Nepal species
+new to me, evidently from Lambe's
+Herbarium, which contained many
+of Bud. Hametts plants -- They are
+not in a state fit for description.
+Is it known where Lambe's
+Herbarium is? Most of it
+went abroad.
+There is a beautiful small species

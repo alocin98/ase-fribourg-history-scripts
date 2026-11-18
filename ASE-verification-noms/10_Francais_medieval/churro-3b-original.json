@@ -1,0 +1,21 @@
+{
+  "page_id": "htromance_medieval_fr__bnf-fr-574_btv1b84526412_f22__e2a5ab",
+  "text": "la ou il est. Et que noꝰ\nen puiſſons conquer\nre ſamour ⁊ ſa grace.\nSi commencerons t\nout avant du glor\neus dieu. ſouuerain.\n⁊ de ſa poiſſance. Liſt\nchapistres parle de la\nQ\nuant poiſſãce di\ndier fist le mõ eu.\nde au commencement.\nIl neli en eſtoit nul me\nſtier. Car aucretant a\nuoit il deuant ꝯme il\not apres. Car dier fu\ndeuant ⁊ ſera touz iourz\nſanz fin ⁊ ſanz cõmen\ncement. Donq̃s ne ſen\namenda il de riens. Car\nil ne li failli onq̃s nl\nle cloſe. Tout uoit. to\nut tient en ſamain.\nIl not onq̃s ne faim.\nne ſoif ne tans. ne\nmois. ne breue. Ainz\ndemuer tout ades en\ntouz biens. Car a lui\nnaſcier ne toſt. ne tarr.\nquẽ qui onq̃s fuſt. ne\nqui ia ſoit il eſt touz\niourz deuant les ieurz.\nautreſi bien li loing cõ\nme li pres. Tout auſi\nbien ucoit il le monde\nainz quil feust faiz. ⁊\nme fait orendroit.\nE\nt ſe il neuſt onq̃s\nfait le monde: autre",
+  "lines": [],
+  "timings": {
+    "recognition": 49.92347204091493,
+    "total": 49.92347204091493
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>French</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Parchment, 1 folio, 2 columns, decorated initials, marginal decoration.</PhysicalDescription>\n    <Description>Excerpt from a religious text, likely a commentary or sermon, discussing the creation and nature of the world.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Body>\n      <Paragraph>\n        <Line>la ou il est. Et que noꝰ</Line>\n        <Line>en puiſſons conquer</Line>\n        <Line>re ſamour ⁊ ſa grace.</Line>\n        <Line>Si commencerons t</Line>\n        <Line>out avant du glor</Line>\n        <Line>eus dieu. ſouuerain.</Line>\n        <Line>⁊ de ſa poiſſance. <Emphasis type=\"colored\">Liſt</Emphasis></Line>\n        <Line>\n          <Emphasis type=\"colored\">chapistres parle de la</Emphasis>\n        </Line>\n        <Line><Initial type=\"decorated-drop\">Q</Initial>uant poiſſãce di</Line>\n        <Line>dier fist le mõ eu.</Line>\n        <Line>de au commencement.</Line>\n        <Line>Il neli en eſtoit nul me</Line>\n        <Line>ſtier. Car aucretant a</Line>\n        <Line>uoit il deuant ꝯme il</Line>\n        <Line>ot apres. Car dier fu</Line>\n        <Line>deuant ⁊ ſera touz iourz</Line>\n        <Line>ſanz fin ⁊ ſanz cõmen</Line>\n        <Line>cement. Donq̃s ne ſen</Line>\n        <Line>amenda il de riens. Car</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>il ne li failli onq̃s nl</Line>\n        <Line>le cloſe. Tout uoit. to</Line>\n        <Line>ut tient en ſamain.</Line>\n        <Line>Il not onq̃s ne faim.</Line>\n        <Line>ne ſoif ne tans. ne</Line>\n        <Line>mois. ne breue. Ainz</Line>\n        <Line>demuer tout ades en</Line>\n        <Line>touz biens. Car a lui</Line>\n        <Line>naſcier ne toſt. ne tarr.</Line>\n        <Line>quẽ qui onq̃s fuſt. ne</Line>\n        <Line>qui ia ſoit il eſt touz</Line>\n        <Line>iourz deuant les ieurz.</Line>\n        <Line>autreſi bien li loing cõ</Line>\n        <Line>me li pres. Tout auſi</Line>\n        <Line>bien ucoit il le monde</Line>\n        <Line>ainz quil feust faiz. ⁊</Line>\n        <Line>me fait orendroit.</Line>\n        <Line><Initial type=\"decorated\">E</Initial>t ſe il neuſt onq̃s</Line>\n        <Line>fait le monde: autre</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1646,
+      2500
+    ],
+    "prompt_tokens": 5131,
+    "generation_tokens": 790,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

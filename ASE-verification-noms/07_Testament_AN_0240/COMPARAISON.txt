@@ -1,0 +1,74 @@
+07_Testament_AN_0240
+Identifiant : poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0240-0__4f5804
+Langue : fr — source : poilus_testaments
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+Telle est ma dernière Volonté.
+Je soussigné Claude Duron demeurant à Paris
+rue Bruller 3 Numéro trois lègue à ma mort
+tous mes biens notamment un titre nominataf
+de dix obligations est Anciennes 3%
+à mon neveu et filleul André Duron,
+fils de Jean Duron, demeurant a Bromont-Lamothe
+(Puy de Dôme).
+Fait par moi, sain de corps et d’esprit en mon
+domicile, 3 rue Bruller Paris le trois aout mil neuf cent
+quatorze
+Claude Jean-Baptiste Duron
+
+
+================ PRÉDICTION QWEN ================
+Page 1
+
+Celle est ma dernière volonté.
+Je soussigné Claude Curon demeurant à Paris
+rue Bruller 3 Numéro trois lègue à ma mort
+tout mes biens notamment un titre nominatif
+de dix obligations est anciennes 3%
+à mon neveu et filleul André Curon,
+fils de Jean Curon, demeurant à Bronmont-Lamotte
+(Doy de Vème).
+
+Fait par moi, sain de corps et d'esprit en mon
+domicile, 3 rue Bruller Paris le trois août mil neuf cent
+quatorze
+
+Claude Jean-Baptiste Curon
+
+Signé par Nous Juge pour Monsieur
+le Président du Tribunal Civil de la Seine
+Paris, le premier octobre 1915
+
+Enregistré à Paris (4e Notaires) le... 7 OCT 1915
+Vol. 694 B. f° 36... C° 18... Reçu... neuf francs 38 —
+
+================ PRÉDICTION CHURRO ================
+Page unique
+1
+Celle est ma dernière Volonté.
+Je soussigné Claude Duron demeurant à Paris
+rue Brûller 3 Numéro trois légue à ma mort
+tout mes biens notamment un titre nominatif
+de dix obligations est ancienne
+3%
+à mon neveu et filleul André Duron,
+fils de Jean Duron, demeurant à Bromont-Lamothe
+(Burg de Tôme).
+Fait par moi, sain de corps et d’esprit en mon
+domicile, 3 rue Brûller Paris le trois aout mil neuf cent
+quatorze
+Claude jean-Baptiste Duron
+Signé par Maître Juge pour Monsieur
+le Président du Tribunal Civil de la Seine
+Paris. le premier octobre 1915
+Neug
+Enregistré à Paris (4e Notaires) le
+Reçu
+Vol. 697 R. f°. 36
+C°
+Reçu Neuf francs 38 —
+jm

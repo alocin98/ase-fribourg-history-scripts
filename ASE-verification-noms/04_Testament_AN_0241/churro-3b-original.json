@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-1_TestamentsDePoilus_will_AN_0241-0__8e8efc",
+  "text": "Page troisième\n1\nRr\nMco\nFeuille rédigée aujourd'hui 10 septembre\n1914, jour de mon départ en guerre, pour\nremplacer la feuille supprimée.\nJe lègue tous mes biens, présents et\nà venir, (formule consacrée !) à ma\nfemme, née Emilie Louise Béalet.\nParis, le dix septembre mil neuf\ncent quatorze.\nRaoul Capery.\nTroisième et dernier feuillet\nR. Capery\nSigné par Nous Juge pour Monsieur\nPrésident du Tribunal Civil de la Seine\nris, le onze octobre 1915\nF. heugon\nEnregistré à Paris (4e\nNotaires) le\n25 OCT 1915\nVol.\nfo\n.\nCo\n.\nReçu\npour",
+  "lines": [],
+  "timings": {
+    "recognition": 46.86814058304299,
+    "total": 46.86814058304299
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>French</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Feuille de papier, 1 page, encre violette et encre brune, timbre fiscal.</PhysicalDescription>\n    <Description>Testament olographe de Raoul Capery, daté du 10 septembre 1914, remplacé par une feuille de guerre.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Header>\n      <Heading type=\"other\">\n        <Line>Page troisième</Line>\n      </Heading>\n      <PageNumber>1</PageNumber>\n    </Header>\n    <Body>\n      <MarginalNote placement=\"top_margin\">\n        <Line>R<Emphasis type=\"underline\">r</Emphasis> M<Emphasis type=\"underline\">co</Emphasis></Line>\n      </MarginalNote>\n      <Paragraph>\n        <Line>Feuille rédigée aujourd'hui 10 septembre</Line>\n        <Line>1914, jour de mon départ en guerre, pour</Line>\n        <Line>remplacer la feuille supprimée.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Je lègue tous mes biens, présents et</Line>\n        <Line>à venir, (formule consacrée !) à ma</Line>\n        <Line>femme, née Emilie Louise Béalet.</Line>\n      </Paragraph>\n      <DateLine>\n        <Line>Paris, le dix septembre mil neuf</Line>\n        <Line>cent quatorze.</Line>\n      </DateLine>\n      <Paragraph>\n        <Line>Raoul Capery.</Line>\n      </Paragraph>\n      <Stamp description=\"Timbre fiscal: Exposition Universelle 1900, 1f 10c DIMENSION\"/>\n      <Paragraph>\n        <Line>Troisième et dernier feuillet</Line>\n        <Line>R. Capery</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Signé par Nous Juge pour Monsieur</Line>\n        <Line>Président du Tribunal Civil de la Seine</Line>\n        <Line>ris, le onze octobre 1915</Line>\n        <Line>F. heugon</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Enregistré à Paris (4<Emphasis type=\"underline\">e</Emphasis> Notaires) le <Gap reason=\"illegible\" extent=\"ca. 1 mot\"/> 25 OCT 1915</Line>\n        <Line>Vol. <Gap reason=\"illegible\" extent=\"ca. 1 mot\"/> f<Emphasis type=\"underline\">o</Emphasis>. <Gap reason=\"illegible\" extent=\"ca. 1 mot\"/> C<Emphasis type=\"underline\">o</Emphasis>. <Gap reason=\"illegible\" extent=\"ca. 1 mot\"/> Reçu <Gap reason=\"illegible\" extent=\"ca. 1 mot\"/> pour <Gap reason=\"illegible\" extent=\"ca. 1 mot\"/></Line>\n        <Line>\n          <Gap reason=\"illegible\" extent=\"signature\"/>\n        </Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1749,
+      2500
+    ],
+    "prompt_tokens": 5042,
+    "generation_tokens": 749,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

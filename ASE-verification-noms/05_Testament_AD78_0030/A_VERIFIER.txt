@@ -1,0 +1,14 @@
+QUOI VÉRIFIER SUR CETTE PAGE
+
+Commence par ces noms ou passages de la référence :
+
+- Brunet Henri François Placide (sur deux lignes)
+- Madeleine Gateau
+- rue de Noailles
+- Saint germain en Laye (forme à conserver telle que dans la référence)
+
+Pour chacun : est-il présent chez Qwen ? Est-il écrit pareil ? Et chez CHURRO ?
+Cherche aussi les autres noms de la page et les éventuels noms ajoutés.
+
+Ouvre COMPARAISON.txt et l’image. En cas de doute, note « incertain ».
+Les noms ci-dessus sont des pistes de lecture, pas des étiquettes personne/lieu du benchmark.

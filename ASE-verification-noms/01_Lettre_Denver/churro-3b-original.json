@@ -1,0 +1,21 @@
+{
+  "page_id": "denver_jcrs__page_B002_01_0108_0048_004__d2726f",
+  "text": "Maplewood, Mo. Nov. 17th 1913\nDr C.D. Spivak\nDenver Colo.\nDear Dr.\nYour kind letter to hand\nand contents noted. In reply wish\nto thank you for the consideration\nshown my Brother Saul Lissman\nwill ask you to kindly advise as\nto his condition. will appreciate any favor\nyou may show us in this matter\nWith best wishes I am. Sincerely yours\nAnna Lerman\nMaplewood Mo\nEnclosed please find stamped envelope",
+  "lines": [],
+  "timings": {
+    "recognition": 29.042881625005975,
+    "total": 29.042881625005975
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>English</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Single sheet of light blue paper, handwritten in dark ink. The paper is creased from folding.</PhysicalDescription>\n    <Description>Letter from Anna Lerman to Dr. C.D. Spivak, dated November 17, 1913, from Maplewood, Mo. The letter acknowledges a previous letter and requests Dr. Spivak's advice regarding her brother, Saul Lissman.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Body>\n      <DateLine>\n        <Line>Maplewood, Mo. Nov. 17th 1913</Line>\n      </DateLine>\n      <Paragraph>\n        <Line>Dr C.D. Spivak</Line>\n        <Line>Denver Colo.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Dear Dr.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Your kind letter to hand</Line>\n        <Line>and contents noted. In reply wish</Line>\n        <Line>to thank you for the consideration</Line>\n        <Line>shown my Brother Saul Lissman</Line>\n        <Line>will ask you to kindly advise as</Line>\n        <Line>to his condition. will appreciate any favor</Line>\n        <Line>you may show us in this matter</Line>\n        <Line>With best wishes I am. Sincerely yours</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Anna Lerman</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Maplewood Mo</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Enclosed please find stamped envelope</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      2127,
+      2500
+    ],
+    "prompt_tokens": 5109,
+    "generation_tokens": 420,
+    "truncated": false,
+    "peak_memory_gb": 9.022719427
+  }
+}

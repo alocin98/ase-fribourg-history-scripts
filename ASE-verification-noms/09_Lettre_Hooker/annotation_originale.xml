@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>prov=University of Rostock/Institute of Mathematics/CITlab|PLANET AI GmbH/Gundram Leifert/gundram.leifert@planet-ai.de:name=JDHooker_1(htr_id=25179)::::v=2.6.6
+prov=University of Rostock/Institute of Mathematics/CITlab|PLANET AI GmbH/Tobias Gruening/tobias.gruening@planet-ai.de:name=de.uros.citlab.module.baseline2polygon.B2PSeamMultiOriented:v=2.6.6
+prov=University of Rostock/Institute of Mathematics/CITlab|PLANET AI GmbH/Tobias Gruening/tobias.gruening@planet-ai.de:name=/net_tf/LA73_249_0mod360.pb:de.uros.citlab.segmentation.CITlab_LA_ML:v=2.6.6
+Transkribus</Creator>
+        <Created>2020-06-12T15:04:43.659-04:00</Created>
+        <LastChange>2020-07-18T23:54:59.114+02:00</LastChange>
+        <TranskribusMetadata docId="436147" pageId="17675991" pageNr="2" tsid="34836563" status="DONE" userId="43461" imgUrl="https://files.transkribus.eu/Get?id=QARNDZERDPXMVPAFMURMTNQQ&amp;fileType=view" xmlUrl="https://files.transkribus.eu/Get?id=NPPVGANZYQTIUZRVOYYDTMMH" imageId="13347207"/>
+    </Metadata>
+    <Page imageFilename="joseph_hooker__JDH_2_3_6_80_002__de3677.jpg" imageWidth="1375" imageHeight="2136">
+        <ReadingOrder>
+            <OrderedGroup id="ro_1684330872918" caption="Regions reading order">
+                <RegionRefIndexed index="0" regionRef="r1"/>
+            </OrderedGroup>
+        </ReadingOrder>
+        <TextRegion orientation="0.0" id="r1" custom="readingOrder {index:0;}">
+            <Coords points="153,414 153,1996 1312,1996 1312,414"/>
+            <TextLine id="r1l1" custom="readingOrder {index:0;}">
+                <Coords points="187,486 297,478 379,526 443,481 597,461 1178,478 1192,402 1038,394 962,436 813,388 611,431 488,395 426,437 186,435"/>
+                <Baseline points="194,480 243,478 293,475 342,473 392,471 441,469 491,467 540,466 590,464 639,463 689,462 739,461 788,461 838,460 887,460 937,460 986,461 1036,461 1085,462 1135,463 1185,464"/>
+                <TextEquiv>
+                    <Unicode>to set of Kewate's Ceylon species</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l2" custom="readingOrder {index:1;}">
+                <Coords points="148,613 350,578 492,620 561,572 695,593 799,563 1135,585 1169,576 1168,516 993,487 902,548 680,490 531,554 309,522 146,553"/>
+                <Baseline points="154,592 204,588 254,585 305,582 355,579 405,577 456,575 506,573 556,571 607,570 657,569 707,568 758,568 808,567 858,566 909,566 959,565 1009,565 1060,564 1110,563 1161,562"/>
+                <TextEquiv>
+                    <Unicode>A good many had been Lent to</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l3" custom="readingOrder {index:2;}">
+                <Coords points="171,707 1036,650 1161,696 1158,616 883,611 679,652 168,626"/>
+                <Baseline points="178,695 226,692 275,689 323,687 372,685 421,682 469,680 518,679 567,677 615,675 664,674 713,672 761,670 810,669 859,667 907,665 956,663 1005,661 1053,658 1102,656 1151,653"/>
+                <TextEquiv>
+                    <Unicode>Kew to be named with a very</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l4" custom="readingOrder {index:3;}">
+                <Coords points="172,788 1153,752 1180,712 1086,686 732,716 653,685 539,736 486,709 395,747 170,746"/>
+                <Baseline points="179,778 228,776 278,773 328,770 378,768 427,765 477,762 527,760 577,758 626,756 676,753 726,751 776,749 825,747 875,745 925,743 975,742 1024,740 1074,739 1124,738 1174,737"/>
+                <TextEquiv>
+                    <Unicode>bad result. Kew has sent also</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l5" custom="readingOrder {index:4;}">
+                <Coords points="146,876 227,866 278,900 431,864 481,891 660,853 744,886 894,846 978,885 1148,854 1086,806 940,784 806,817 674,787 629,832 512,806 390,830 346,800 273,835 145,830"/>
+                <Baseline points="153,865 202,865 251,864 301,863 350,862 400,861 449,860 498,858 548,857 597,856 647,854 696,853 745,852 795,851 844,850 894,850 943,850 992,850 1042,850 1091,852 1141,853"/>
+                <TextEquiv>
+                    <Unicode>a vey large proportion of the Roglean</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l6" custom="readingOrder {index:5;}">
+                <Coords points="178,979 538,992 675,958 843,996 989,944 1236,953 1245,903 1019,918 968,890 889,931 779,902 579,934 321,897 177,944"/>
+                <Baseline points="185,966 237,965 290,965 343,963 395,962 448,961 501,959 553,958 606,956 659,954 712,953 764,951 817,949 870,948 922,947 975,946 1028,945 1080,944 1133,944 1186,944 1239,944"/>
+                <TextEquiv>
+                    <Unicode>distribution, including species not</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l7" custom="readingOrder {index:6;}">
+                <Coords points="183,1073 235,1089 302,1057 575,1057 569,975 537,992 436,998 415,1022 371,1004 357,1020 298,1010 181,1031"/>
+                <Baseline points="190,1067 215,1064 240,1063 265,1060 290,1058 315,1057 340,1055 365,1053 391,1052 416,1050 441,1048 466,1047 491,1045 516,1044 541,1043 567,1041"/>
+                <TextEquiv>
+                    <Unicode>in Herb. Hook</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l8" custom="readingOrder {index:7;}">
+                <Coords points="251,1162 1271,1127 1269,1090 1096,1045 876,1057 729,1113 592,1087 450,1113 339,1057 247,1075"/>
+                <Baseline points="257,1146 307,1148 357,1150 407,1150 458,1150 508,1148 558,1146 609,1143 659,1141 709,1137 760,1133 810,1130 860,1126 910,1123 961,1120 1011,1118 1061,1116 1112,1115 1162,1115 1212,1116 1263,1118"/>
+                <TextEquiv>
+                    <Unicode>There are several Nepal species</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l9" custom="readingOrder {index:8;}">
+                <Coords points="146,1276 469,1270 507,1234 749,1265 976,1215 1281,1250 1320,1237 1317,1167 1148,1194 1044,1137 963,1197 840,1150 705,1203 544,1166 495,1211 143,1215"/>
+                <Baseline points="153,1260 214,1259 275,1256 336,1253 397,1250 458,1246 519,1242 580,1239 641,1234 702,1231 763,1227 824,1224 885,1222 946,1220 1007,1219 1068,1218 1129,1219 1190,1221 1251,1223 1312,1228"/>
+                <TextEquiv>
+                    <Unicode>new to me evidently from Lamberts</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l10" custom="readingOrder {index:9;}">
+                <Coords points="175,1384 1030,1317 1227,1380 1224,1297 993,1271 813,1308 631,1282 502,1336 172,1308"/>
+                <Baseline points="181,1362 232,1362 284,1362 336,1361 388,1359 440,1357 491,1354 543,1351 595,1347 647,1344 699,1340 750,1336 802,1333 854,1330 906,1327 958,1325 1009,1324 1061,1323 1113,1323 1165,1325 1217,1327"/>
+                <TextEquiv>
+                    <Unicode>Herbarium which contained many</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l11" custom="readingOrder {index:10;}">
+                <Coords points="191,1507 458,1451 1287,1437 1284,1389 1133,1353 1069,1396 973,1364 758,1406 663,1377 577,1414 489,1380 392,1430 297,1402 188,1436"/>
+                <Baseline points="196,1466 250,1465 304,1463 358,1460 412,1457 466,1454 520,1451 575,1448 629,1444 683,1441 737,1438 791,1435 845,1432 899,1430 954,1428 1008,1426 1062,1425 1116,1424 1170,1424 1224,1425 1279,1427"/>
+                <TextEquiv>
+                    <Unicode>of Bud Hamelton plants -- They are</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l12" custom="readingOrder {index:11;}">
+                <Coords points="160,1583 703,1602 886,1552 1224,1552 1222,1512 1087,1486 779,1528 612,1494 333,1562 270,1518 158,1539"/>
+                <Baseline points="167,1576 219,1579 272,1579 324,1579 377,1579 429,1577 482,1575 534,1572 587,1569 639,1566 692,1562 744,1559 797,1555 849,1553 902,1550 954,1548 1007,1546 1059,1546 1112,1546 1164,1547 1217,1549"/>
+                <TextEquiv>
+                    <Unicode>not in a state fit for description.</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l13" custom="readingOrder {index:12;}">
+                <Coords points="278,1708 1077,1700 1170,1675 1168,1606 1074,1652 900,1617 820,1669 734,1633 651,1678 464,1629 276,1646"/>
+                <Baseline points="285,1702 328,1701 372,1700 416,1700 460,1699 504,1698 548,1697 592,1696 636,1695 680,1694 724,1693 767,1692 811,1691 855,1690 899,1688 943,1686 987,1685 1031,1683 1075,1681 1119,1679 1163,1676"/>
+                <TextEquiv>
+                    <Unicode>Is it known where Lamberts</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l14" custom="readingOrder {index:13;}">
+                <Coords points="174,1826 297,1792 1095,1795 1070,1724 878,1754 602,1719 492,1769 173,1742"/>
+                <Baseline points="181,1791 226,1791 271,1791 316,1790 362,1790 407,1789 452,1788 498,1787 543,1787 588,1786 634,1785 679,1784 724,1783 769,1782 815,1781 860,1781 905,1780 951,1780 996,1779 1041,1779 1087,1779"/>
+                <TextEquiv>
+                    <Unicode>Herbarium is ? Most oode of it</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l15" custom="readingOrder {index:14;}">
+                <Coords points="201,1882 329,1872 472,1887 495,1875 549,1889 624,1868 624,1826 557,1792 514,1833 459,1821 395,1854 347,1825 299,1842 263,1832 246,1848 201,1840"/>
+                <Baseline points="208,1876 233,1875 259,1875 284,1874 310,1874 335,1873 361,1873 386,1873 412,1873 438,1873 463,1873 489,1873 514,1873 540,1873 565,1872 591,1871 617,1870"/>
+                <TextEquiv>
+                    <Unicode>went abroad.</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l16" custom="readingOrder {index:15;}">
+                <Coords points="192,1985 650,1996 697,1966 1015,1979 1177,1941 1014,1908 739,1938 625,1909 552,1942 508,1905 330,1948 190,1895"/>
+                <Baseline points="199,1968 247,1970 296,1971 344,1973 393,1973 441,1973 490,1972 538,1972 587,1971 635,1969 684,1967 733,1966 781,1964 830,1962 878,1961 927,1960 975,1959 1024,1959 1072,1959 1121,1959 1170,1960"/>
+                <TextEquiv>
+                    <Unicode>New is a beautiful small species</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode>to set of Kewate's Ceylon species&#13;
+A good many had been Lent to&#13;
+Kew to be named with a very&#13;
+bad result. Kew has sent also&#13;
+a vey large proportion of the Roglean&#13;
+distribution, including species not&#13;
+in Herb. Hook&#13;
+There are several Nepal species&#13;
+new to me evidently from Lamberts&#13;
+Herbarium which contained many&#13;
+of Bud Hamelton plants -- They are&#13;
+not in a state fit for description.&#13;
+Is it known where Lamberts&#13;
+Herbarium is ? Most oode of it&#13;
+went abroad.&#13;
+New is a beautiful small species</Unicode>
+            </TextEquiv>
+        </TextRegion>
+    </Page>
+</PcGts>

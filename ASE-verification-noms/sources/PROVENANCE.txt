@@ -1,0 +1,6 @@
+PR 101
+Commit : 8270b54d4d06cc4593d922e825e105c5b96a9e81
+SHA-256 archive test : 93f3486ad2f306a612f27ffd2883e1ae9d3b3beed50f2f5ddc1093b94e38125a
+Archive téléchargée depuis le lien du script data/download_manuscripts.sh.
+10 pages choisies dans quick.txt ; sélection exploratoire.
+Les fichiers sources téléchargés sont conservés sans modification.

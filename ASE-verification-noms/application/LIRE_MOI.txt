@@ -1,0 +1,29 @@
+APPLICATION DE RELECTURE ASE
+
+Double-clique sur OUVRIR.html, dans le dossier ASE-verification-noms.
+L’application fonctionne localement, sans installation et sans connexion Internet.
+Garde OUVRIR.html et les dossiers de données ensemble.
+
+1. Choisis une page à gauche, puis Qwen ou CHURRO.
+2. Pour chaque passage surligné, regarde le manuscrit et clique sur le texte juste :
+   - en haut (référence) = le modèle reconnaît MOINS BIEN  -> modele_pire
+   - en bas (modèle)     = le modèle reconnaît MIEUX        -> modele_mieux
+   - les deux faux : écris le bon texte et clique Enregistrer -> les_deux_faux
+   Boutons équivalents sous les textes. Raccourcis : R / M, ↑ ↓, ← →.
+3. Clique Rapport pour le bilan par modèle et par page.
+4. Clique Exporter le CSV.
+
+COULEURS
+Jaune : texte modifié. Rose : absent du modèle. Bleu : ajouté par le modèle.
+∅ = rien à cet endroit. Choix fait : le texte retenu est souligné en vert, l’autre barré.
+
+CSV (UTF-8, séparateur point-virgule) : une ligne par différence (393 au total).
+Colonnes : image_source, modele, page_id, dossier, langue, n_difference, type_ecart,
+texte_reference, texte_modele, contexte_reference ([ ] = passage concerné), choix,
+texte_correct, resultat (modele_pire / modele_mieux / les_deux_faux / non_traite),
+date_verification, commit_source.
+
+Les choix sont sauvegardés automatiquement dans le navigateur ; exporte régulièrement.
+
+Sources : PR 101, commit 8270b54d4d06cc4593d922e825e105c5b96a9e81.
+Aucun appel réseau, aucun modèle lancé, aucune transcription source modifiée.

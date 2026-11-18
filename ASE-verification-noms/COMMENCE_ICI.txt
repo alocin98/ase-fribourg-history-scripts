@@ -1,0 +1,80 @@
+ALI — COMMENCE ICI
+
+APPLICATION WEB DISPONIBLE
+Double-clique sur OUVRIR.html dans ce dossier.
+Clique sur chaque passage surligné juste (référence ou modèle), ou écris ton texte si les deux sont faux.
+Le bouton Rapport fait le bilan ; Exporter le CSV donne une ligne par différence (image + modèle). Tout fonctionne localement, sans installation.
+Les instructions ci-dessous restent disponibles pour la lecture manuelle.
+
+Tout est prêt : aucun modèle à lancer et aucune installation à faire.
+Ce dossier contient 10 pages du benchmark de Nicolas, avec les deux prédictions déjà publiées.
+
+PREMIÈRE ACTION
+1. Ouvre le dossier 01_Lettre_Denver.
+2. Ouvre 1_IMAGE_ORIGINALE.jpg (le manuscrit) et COMPARAISON.txt à côté.
+3. Dans la réponse attendue, cherche « Dr C.D. Spivak ».
+   Qwen écrit « Dr. C. S. Shaver » : nom et initiales mal transcrits.
+   CHURRO écrit « Dr C.D. Spivak » : conforme à la référence.
+4. Vérifie le nom sur l’image. Si tu ne peux pas le lire, note « incertain ».
+5. Ouvre TABLEAU_A_REMPLIR.csv avec Numbers ou Excel et note ton observation.
+
+EXEMPLE DE LIGNE À REMPLIR
+exemple : 01_Lettre_Denver — Qwen — nom du docteur
+réponse attendue : Dr C.D. Spivak
+prédiction : Dr. C. S. Shaver
+type d’erreur : nom et initiales mal transcrits
+
+POUR LES AUTRES NOMS ET LES AUTRES PAGES
+- Lis d’abord la réponse attendue et repère les noms de personnes et de lieux.
+- Retrouve chacun dans Qwen, puis dans CHURRO.
+- Nom présent mais différent : « mal transcrit ».
+- Nom absent du passage correspondant : « omis ».
+- Nom ajouté sans correspondant dans la référence : « ajout possible » ; vérifie l’image.
+- Nom identique : « correct ». Note aussi les réussites.
+- Lecture difficile ou référence douteuse : « incertain / à discuter ».
+- Fais aussi le chemin inverse : les noms prédits existent-ils dans la référence ?
+- Duplique les lignes du tableau : une ligne par nom, occurrence et modèle.
+- Garde quelques mots de contexte si le même nom apparaît plusieurs fois.
+- Un nom remplacé au même endroit est une substitution ; ne le compte pas à la fois comme omission et ajout.
+
+Attention : la référence humaine peut avoir des erreurs ou omettre un texte visible.
+Ne conclus donc pas qu’un nom est inventé sans regarder l’image.
+Les accents et l’orthographe exacte comptent pour cette vérification manuelle.
+Si une page ne contient aucun nom identifiable, note-le et cherche surtout les ajouts.
+
+OÙ TROUVER QUOI DANS CHAQUE DOSSIER
+A_VERIFIER.txt : une petite liste des noms à regarder sur cette page.
+1_IMAGE_ORIGINALE.jpg : le manuscrit.
+2_REPONSE_ATTENDUE.txt : la transcription humaine.
+3_PREDICTION_QWEN.txt : la réponse de Qwen.
+4_PREDICTION_CHURRO.txt : la réponse de CHURRO.
+COMPARAISON.txt : les trois textes réunis dans un fichier lisible.
+Les fichiers XML et JSON servent à la traçabilité ; tu peux les ignorer pour commencer.
+
+TROIS CAS CONCRETS À CONTRÔLER ET À PARTAGER
+1. Dossier 01 : « C.D. Spivak » devient « C. S. Shaver » chez Qwen ; CHURRO conserve le nom.
+2. Dossier 02 : le lieu « Zeist » devient « Leist » chez Qwen ; CHURRO conserve « Zeist ».
+3. Dossier 02 : « Christian Ulbrich » est correct chez Qwen, mais devient « Christian Ulrich » chez CHURRO.
+Ces constats sont des écarts au texte de référence ; confirme-les autant que possible sur les images.
+Ils montrent des améliorations et une régression. Ne force pas les catégories : si tu ne trouves
+pas d’omission ou d’ajout confirmé, dis-le simplement.
+
+UNE AMÉLIORATION À TESTER
+Comparer le remplacement de Qwen par CHURRO sur exactement les mêmes noms des dix pages.
+Compte pour chaque modèle les occurrences correctes, mal transcrites, omises et ajoutées.
+Sépare les cas incertains. C’est un petit examen exploratoire, pas une mesure représentative.
+
+CE QUE CE BENCHMARK NE TESTE PAS ENCORE
+Il teste la transcription et la détection de langue, pas le classement personne/lieu.
+Un nom mal recopié n’est donc pas une erreur de catégorie.
+Pour tester les catégories, il faudra annoter les noms attendus (personne ou lieu),
+puis comparer à un modèle qui produit lui aussi ces catégories.
+
+PROVENANCE
+PR : https://github.com/alocin98/ase-fribourg-history-scripts/pull/101
+Version consultée : 8270b54d4d06cc4593d922e825e105c5b96a9e81
+Données : jeu de test v1 indiqué par data/download_manuscripts.sh ; archive vérifiée par SHA-256.
+Prédictions : ml-models/benchmark/baselines/quick/{qwen3.5-9b,churro-3b}/pages.jsonl
+Références : data/manuscripts/test/<groupe>/<page_id>.txt
+Les documents sources, les identifiants et les licences sont conservés dans sources/.
+Aucune prédiction n’a été générée ou corrigée pour préparer ce dossier.

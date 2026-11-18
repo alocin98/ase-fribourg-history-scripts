@@ -1,0 +1,21 @@
+{
+  "page_id": "joseph_hooker__JDH_2_3_6_80_002__de3677",
+  "text": "42\na set of Kew's Ceylon species\nA good many had been sent to\nKew to be named with a very\nbad result. Kew has sent also\na very large proportion of the Roglean\ndistribution, including species not\nin Herb. Hook\nThere are several Nepal species\nnew to me, evidently from Lambe's\nHerbarium, which contained many\nof Bud. Hametts plants -- They are\nnot in a state fit for description.\nIs it known where Lambe's\nHerbarium is? Most of it\nwent abroad.\nThere is a beautiful small species",
+  "lines": [],
+  "timings": {
+    "recognition": 29.212693957961164,
+    "total": 29.212693957961164
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>English</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Handwritten letter on paper, single page.</PhysicalDescription>\n    <Description>Letter discussing botanical specimens, including Kew's Ceylon species and Nepal specimens from Lambe's Herbarium.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Header>\n      <PageNumber>42</PageNumber>\n    </Header>\n    <Body>\n      <Paragraph>\n        <Line>a set of Kew's Ceylon species</Line>\n        <Line>A good many had been sent to</Line>\n        <Line>Kew to be named with a very</Line>\n        <Line>bad result. Kew has sent also</Line>\n        <Line>a very large proportion of the Roglean</Line>\n        <Line>distribution, including species not</Line>\n        <Line>in Herb. Hook</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>There are several Nepal species</Line>\n        <Line>new to me, evidently from Lambe's</Line>\n        <Line>Herbarium, which contained many</Line>\n        <Line>of Bud. Hametts plants -- They are</Line>\n        <Line>not in a state fit for description.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Is it known where Lambe's</Line>\n        <Line>Herbarium is? Most of it</Line>\n        <Line>went abroad.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>There is a beautiful small species</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1375,
+      2136
+    ],
+    "prompt_tokens": 3751,
+    "generation_tokens": 387,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

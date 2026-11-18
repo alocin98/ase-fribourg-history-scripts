@@ -1,0 +1,117 @@
+05_Testament_AD78_0030
+Identifiant : poilus_testaments__batch-2_TestamentsDePoilus_will_AD78_0030-0__3199dc
+Langue : fr — source : poilus_testaments
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+Ceci est mon Testaments
+Je sousigne Brunet Henri
+François Placide Valet de chambre
+A S^t Saint germain en Laye seine et oise
+23 rue de Noailles
+déclare par ces présentes instituer
+pour ma lêgataire universelles,
+ma femme née Madeleine Gateau
+a la quelle  je donne et lègue en
+pleine propriété L’universalité
+des biens, meubles et immeubles qui
+m’appartiendront au jour de mon déces
+et composeront ma succession, sans
+exception ni reserve? je la charge
+de veiller a L’exécutions de mes
+volonté la nom^m ant ma seule
+excutrice testamentaire ? avec les
+pouvoirs les plus étendus.
+telles est mes dernières volontes
+que je veux être  éxécutes.
+Fait de ma main a S^t Saint germain en Laye
+Le 2 aout mil neuf cents quatorze
+au cas ou moi ou ma femme ne serait
+plus, nous donnont tous ce qui nous
+apartient meubles et immeuble a mes
+beau parents Michel gateau mon beau
+père? et marie Gateau ma belle mère
+née rigaud fait de ma main Le deux
+jusquau jour de leur décés.
+aout mil neuf cents quatorze  a
+S^t Saint germain en Laye
+Brunet Henri
+
+
+================ PRÉDICTION QWEN ================
+Ceci est mon testament
+
+Je soussigne Brunet Henri
+François Placide Valet de chambre
+et St Germain en Laye Seine et Oise
+23 rue de Poailles
+
+Déclare par ces présentes instituer
+pour ma légataire universelle,
+ma femme née Madelaine Gateau
+à la quelle je donne et lègue en
+pleine propriété l'universalité
+de biens meubles et immeubles qui
+m'appartiendront au jour de mon décès
+et composeront ma succession sans
+exception ni réserve, je la charge
+de veiller à l'exécution de mes
+volontés la nommant ma seule
+exécutrice testamentaire avec les
+pouvoirs les plus étendus.
+telles est mes dernières volontés
+que je veux être exécutées.
+
+Fait de ma main à St Germain en Laye
+Le 2 aout mil neuf cents quatorze
+au cas ou moi ou ma femme ne serait
+plus nous donnons tous ce qui nous
+appartient meubles et immeuble à mes
+beau parents Michel Gateau mon beau
+père et Marie Gateau ma belle mère
+jusqu'au jour de leurs décès
+née Rigau. Fait de ma main le deux
+aout mil neuf cents quatorze à
+St Germain en Laye Brunet Henri
+
+================ PRÉDICTION CHURRO ================
+pour ne pas perdre
+le testament
+pour le faire
+juger au tribunal civil
+de Paris, deux
+feuilles de papier
+ont été collées
+sur le papier
+original
+Ceci est mon Testament
+Je soussigné Brunet Henri
+François Placide Valet de chambre
+à St germain en Laye Seine et oise
+23 rue de Noailles
+déclare par ces présentes instituer
+pour ma légataire universelle,
+ma femme née Madeleine Gateau
+a la quelle je donne et lègue en
+pleine propriété, L'universalité
+des biens, meubles et immeubles qui
+m'appartiendront au jour de mon décès
+et composeront ma succession sans
+exception ni reserve, je la charge
+de veiller a l'executions de mes
+volonté la nommant ma seule
+executrice testamentaire, avec les
+pouvoirs les plus étendus.
+fait de ma main a St germain en Laye
+le 2 aout mil neuf cent quatorze
+au cas ou moi ou ma femme ne serais
+plus, nous donnerons tous ce qui nous
+apartient meubles et immeuble a mes
+beau parents Michel gateau mon beau
+père, et marie gateau ma belle mère
+née rigaud. fait de leur décès
+le deux aout mil neuf cents quatorze a
+St germain en Laye Brunet Henri

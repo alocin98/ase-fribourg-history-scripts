@@ -1,0 +1,73 @@
+04_Testament_AN_0241
+Identifiant : poilus_testaments__batch-1_TestamentsDePoilus_will_AN_0241-0__8e8efc
+Langue : fr — source : poilus_testaments
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+Feuille rédigée aujourd’hui 10 septembre
+1914, jour de mon départ en guerre, pour
+remplacer la feuille supprimée.
+Je lègue tous mes biens, présents et
+à venir, (formule consacrée ! ) à ma
+femme, née Emilie Louise Béalet.
+Paris, le dix septembre mil neuf
+cent quatorze.
+Raoul Apertfrey.
+Troisième et dernier feuillet
+R. Apertfrey
+
+
+================ PRÉDICTION QWEN ================
+Feuille rédigée aujourd'hui 10 septembre 1914, jour de mon départ en guerre, pour remplacer la feuille supprimée.
+
+Je ligue tous mes biens, présents et à venir, (formule consacrée !) à ma femme, née Emile Louis Réalet.
+
+Paris, le dix septembre mil neuf cent quatorze.
+
+Raoul Aperfreu.
+
+Troisième et dernier feuillet
+R. Aperfreu
+
+Signé par Nous Juge pour Monsieur
+Président du Tribunal Civil de la Seine
+Paris, le onze octobre 1915
+
+L. Recquier
+
+Enregistré à Paris (4e Notaires) le 25 OCT 1915
+Vol. 699... f° 47... C° 13... Reçu... neuf francs 75
+
+================ PRÉDICTION CHURRO ================
+Page troisième
+1
+Rr
+Mco
+Feuille rédigée aujourd'hui 10 septembre
+1914, jour de mon départ en guerre, pour
+remplacer la feuille supprimée.
+Je lègue tous mes biens, présents et
+à venir, (formule consacrée !) à ma
+femme, née Emilie Louise Béalet.
+Paris, le dix septembre mil neuf
+cent quatorze.
+Raoul Capery.
+Troisième et dernier feuillet
+R. Capery
+Signé par Nous Juge pour Monsieur
+Président du Tribunal Civil de la Seine
+ris, le onze octobre 1915
+F. heugon
+Enregistré à Paris (4e
+Notaires) le
+25 OCT 1915
+Vol.
+fo
+.
+Co
+.
+Reçu
+pour

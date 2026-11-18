@@ -1,0 +1,21 @@
+{
+  "page_id": "mkn_kurrent__GT-PAGE_00000473__df0f95",
+  "text": "Am 20. Missionarius Gottlobsdan.\n467.\nEyland bald zu sehen,\nund viel minder gold mit;\nO du, du guter Jun!\nDinne Frau dankte zu kurz,\nLieb, Lieb die deine Vaygels,\ngung, die nu von ihr gwarde\nGabe, und syde strangel;\nnun geht er zum Lande, geht\nnicht viel mehr, nun geht\nwird mein Eyland bald,\nnu meine alte zu sich\nmitzueckhauen.\nGeld\ndarnust weggehen nu.\nWu dies n Zeit gield\nich den Missionarius\nChristian Ulbrich, aus\nninen ntlieb Lägigen Gesick\ndas mit nicht. Zu überbrach.\nIn mit Christus von nu,\nman Christus von mit\nLeist, und mir zehnden zu\nihm ninen nuch nun Liebhaber",
+  "lines": [],
+  "timings": {
+    "recognition": 20.785289166960865,
+    "total": 20.785289166960865
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nAm 20. Missionarius Gottlobsdan.\n467.\nEyland bald zu sehen,\nund viel minder gold mit;\nO du, du guter Jun!\nDinne Frau dankte zu kurz,\nLieb, Lieb die deine Vaygels,\ngung, die nu von ihr gwarde\nGabe, und syde strangel;\nnun geht er zum Lande, geht\nnicht viel mehr, nun geht\nwird mein Eyland bald,\nnu meine alte zu sich\nmitzueckhauen.\nGeld\ndarnust weggehen nu.\nWu dies n Zeit gield\nich den Missionarius\nChristian Ulbrich, aus\nninen ntlieb Lägigen Gesick\ndas mit nicht. Zu überbrach.\nIn mit Christus von nu,\nman Christus von mit\nLeist, und mir zehnden zu\nihm ninen nuch nun Liebhaber\n</output>",
+    "image_size": [
+      1000,
+      1652
+    ],
+    "prompt_tokens": 1907,
+    "generation_tokens": 213,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

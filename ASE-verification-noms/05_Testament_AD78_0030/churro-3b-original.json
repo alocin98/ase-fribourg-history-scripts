@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-2_TestamentsDePoilus_will_AD78_0030-0__3199dc",
+  "text": "pour ne pas perdre\nle testament\npour le faire\njuger au tribunal civil\nde Paris, deux\nfeuilles de papier\nont été collées\nsur le papier\noriginal\nCeci est mon Testament\nJe soussigné Brunet Henri\nFrançois Placide Valet de chambre\nà St germain en Laye Seine et oise\n23 rue de Noailles\ndéclare par ces présentes instituer\npour ma légataire universelle,\nma femme née Madeleine Gateau\na la quelle je donne et lègue en\npleine propriété, L'universalité\ndes biens, meubles et immeubles qui\nm'appartiendront au jour de mon décès\net composeront ma succession sans\nexception ni reserve, je la charge\nde veiller a l'executions de mes\nvolonté la nommant ma seule\nexecutrice testamentaire, avec les\npouvoirs les plus étendus.\nfait de ma main a St germain en Laye\nle 2 aout mil neuf cent quatorze\nau cas ou moi ou ma femme ne serais\nplus, nous donnerons tous ce qui nous\napartient meubles et immeuble a mes\nbeau parents Michel gateau mon beau\npère, et marie gateau ma belle mère\nnée rigaud. fait de leur décès\nle deux aout mil neuf cents quatorze a\nSt germain en Laye Brunet Henri",
+  "lines": [],
+  "timings": {
+    "recognition": 45.09484325000085,
+    "total": 45.09484325000085
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>French</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Single sheet of paper, handwritten in ink. Contains a fiscal stamp and a marginal note.</PhysicalDescription>\n    <Description>Last will and testament of Brunet Henri François Placide, dated August 2, 1914.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Body>\n      <Stamp description=\"REPUBLIQUE FRANCAISE fiscal stamp, 2 MES 10 CENSUS CEN. 50\"/>\n      <MarginalNote placement=\"left_margin\">\n        <Line>pour ne pas perdre</Line>\n        <Line>le testament</Line>\n        <Line>pour le faire</Line>\n        <Line>juger au tribunal civil</Line>\n        <Line>de Paris, deux</Line>\n        <Line>feuilles de papier</Line>\n        <Line>ont été collées</Line>\n        <Line>sur le papier</Line>\n        <Line>original</Line>\n      </MarginalNote>\n      <Paragraph>\n        <Line>Ceci est mon Testament</Line>\n        <Line>Je soussigné Brunet Henri</Line>\n        <Line>François Placide Valet de chambre</Line>\n        <Line>à St germain en Laye Seine et oise</Line>\n        <Line>23 rue de Noailles</Line>\n        <Line>déclare par ces présentes instituer</Line>\n        <Line>pour ma légataire universelle,</Line>\n        <Line>ma femme née Madeleine Gateau</Line>\n        <Line>a la quelle je donne et lègue en</Line>\n        <Line>pleine propriété, L'universalité</Line>\n        <Line>des biens, meubles et immeubles qui</Line>\n        <Line>m'appartiendront au jour de mon décès</Line>\n        <Line>et composeront ma succession sans</Line>\n        <Line>exception ni reserve, je la charge</Line>\n        <Line>de veiller a l'executions de mes</Line>\n        <Line>volonté la nommant ma seule</Line>\n        <Line>executrice testamentaire, avec les</Line>\n        <Line>pouvoirs les plus étendus.</Line>\n        <Line>fait de ma main a St germain en Laye</Line>\n        <Line>le 2 aout mil neuf cent quatorze</Line>\n        <Line>au cas ou moi ou ma femme ne serais</Line>\n        <Line>plus, nous donnerons tous ce qui nous</Line>\n        <Line>apartient meubles et immeuble a mes</Line>\n        <Line>beau parents Michel gateau mon beau</Line>\n        <Line>père, et marie gateau ma belle mère</Line>\n        <Line>née rigaud. fait de leur décès</Line>\n        <Line>le deux aout mil neuf cents quatorze a</Line>\n        <Line>St germain en Laye Brunet Henri</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1766,
+      2500
+    ],
+    "prompt_tokens": 5127,
+    "generation_tokens": 724,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

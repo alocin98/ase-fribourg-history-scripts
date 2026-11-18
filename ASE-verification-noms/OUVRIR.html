@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ASE · Atelier de relecture</title>
+  <link rel="stylesheet" href="application/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon">a.</span><div><strong>Atelier de relecture</strong><small>ASE · Manuscrits historiques</small></div></div>
+    <div class="top-actions"><span id="save-status" role="status">Sauvegarde locale</span><button id="help-button" class="quiet" aria-label="Ouvrir l’aide">Aide</button><button id="report-button">Rapport</button><button id="export" class="primary">↗ Exporter le CSV</button></div>
+  </header>
+  <div id="storage-warning" class="warning" hidden></div>
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-heading"><span class="eyebrow">TON CORPUS</span><span class="count">10 pages</span></div>
+      <nav id="pages" aria-label="Pages du corpus"></nav>
+      <div class="sidebar-bottom"><span class="eyebrow">TA PROGRESSION</span><div class="progress-numbers"><strong id="progress-label">0 / 0</strong><span>différences tranchées</span></div><progress id="progress" value="0" max="1"></progress><p>Tes choix restent dans ce navigateur. Exporte ton travail pour le partager.</p></div>
+    </aside>
+    <section class="workspace">
+      <div class="page-heading"><div><div class="eyebrow" id="page-meta"></div><h1 id="page-title"></h1></div><span class="scope-label">10 pages · 2 modèles · une décision par différence</span></div>
+      <div class="review-grid">
+        <section class="image-panel" aria-label="Manuscrit original">
+          <div class="panel-head"><strong>Le manuscrit</strong><div class="zoom-controls"><button id="zoom-out" class="icon" aria-label="Réduire">−</button><button id="zoom-reset" class="zoom-label" title="Revenir à la largeur de la page">100 %</button><button id="zoom-in" class="icon" aria-label="Agrandir">+</button><a id="original-link" target="_blank" rel="noopener" title="Ouvrir l’image en grand">↗</a></div></div>
+          <div id="image-scroll" class="image-scroll"><img id="manuscript" alt="Manuscrit original"></div>
+          <div class="image-caption">Agrandis l’image pour vérifier les lettres et les noms.</div>
+        </section>
+        <section class="reading-panel" aria-label="Vérification de la reconnaissance">
+          <div class="model-tabs" role="group" aria-label="Modèle à vérifier"><button data-model="qwen3.5-9b" aria-pressed="true">Qwen <span>3.5 · 9B</span></button><button data-model="churro-3b" aria-pressed="false">CHURRO <span>3B</span></button></div>
+          <div class="reading-content">
+            <div class="item-navigation"><button id="prev" class="icon" aria-label="Transcription précédente">←</button><label class="item-choice"><span id="item-label" class="eyebrow">TRANSCRIPTION À VÉRIFIER</span><select id="item-select" aria-labelledby="item-label"></select></label><button id="next" class="icon" aria-label="Transcription suivante">→</button></div>
+            <div id="review">
+              <div class="difference-tools" aria-label="Différences entre référence et prédiction">
+                <div class="difference-navigation"><strong id="difference-count" role="status" aria-live="polite"></strong><div><button id="difference-prev" type="button" aria-label="Différence précédente">↑</button><button id="difference-next" type="button" aria-label="Différence suivante">Différence suivante ↓</button></div></div>
+                <div class="difference-legend"><span class="legend-replace">Modifié</span><span class="legend-delete">Absent du modèle</span><span class="legend-insert">Ajout du modèle</span></div>
+                <p>Les couleurs signalent un écart à la référence, à vérifier sur l’image. Les espaces et retours à la ligne sont ignorés.</p>
+              </div>
+              <div class="text-card reference"><div class="card-label"><span>RÉFÉRENCE HUMAINE</span><span class="pill">Attendu</span></div><div id="reference" class="excerpt"></div></div>
+              <div class="text-card prediction"><div class="card-label"><span id="prediction-label">RECONNU PAR QWEN</span><span id="verdict-badge" class="pill">À vérifier</span></div><div id="prediction" class="excerpt"></div></div>
+              <p class="hint">Clique sur le passage surligné qui est juste : en haut = la référence (le modèle reconnaît <strong>moins bien</strong>), en bas = le modèle (il reconnaît <strong>mieux</strong>). Le symbole ∅ veut dire « rien à cet endroit ».</p>
+              <div id="decision" class="decision-panel">
+                <div class="decision-head"><strong id="decision-title">Choisis une différence</strong><span id="decision-badge" class="pill">À trancher</span></div>
+                <div class="decision-buttons"><button id="pick-ref" type="button">↑ Référence juste<small>modèle pire</small></button><button id="pick-model" type="button">↓ Modèle juste<small>modèle mieux</small></button></div>
+                <form id="own-form"><label for="own-text">Les deux sont faux ? Écris ce qu’on lit sur le manuscrit</label><div class="own-row"><input id="own-text" autocomplete="off" placeholder="Texte correct…"><button type="submit" class="primary">Enregistrer</button></div></form>
+                <div class="advance-row"><label><input type="checkbox" id="auto-next" checked> Passer à la différence suivante</label><button id="clear" type="button" class="quiet">Annuler ce choix</button></div>
+              </div>
+            </div>
+            <p class="selection-note">La référence humaine peut aussi contenir des erreurs : vérifie toujours le manuscrit.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <div id="toast" role="status" class="toast" hidden></div>
+  <dialog id="help"><form method="dialog"><button class="dialog-close" aria-label="Fermer l’aide">×</button></form><span class="eyebrow">MODE D’EMPLOI</span><h2>Une différence, un choix.</h2><ol><li>Choisis une page à gauche, puis Qwen ou CHURRO.</li><li>Pour chaque passage surligné, regarde le manuscrit et clique sur le texte juste : <strong>référence</strong> (en haut) = le modèle reconnaît moins bien ; <strong>modèle</strong> (en bas) = le modèle reconnaît mieux que la référence.</li><li>Si les deux sont faux, écris le bon texte dans le champ et enregistre.</li><li>Clique <strong>Rapport</strong> pour voir le bilan par modèle, puis <strong>Exporter le CSV</strong>.</li></ol><p><strong>CSV :</strong> une ligne par différence, avec à chaque fois l’image source, le modèle, les deux textes, ton choix et le résultat (modele_pire, modele_mieux, les_deux_faux, non_traite).</p><p><strong>Raccourcis :</strong> R = référence juste · M = modèle juste · ↑ / ↓ = différence · ← / → = transcription. Désactivés lorsque tu écris.</p><a href="https://github.com/alocin98/ase-fribourg-history-scripts/pull/101" target="_blank" rel="noopener">Voir la PR source ↗</a></dialog>
+  <dialog id="report"><form method="dialog"><button class="dialog-close" aria-label="Fermer le rapport">×</button></form><span class="eyebrow">RAPPORT</span><h2>Qui reconnaît le mieux ?</h2><div id="report-body"></div><button id="report-export" class="primary full">↗ Exporter le CSV</button></dialog>
+  <script src="application/data.js"></script><script src="application/differences.js"></script><script src="application/app.js"></script>
+</body>
+</html>

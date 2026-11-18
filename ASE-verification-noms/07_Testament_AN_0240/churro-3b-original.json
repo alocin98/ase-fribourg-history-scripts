@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0240-0__4f5804",
+  "text": "Page unique\n1\nCelle est ma dernière Volonté.\nJe soussigné Claude Duron demeurant à Paris\nrue Brûller 3 Numéro trois légue à ma mort\ntout mes biens notamment un titre nominatif\nde dix obligations est ancienne\n3%\nà mon neveu et filleul André Duron,\nfils de Jean Duron, demeurant à Bromont-Lamothe\n(Burg de Tôme).\nFait par moi, sain de corps et d’esprit en mon\ndomicile, 3 rue Brûller Paris le trois aout mil neuf cent\nquatorze\nClaude jean-Baptiste Duron\nSigné par Maître Juge pour Monsieur\nle Président du Tribunal Civil de la Seine\nParis. le premier octobre 1915\nNeug\nEnregistré à Paris (4e Notaires) le\nReçu\nVol. 697 R. f°. 36\nC°\nReçu Neuf francs 38 —\njm",
+  "lines": [],
+  "timings": {
+    "recognition": 37.94094170804601,
+    "total": 37.94094170804601
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>French</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Single sheet of lined paper, handwritten in ink. Contains official stamps and annotations.</PhysicalDescription>\n    <Description>Last will and testament of Claude Duron, dated August 3, 1914, with later registration marks.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Header>\n      <Heading type=\"other\">\n        <Line>Page unique</Line>\n      </Heading>\n      <PageNumber>1</PageNumber>\n    </Header>\n    <Body>\n      <Stamp description=\"BANQUE DE FRANCE\"/>\n      <Paragraph>\n        <Line>Celle est ma dernière Volonté.</Line>\n        <Line>Je soussigné Claude Duron demeurant à Paris</Line>\n        <Line>rue Brûller 3 Numéro trois légue à ma mort</Line>\n        <Line>tout mes biens notamment un titre nominatif</Line>\n        <Line>de dix obligations <Addition>est ancienne</Addition> 3%</Line>\n        <Line>à mon neveu et filleul André Duron,</Line>\n        <Line>fils de Jean Duron, demeurant à Bromont-Lamothe</Line>\n        <Line>(Burg de Tôme).</Line>\n        <Line>Fait par moi, sain de corps et d’esprit en mon</Line>\n        <Line>domicile, 3 rue Brûller Paris le trois aout mil neuf cent</Line>\n        <Line>quatorze</Line>\n        <Line>Claude jean-Baptiste Duron</Line>\n      </Paragraph>\n      <Stamp description=\"ARCHIVES NATIONALES\"/>\n      <Paragraph>\n        <Line>Signé par Maître Juge pour Monsieur</Line>\n        <Line>le Président du Tribunal Civil de la Seine</Line>\n        <Line>Paris. le premier octobre 1915</Line>\n        <Line>Neug</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Enregistré à Paris (4e Notaires) le <Gap reason=\"illegible\" extent=\"ca. 10 chars\"/> Reçu <Gap reason=\"illegible\" extent=\"ca. 10 chars\"/></Line>\n        <Line>Vol. 697 R. f°. 36 <Gap reason=\"illegible\" extent=\"ca. 1 char\"/> C° <Gap reason=\"illegible\" extent=\"ca. 1 char\"/> Reçu Neuf francs 38 —</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>jm</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1421,
+      2500
+    ],
+    "prompt_tokens": 4566,
+    "generation_tokens": 624,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

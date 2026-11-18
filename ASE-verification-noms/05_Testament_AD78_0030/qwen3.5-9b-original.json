@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-2_TestamentsDePoilus_will_AD78_0030-0__3199dc",
+  "text": "Ceci est mon testament\n\nJe soussigne Brunet Henri\nFrançois Placide Valet de chambre\net St Germain en Laye Seine et Oise\n23 rue de Poailles\n\nDéclare par ces présentes instituer\npour ma légataire universelle,\nma femme née Madelaine Gateau\nà la quelle je donne et lègue en\npleine propriété l'universalité\nde biens meubles et immeubles qui\nm'appartiendront au jour de mon décès\net composeront ma succession sans\nexception ni réserve, je la charge\nde veiller à l'exécution de mes\nvolontés la nommant ma seule\nexécutrice testamentaire avec les\npouvoirs les plus étendus.\ntelles est mes dernières volontés\nque je veux être exécutées.\n\nFait de ma main à St Germain en Laye\nLe 2 aout mil neuf cents quatorze\nau cas ou moi ou ma femme ne serait\nplus nous donnons tous ce qui nous\nappartient meubles et immeuble à mes\nbeau parents Michel Gateau mon beau\npère et Marie Gateau ma belle mère\njusqu'au jour de leurs décès\nnée Rigau. Fait de ma main le deux\naout mil neuf cents quatorze à\nSt Germain en Laye Brunet Henri",
+  "lines": [],
+  "timings": {
+    "recognition": 30.40914383297786,
+    "total": 30.40914383297786
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nCeci est mon testament\n\nJe soussigne Brunet Henri\nFrançois Placide Valet de chambre\net St Germain en Laye Seine et Oise\n23 rue de Poailles\n\nDéclare par ces présentes instituer\npour ma légataire universelle,\nma femme née Madelaine Gateau\nà la quelle je donne et lègue en\npleine propriété l'universalité\nde biens meubles et immeubles qui\nm'appartiendront au jour de mon décès\net composeront ma succession sans\nexception ni réserve, je la charge\nde veiller à l'exécution de mes\nvolontés la nommant ma seule\nexécutrice testamentaire avec les\npouvoirs les plus étendus.\ntelles est mes dernières volontés\nque je veux être exécutées.\n\nFait de ma main à St Germain en Laye\nLe 2 aout mil neuf cents quatorze\nau cas ou moi ou ma femme ne serait\nplus nous donnons tous ce qui nous\nappartient meubles et immeuble à mes\nbeau parents Michel Gateau mon beau\npère et Marie Gateau ma belle mère\njusqu'au jour de leurs décès\nnée Rigau. Fait de ma main le deux\naout mil neuf cents quatorze à\nSt Germain en Laye Brunet Henri\n\n</output>",
+    "image_size": [
+      1447,
+      2048
+    ],
+    "prompt_tokens": 3175,
+    "generation_tokens": 295,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "page_id": "poilus_testaments__batch-2_TestamentsDePoilus_will_AN_0199-0__d64753",
+  "text": "Ceci est mon testament.\nJ'institue ma femme, Estherie\nBouche, ma légataire universelle et\nlui lègue en pleine propriété la\ntotalité de ce que la loi ne permet\nde disposer. J'exprime même le\ndésir formel de lui voir attribuer\nsans aucune réserve la totalité de\nma fortune mobilière et immobilière.\nCeci est ma volonté dernière. Je révoque\ntout testament antérieur.\nHerblay-le-Sec, le cinq décembre\nmil neuf cent quatorze.\nJean R.",
+  "lines": [],
+  "timings": {
+    "recognition": 15.674396791029721,
+    "total": 15.674396791029721
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nCeci est mon testament.\nJ'institue ma femme, Estherie\nBouche, ma légataire universelle et\nlui lègue en pleine propriété la\ntotalité de ce que la loi ne permet\nde disposer. J'exprime même le\ndésir formel de lui voir attribuer\nsans aucune réserve la totalité de\nma fortune mobilière et immobilière.\nCeci est ma volonté dernière. Je révoque\ntout testament antérieur.\nHerblay-le-Sec, le cinq décembre\nmil neuf cent quatorze.\nJean R.\n</output>",
+    "image_size": [
+      1129,
+      2048
+    ],
+    "prompt_tokens": 2535,
+    "generation_tokens": 133,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

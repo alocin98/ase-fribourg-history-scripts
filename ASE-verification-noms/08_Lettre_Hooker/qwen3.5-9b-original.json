@@ -1,0 +1,21 @@
+{
+  "page_id": "joseph_hooker__JDH_2_16_173_002__3b3f96",
+  "text": "The microscope that Henslow used,\nif so I will give it.\n\nWhat a good paper Gunther has\nmade in the Swainson letter - I\nmust do something with Bentham's\ncorrespondence.\n\nElen Albert\nJ. B. Hooker:",
+  "lines": [],
+  "timings": {
+    "recognition": 11.90255612495821,
+    "total": 11.90255612495821
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<output>\nThe microscope that Henslow used,\nif so I will give it.\n\nWhat a good paper Gunther has\nmade in the Swainson letter - I\nmust do something with Bentham's\ncorrespondence.\n\nElen Albert\nJ. B. Hooker:\n</output>",
+    "image_size": [
+      1323,
+      2048
+    ],
+    "prompt_tokens": 2919,
+    "generation_tokens": 68,
+    "truncated": false,
+    "peak_memory_gb": 11.991280706
+  }
+}

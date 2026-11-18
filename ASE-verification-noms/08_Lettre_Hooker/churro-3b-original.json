@@ -1,0 +1,21 @@
+{
+  "page_id": "joseph_hooker__JDH_2_16_173_002__3b3f96",
+  "text": "The microscope that Henslow need,\nif u will give it.\nWhat a good paper Gunther has\nmade on the Swainson letter. I\nmust do something with Bentham's\ncorrespondence.\nEver affectyly\nJDHooker.",
+  "lines": [],
+  "timings": {
+    "recognition": 18.60215583408717,
+    "total": 18.60215583408717
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>English</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Handwritten letter fragment on paper.</PhysicalDescription>\n    <Description>A short letter fragment from J.D. Hooker discussing a microscope, a paper by Gunther on Swainson, and correspondence with Bentham.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Body>\n      <Paragraph>\n        <Line>The microscope that Henslow need,</Line>\n        <Line>if u will give it.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>What a good paper Gunther has</Line>\n        <Line>made on the Swainson letter. I</Line>\n        <Line>must do something with Bentham's</Line>\n        <Line>correspondence.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>Ever affectyly</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>JDHooker.</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1386,
+      2146
+    ],
+    "prompt_tokens": 3877,
+    "generation_tokens": 252,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

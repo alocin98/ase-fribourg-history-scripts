@@ -1,0 +1,60 @@
+01_Lettre_Denver
+Identifiant : denver_jcrs__page_B002_01_0108_0048_004__d2726f
+Langue : en — source : denver_jcrs
+
+Ouvre 1_IMAGE_ORIGINALE.jpg à côté de ce fichier.
+Compare les mêmes passages, pas seulement les mêmes numéros de ligne.
+Les réponses ci-dessous sont reprises des fichiers du benchmark sans correction.
+
+================ RÉPONSE ATTENDUE (HUMAINE) ================
+Nov 17th 1913
+Dr C.D. Spivak
+Denver Colo.
+Dear Friend
+Your kind letter to hand
+and contents worked. in reply wish
+to thank you for the consideration
+show My Brother Saul Fissman
+will ask you to kindly advise as
+To his condition. will afficeiate any favor
+you may show us in this matter
+With best wishes I am Sincerely yours
+Anna Ferman.
+Maplewood
+MO
+Enclosed please find stamped envelope
+
+
+================ PRÉDICTION QWEN ================
+Maplewood, Mo. Nov. 17th 193
+
+Dr. C. S. Shaver
+Denver Colo.
+
+Dear Friend,
+
+Your kind letter & hand and contents noted. In reply wish to thank you for the consideration shown my Brother Saul Lissman will ask you to kindly advise as to his condition. Will appreciate any favor you may show us in this matter.
+
+With best wishes Sam. Sincerely yours
+
+Anna Lerman.
+Maplewood Mo
+
+Enclosed please find stamped envelope
+
+================ PRÉDICTION CHURRO ================
+Maplewood, Mo. Nov. 17th 1913
+Dr C.D. Spivak
+Denver Colo.
+Dear Dr.
+Your kind letter to hand
+and contents noted. In reply wish
+to thank you for the consideration
+shown my Brother Saul Lissman
+will ask you to kindly advise as
+to his condition. will appreciate any favor
+you may show us in this matter
+With best wishes I am. Sincerely yours
+Anna Lerman
+Maplewood Mo
+Enclosed please find stamped envelope

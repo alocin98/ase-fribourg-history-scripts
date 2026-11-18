@@ -1,0 +1,21 @@
+{
+  "page_id": "mkn_kurrent__GT-PAGE_00000473__df0f95",
+  "text": "167.\nvon der Mission unter den Hottentotten.\nHeiland bald zu sehen,\nund viest wiederholt aus:\n„Ach, kom Ehrer Frau!“\nSeine Frau dankte er herz-\nlich für die treue Verpla-\ngung, die er von ihr genoß, in\nZeit, und sagte darauf:\n„Ihr geht es zum Ende; geht\nricht auf mich; und jetzt\nkomt mein Heiland bald,\num meine Seele zu sich\naufzunehmen.“\nDarauf vergißt er.\nIn dieser Zeit hält\nSich der Missionarius\nChristian Ulrich, auch\neinen etlichen tägigen Besuch\naus uns aus. Er überbrach-\nte uns Ehrwürde von un-\nsren Ehefrauen aus\nZeist, und wir senden an\nihm einen wahren Liebhaber",
+  "lines": [],
+  "timings": {
+    "recognition": 25.911536916974,
+    "total": 25.911536916974
+  },
+  "language": null,
+  "extra": {
+    "raw_output": "<HistoricalDocument xmlns=\"http://example.com/historicaldocument\">\n  <Metadata>\n    <Language>German</Language>\n    <WritingDirection>ltr</WritingDirection>\n    <PhysicalDescription>Handwritten letter on paper, single page.</PhysicalDescription>\n    <Description>Personal letter discussing missionary work and personal news.</Description>\n    <Script>Latin</Script>\n  </Metadata>\n  <Page>\n    <Header>\n      <PageNumber>167.</PageNumber>\n    </Header>\n    <Body>\n      <Paragraph>\n        <Line>von der Mission unter den Hottentotten.</Line>\n        <Line>Heiland bald zu sehen,</Line>\n        <Line>und viest wiederholt aus:</Line>\n        <Line>„Ach, kom Ehrer Frau!“</Line>\n        <Line>Seine Frau dankte er herz-</Line>\n        <Line>lich für die treue Verpla-</Line>\n        <Line>gung, die er von ihr genoß, in</Line>\n        <Line>Zeit, und sagte darauf:</Line>\n        <Line>„Ihr geht es zum Ende; geht</Line>\n        <Line>richt auf mich; und jetzt</Line>\n        <Line>komt mein Heiland bald,</Line>\n        <Line>um meine Seele zu sich</Line>\n        <Line>aufzunehmen.“</Line>\n        <Line>Darauf vergißt er.</Line>\n      </Paragraph>\n      <Paragraph>\n        <Line>In dieser Zeit hält</Line>\n        <Line>Sich der Missionarius</Line>\n        <Line>Christian Ulrich, auch</Line>\n        <Line>einen etlichen tägigen Besuch</Line>\n        <Line>aus uns aus. Er überbrach-</Line>\n        <Line>te uns Ehrwürde von un-</Line>\n        <Line>sren Ehefrauen aus</Line>\n        <Line>Zeist, und wir senden an</Line>\n        <Line>ihm einen wahren Liebhaber</Line>\n      </Paragraph>\n    </Body>\n  </Page>\n</HistoricalDocument>",
+    "image_size": [
+      1000,
+      1652
+    ],
+    "prompt_tokens": 2151,
+    "generation_tokens": 465,
+    "truncated": false,
+    "peak_memory_gb": 9.028618251
+  }
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>prov=University of Rostock/Institute of Mathematics/CITlab|PLANET AI GmbH/Gundram Leifert/gundram.leifert@planet-ai.de:name=English writing M2(htr_id=19809)::::v=2.6.6
+prov=University of Rostock/Institute of Mathematics/CITlab|PLANET AI GmbH/Tobias Gruening/tobias.gruening@planet-ai.de:name=de.uros.citlab.module.baseline2polygon.B2PSeamMultiOriented:v=2.6.6
+prov=University of Rostock/Institute of Mathematics/CITlab|PLANET AI GmbH/Tobias Gruening/tobias.gruening@planet-ai.de:name=/net_tf/LA73_249_0mod360.pb:de.uros.citlab.segmentation.CITlab_LA_ML:v=2.6.6
+Transkribus</Creator>
+        <Created>2020-06-24T14:29:13.769-04:00</Created>
+        <LastChange>2020-06-25T00:36:53.856+02:00</LastChange>
+        <TranskribusMetadata docId="419495" pageId="16700321" pageNr="1" tsid="32634477" status="DONE" userId="43461" imgUrl="https://files.transkribus.eu/Get?id=SHCTLJMNXYLVSUYDODHMRTVY&amp;fileType=view" xmlUrl="https://files.transkribus.eu/Get?id=HIRAQPBLMPFOUSXSIYKSWNUN" imageId="12478639"/>
+    </Metadata>
+    <Page imageFilename="joseph_hooker__JDH_2_16_173_002__3b3f96.jpg" imageWidth="1386" imageHeight="2146">
+        <ReadingOrder>
+            <OrderedGroup id="ro_1684330919341" caption="Regions reading order">
+                <RegionRefIndexed index="0" regionRef="r1"/>
+            </OrderedGroup>
+        </ReadingOrder>
+        <TextRegion orientation="0.0" id="r1" custom="readingOrder {index:0;}">
+            <Coords points="134,200 134,1062 1145,1062 1145,200"/>
+            <TextLine id="r1l1" custom="readingOrder {index:0;}">
+                <Coords points="163,279 327,256 534,287 739,252 937,293 1002,264 1151,289 1137,223 968,244 794,195 448,241 165,192"/>
+                <Baseline points="169,251 217,253 266,255 315,257 364,258 413,259 461,259 510,260 559,260 608,260 657,260 705,261 754,261 803,262 852,263 901,265 949,267 998,269 1047,272 1096,276 1145,281"/>
+                <TextEquiv>
+                    <Unicode>the microscope that Henslow used,</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l2" custom="readingOrder {index:1;}">
+                <Coords points="168,399 288,383 348,406 424,375 510,409 550,383 707,386 727,383 729,321 505,348 466,314 338,319 285,341 212,312 171,320"/>
+                <Baseline points="176,359 203,361 230,362 257,363 285,364 312,365 339,366 366,367 394,367 421,368 448,369 475,370 503,371 530,372 557,373 584,373 612,375 639,376 666,377 693,379 721,380"/>
+                <TextEquiv>
+                    <Unicode>if so I will give it.</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l3" custom="readingOrder {index:2;}">
+                <Coords points="231,481 403,480 459,517 608,490 807,533 846,505 1120,518 1135,471 1087,450 1033,480 968,447 892,481 842,446 758,468 657,427 520,455 381,421 233,431"/>
+                <Baseline points="237,472 281,473 326,474 370,476 415,477 459,479 504,482 548,484 593,487 637,489 682,492 726,495 771,497 815,499 860,501 904,503 949,505 993,506 1038,507 1082,507 1127,507"/>
+                <TextEquiv>
+                    <Unicode>What a good paper Gunther has</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l4" custom="readingOrder {index:3;}">
+                <Coords points="131,579 1072,637 1062,568 969,601 785,554 713,588 514,532 337,566 133,532"/>
+                <Baseline points="137,573 183,576 230,579 276,582 323,585 369,587 416,590 462,592 509,595 555,598 602,599 648,602 695,605 741,607 788,609 834,611 881,614 927,616 974,618 1020,621 1067,623"/>
+                <TextEquiv>
+                    <Unicode>made on the Swainson letters -- I</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l5" custom="readingOrder {index:4;}">
+                <Coords points="126,700 483,713 557,749 625,714 1067,742 1051,692 823,656 638,680 542,651 457,681 129,649"/>
+                <Baseline points="134,678 180,683 226,686 273,691 319,694 366,697 412,701 458,703 505,705 551,707 598,709 644,711 690,713 737,714 783,716 830,717 876,718 922,719 969,720 1015,721 1062,722"/>
+                <TextEquiv>
+                    <Unicode>must do something with Bentham's</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l6" custom="readingOrder {index:5;}">
+                <Coords points="137,786 260,786 298,802 358,792 426,808 481,796 509,808 530,801 531,776 424,754 364,771 321,735 245,748 186,727 139,731"/>
+                <Baseline points="144,775 169,777 194,779 220,780 245,781 270,783 296,785 321,786 346,787 372,788 397,789 422,790 448,791 473,791 498,792 524,791"/>
+                <TextEquiv>
+                    <Unicode>correspondence.</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l7" custom="readingOrder {index:6;}">
+                <Coords points="435,905 454,917 478,905 548,910 590,937 652,930 689,964 731,954 755,932 772,935 775,884 763,878 737,890 717,873 698,885 628,869 610,851 529,860 478,833 439,837"/>
+                <Baseline points="442,895 467,899 492,902 517,905 542,908 567,909 592,911 617,912 642,913 667,914 692,914 717,914 742,913 768,912"/>
+                <TextEquiv>
+                    <Unicode>Ever affecty yr</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="r1l8" custom="readingOrder {index:7;}">
+                <Coords points="729,1058 763,1038 819,1048 882,1033 1071,1054 1082,971 1044,979 980,956 951,970 918,955 894,966 784,915 749,938 730,935"/>
+                <Baseline points="735,1030 761,1030 787,1030 813,1029 839,1029 865,1029 891,1029 918,1029 944,1029 970,1030 996,1031 1022,1032 1048,1035 1075,1037"/>
+                <TextEquiv>
+                    <Unicode>Jos D Hooker</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode>the microscope that Henslow used,&#13;
+if so I will give it.&#13;
+What a good paper Gunther has&#13;
+made on the Swainson letters -- I&#13;
+must do something with Bentham's&#13;
+correspondence.&#13;
+Ever affecty yr&#13;
+Jos D Hooker</Unicode>
+            </TextEquiv>
+        </TextRegion>
+    </Page>
+</PcGts>
