@@ -16,5 +16,6 @@ os.environ.update(
         "BUCKET_ACCESS_KEY": "test-access-key",
         "BUCKET_SECRET_KEY": "test-secret-key",
         "MODEL_BACKEND_URL": "http://localhost:8001",
+        "MODEL_REQUEST_TIMEOUT": "300",
     }
 )

@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     BUCKET_SECRET_KEY: str
 
     MODEL_BACKEND_URL: str
+    MODEL_REQUEST_TIMEOUT: float = 300.0
 
 
 settings = Settings()

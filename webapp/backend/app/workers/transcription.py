@@ -55,7 +55,8 @@ async def transcribe_page_content(
                             page.mime_type,
                         )
                     },
-                    timeout=120.0,
+                    # The first CPU request can include PyTorch warm-up/compilation.
+                    timeout=settings.MODEL_REQUEST_TIMEOUT,
                 )
         # 422 : le modèle n'a trouvé aucune ligne, la page est vide.
         if response.status_code == 422:

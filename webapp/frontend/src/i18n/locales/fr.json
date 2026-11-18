@@ -137,6 +137,13 @@
     "resetZoom": "Réinitialiser le zoom",
     "noImages": "Aucune image pour le moment.",
     "transcription": "Transcription",
+    "entities": {
+      "person": "Personne",
+      "date": "Date",
+      "location": "Lieu",
+      "loading": "Recherche des personnes, dates et lieux…",
+      "failed": "Les entités n’ont pas pu être reconnues."
+    },
     "transcribe": "Transcrire",
     "transcribing": "Transcription…",
     "transcriptionEmpty": "Le texte de l’image affichée apparaîtra ici.",

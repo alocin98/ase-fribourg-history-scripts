@@ -49,6 +49,33 @@ export type PageTranscription = {
   complete: boolean
 }
 
+export type EntityLabel = 'person' | 'date' | 'location'
+
+export type RecognizedEntity = {
+  text: string
+  label: EntityLabel
+  start: number
+  end: number
+  score: number
+}
+
+type EntityRecognitionResponse = {
+  entities: RecognizedEntity[]
+}
+
+export async function recognizeEntities(
+  text: string,
+  signal?: AbortSignal,
+): Promise<RecognizedEntity[]> {
+  if (!text.trim()) return []
+  const response = await request<EntityRecognitionResponse>('/transcriptions/entities', {
+    method: 'POST',
+    body: JSON.stringify({ text, threshold: 0.5 }),
+    signal,
+  })
+  return response.entities
+}
+
 // Réponse du backend (schéma PageTranscriptionRead).
 type PageTranscriptionResponse = {
   // null pour une ancienne transcription (texte seul).
