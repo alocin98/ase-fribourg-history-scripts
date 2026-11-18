@@ -19,7 +19,7 @@ Headline numbers of every report and of the baselines, best first. Updated with 
 
 ## Remarks
 
-**Manual Review of the data**
+### Manual Review of the data
 I went through the 10 test pages from this PR (commit 8270b54) by hand. For every word-level difference between the human reference and each model's output, I checked the manuscript and decided which side was right: reference correct (model worse), model correct (model better than the reference), or both wrong. That makes 393 differences, of which 234 are decided.
 
 Fully reviewed pages (01, 03–09):
@@ -37,5 +37,5 @@ The reference itself contains errors. I found 27 cases where the model was right
 
 **Limits**: the German page (02) and the medieval French page (10) are almost entirely unreviewed, so there is no conclusion for those. Many "errors" are typographic (’ vs ', oe vs œ), which matters if the goal is name extraction. This is 8 pages: it shows a trend, not a robust measurement.
 
-**Some points about qewn**
+### Some points about qwen
 The qwen model got stuck in a repetition loop which led to a too high error rate. This can be seen by having an error rate of above 100% which is quite odd. This can happen by habing the model being stuck in a loop and producing ways too much characters. We need to address this in the future by increasing the temperature a bit for example.
