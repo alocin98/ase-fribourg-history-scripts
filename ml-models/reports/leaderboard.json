@@ -1,0 +1,31 @@
+{
+  "2026-11-16_trocr_quick.md": {
+    "task": "htr",
+    "label": "TrOCR",
+    "set": "quick",
+    "pages": 30,
+    "cer": 0.6822043761638734,
+    "wer": 0.9629869080329724,
+    "seconds_per_page": 8.453033415177682,
+    "date": "2026-11-16"
+  },
+  "2026-11-16_mccatmus_quick.md": {
+    "task": "htr",
+    "label": "McCATMuS",
+    "set": "quick",
+    "pages": 30,
+    "cer": 0.39685172253258844,
+    "wer": 0.8367544852109261,
+    "seconds_per_page": 6.430998584709596,
+    "date": "2026-11-16"
+  },
+  "language-detection/2026-11-16_lid-mccatmus_quick.md": {
+    "task": "lid",
+    "label": "Language detection A",
+    "set": "quick",
+    "pages": 30,
+    "accuracy": 0.6333333333333333,
+    "seconds_per_page": 7.4320266457662605,
+    "date": "2026-11-16"
+  }
+}

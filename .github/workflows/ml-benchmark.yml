@@ -1,0 +1,46 @@
+name: ML Benchmark CI
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - ml-models/benchmark/**
+      - .github/workflows/ml-benchmark.yml
+  pull_request:
+    paths:
+      - ml-models/benchmark/**
+      - .github/workflows/ml-benchmark.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ml-models/benchmark
+
+jobs:
+  check:
+    name: "ML Benchmark: Format, lint, test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ml-models/benchmark/requirements.txt
+
+      # The tests load no model and no dataset, so the shared requirements are enough.
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Lint
+        run: ruff check --output-format=github .
+
+      - name: Test
+        run: pytest
