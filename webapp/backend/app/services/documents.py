@@ -81,14 +81,38 @@ class DocumentService:
 
     async def search_in_document(
         self, document_id: UUID, owner_id: UUID, query: str
-    ) -> list[Page]:
-        if not query:
-            return []
-
+    ) -> list[dict]:
         results = await self.repository.search_in_document(
-            document_id=document_id, owner_id=owner_id, query=query
+            document_id=document_id,
+            owner_id=owner_id,
+            query=query,
         )
-        return results
+
+        search_query = query.casefold()
+        response = []
+
+        for page, transcription in results:
+            text = transcription.text or ""
+            match_index = text.casefold().find(search_query)
+
+            start = max(0, match_index - 80)
+            end = min(len(text), match_index + len(query) + 80)
+            excerpt = text[start:end].strip()
+
+            if start > 0:
+                excerpt = "... " + excerpt
+            if end < len(text):
+                excerpt += " ..."
+
+            response.append(
+                {
+                    "page_id": page.id,
+                    "page_number": page.page_number,
+                    "text_excerpt": excerpt,
+                }
+            )
+
+        return response
 
     async def list_all_pages(self, document_id: UUID, owner_id: UUID) -> list[Page]:
         return await self.repository.get_all_pages_by_document_id(document_id, owner_id)

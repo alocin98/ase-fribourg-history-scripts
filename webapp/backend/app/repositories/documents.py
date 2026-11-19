@@ -1,9 +1,10 @@
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.documents import Document, Page
+from app.models.transcriptions import PageTranscription
 
 
 class DocumentRepository:
@@ -122,14 +123,15 @@ class DocumentRepository:
         document_id: UUID,
         owner_id: UUID,
         query: str,
-    ) -> list[Page]:
-        result = await self.session.scalars(
-            select(Page)
+    ) -> list[tuple[Page, PageTranscription]]:
+        result = await self.session.execute(
+            select(Page, PageTranscription)
             .join(Document)
+            .join(PageTranscription, PageTranscription.page_id == Page.id)
             .where(
                 Page.document_id == document_id,
                 Document.owner_id == owner_id,
-                Page.text.ilike(f"%{query}%"),
+                PageTranscription.text.ilike(f"%{query}%"),
             )
             .order_by(Page.page_number)
         )

@@ -27,6 +27,7 @@ from app.api.dependencies.zip_files import extract_and_upload_pages
 from app.api.schemas.documents import (
     DocumentCreate,
     DocumentRead,
+    DocumentSearchResult,
     DocumentUploadResponse,
     PageRead,
 )
@@ -269,3 +270,22 @@ async def download_document(
             "Content-Disposition": f'attachment; filename="{filename}"',
         },
     )
+
+
+@router.get(
+    "/{document_id}/search",
+    dependencies=[Security(csrf_header)],
+    response_model=list[DocumentSearchResult],
+    name="search_document_transcriptions",
+    description="Search for a term in the transcriptions of a document owned by the user.",
+    status_code=status.HTTP_200_OK,
+)
+async def search_document_transcriptions(
+    document_id: UUID,
+    service: DocumentServiceDep,
+    transcription_service: TranscriptionServiceDep,
+    term: str = Query(..., min_length=3),
+    current_user: User = Depends(get_current_user),
+):
+    results = await service.search_in_document(document_id, current_user.id, term)
+    return results
