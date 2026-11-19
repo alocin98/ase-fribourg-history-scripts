@@ -117,6 +117,24 @@ class DocumentRepository:
             conditions.append(Page.document_id == document_id)
         return await self.session.scalar(select(Page).join(Document).where(*conditions))
 
+    async def search_in_document(
+        self,
+        document_id: UUID,
+        owner_id: UUID,
+        query: str,
+    ) -> list[Page]:
+        result = await self.session.scalars(
+            select(Page)
+            .join(Document)
+            .where(
+                Page.document_id == document_id,
+                Document.owner_id == owner_id,
+                Page.text.ilike(f"%{query}%"),
+            )
+            .order_by(Page.page_number)
+        )
+        return list(result.all())
+
     async def get_page(self, page_id: UUID) -> Page | None:
         return await self.session.scalar(select(Page).where(Page.id == page_id))
 

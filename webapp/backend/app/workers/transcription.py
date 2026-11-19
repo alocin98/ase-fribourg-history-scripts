@@ -4,6 +4,7 @@ from pathlib import Path
 from uuid import UUID
 
 import httpx
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.transcriptions import TranscriptionLine
 from app.core.config import settings
@@ -11,9 +12,20 @@ from app.infrastructure.database.session import session_factory
 from app.infrastructure.storage.s3 import download_file_to_path
 from app.models.documents import Page
 from app.models.transcriptions import PageTranscription
+from app.repositories.documents import DocumentRepository
+from app.repositories.transcriptions import TranscriptionRepository
 from app.services.transcriptions import TranscriptionService
 
 logger = logging.getLogger(__name__)
+
+
+def get_service(session: AsyncSession) -> TranscriptionService:
+    document_repository = DocumentRepository(session)
+    transcription_repository = TranscriptionRepository(session)
+    return TranscriptionService(
+        document_repository=document_repository,
+        repository=transcription_repository,
+    )
 
 
 def needs_transcription(transcription: PageTranscription | None) -> bool:
@@ -111,7 +123,7 @@ async def page_transcription(
 
 async def transcribe_document(job_id: UUID) -> None:
     async with session_factory() as session:
-        service = TranscriptionService(session)
+        service = get_service(session)
 
         job = await service.get_worker_job(job_id)
 
@@ -168,7 +180,7 @@ async def transcribe_document(job_id: UUID) -> None:
 
 async def transcribe_page(job_id: UUID) -> None:
     async with session_factory() as session:
-        service = TranscriptionService(session)
+        service = get_service(session)
 
         job = await service.get_worker_job(job_id)
 

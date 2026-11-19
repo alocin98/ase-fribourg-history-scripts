@@ -1,19 +1,12 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.documents import Document, Page
 from app.repositories.documents import DocumentRepository
 
 
 class DocumentService:
-    def __init__(
-        self, session: AsyncSession, repository: DocumentRepository | None = None
-    ):
-        self.session = session
-        self.repository = (
-            repository if repository is not None else DocumentRepository(session)
-        )
+    def __init__(self, repository: DocumentRepository):
+        self.repository = repository
 
     async def create(
         self,
@@ -85,6 +78,17 @@ class DocumentService:
             page_id=page_id,
             owner_id=owner_id,
         )
+
+    async def search_in_document(
+        self, document_id: UUID, owner_id: UUID, query: str
+    ) -> list[Page]:
+        if not query:
+            return []
+
+        results = await self.repository.search_in_document(
+            document_id=document_id, owner_id=owner_id, query=query
+        )
+        return results
 
     async def list_all_pages(self, document_id: UUID, owner_id: UUID) -> list[Page]:
         return await self.repository.get_all_pages_by_document_id(document_id, owner_id)
