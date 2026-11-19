@@ -1,11 +1,9 @@
-import tempfile
 import zipfile
-from pathlib import Path
+from urllib.parse import quote
 from uuid import UUID, uuid4
 
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     Depends,
     File,
     HTTPException,
@@ -15,19 +13,21 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.csrf import csrf_header
-from app.api.dependencies.services import (
+from app.api.dependencies.injection import (
     DocumentServiceDep,
     TranscriptionServiceDep,
 )
+from app.api.dependencies.pdf import build_document_pdf
 from app.api.dependencies.zip_files import extract_and_upload_pages
 from app.api.schemas.documents import (
     DocumentCreate,
     DocumentRead,
+    DocumentSearchResult,
     DocumentUploadResponse,
     PageRead,
 )
@@ -232,44 +232,60 @@ async def get_page_transcription(
 
 
 @router.get(
-    "/{document_id}/download",
+    "/{document_id}/export",
     dependencies=[Security(csrf_header)],
-    name="download_document",
-    description="Download the original ZIP file of a document owned by the current user.",
-    status_code=status.HTTP_200_OK,
+    name="export_document",
+    description="Export a document owned by the user as a PDF.",
 )
 async def download_document(
     document_id: UUID,
-    background_tasks: BackgroundTasks,
     service: DocumentServiceDep,
+    transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
 ):
     document = await service.get_owned(document_id, current_user.id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    pages = await service.list_all_pages(
+    pages = await transcription_service.get_document_pages(
         document_id=document_id,
         owner_id=current_user.id,
     )
-    temporary_zip = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
-    temporary_zip_path = Path(temporary_zip.name)
-    try:
-        with zipfile.ZipFile(temporary_zip, "w", zipfile.ZIP_DEFLATED) as archive:
-            for page in pages:
-                image = await download_file(page.image_key)
-                archive.writestr(f"pages/{Path(page.image_key).name}", image)
-    except Exception as error:
-        temporary_zip.close()
-        temporary_zip_path.unlink(missing_ok=True)
-        raise HTTPException(status_code=404, detail="Document not found") from error
+    if not pages:
+        raise HTTPException(status_code=404, detail="Document has no pages")
 
-    temporary_zip.close()
-    background_tasks.add_task(temporary_zip_path.unlink, missing_ok=True)
-    return FileResponse(
-        temporary_zip_path,
+    try:
+        pdf = await build_document_pdf(document, pages)
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not generate the PDF",
+        ) from error
+
+    filename = quote(f"{document.name}.pdf")
+    return StreamingResponse(
+        pdf,
+        media_type="application/pdf",
         headers={
-            "Content-Disposition": f'attachment; filename="{document.name}.zip"',
+            "Content-Disposition": f'attachment; filename="{filename}"',
         },
-        media_type="application/zip",
     )
+
+
+@router.get(
+    "/{document_id}/search",
+    dependencies=[Security(csrf_header)],
+    response_model=list[DocumentSearchResult],
+    name="search_document_transcriptions",
+    description="Search for a term in the transcriptions of a document owned by the user.",
+    status_code=status.HTTP_200_OK,
+)
+async def search_document_transcriptions(
+    document_id: UUID,
+    service: DocumentServiceDep,
+    transcription_service: TranscriptionServiceDep,
+    term: str = Query(..., min_length=3),
+    current_user: User = Depends(get_current_user),
+):
+    results = await service.search_in_document(document_id, current_user.id, term)
+    return results

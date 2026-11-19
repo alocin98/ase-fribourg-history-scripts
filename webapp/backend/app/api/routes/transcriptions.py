@@ -4,7 +4,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Security
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.csrf import csrf_header
-from app.api.dependencies.services import (
+from app.api.dependencies.injection import (
     DocumentServiceDep,
     TranscriptionServiceDep,
 )

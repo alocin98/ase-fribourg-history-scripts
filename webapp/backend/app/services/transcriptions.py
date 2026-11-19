@@ -1,7 +1,5 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.documents import Page
 from app.models.transcriptions import PageTranscription, TranscriptionJob
 from app.repositories.documents import DocumentRepository
@@ -11,19 +9,11 @@ from app.repositories.transcriptions import TranscriptionRepository
 class TranscriptionService:
     def __init__(
         self,
-        session: AsyncSession,
-        document_repository: DocumentRepository | None = None,
-        repository: TranscriptionRepository | None = None,
+        document_repository: DocumentRepository,
+        repository: TranscriptionRepository,
     ):
-        self.session = session
-        self.document_repository = (
-            document_repository
-            if document_repository is not None
-            else DocumentRepository(session)
-        )
-        self.repository = (
-            repository if repository is not None else TranscriptionRepository(session)
-        )
+        self.document_repository = document_repository
+        self.repository = repository
 
     async def create_document_job(
         self, *, document_id: UUID, owner_id: UUID
