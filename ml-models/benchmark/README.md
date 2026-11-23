@@ -133,11 +133,6 @@ fixed without a new run.
 We don't tune these models, so their failures are part of the baseline:
 
 - **Invented text**: CHURRO wrote "Stahlgewichte" where the page says "Nahrungsmittel".
-- **Letter-spaced output**: Qwen sometimes switches to "D i c o i g i t" on hard pages.
-  Every letter then counts as a word, so WER can go above 100 % while CER suffers less.
-- **Repetition loops**: Qwen sometimes repeats a line or a token until the token limit (2
-  of 30 `quick` pages). We score these pages as they are. One such page moves Qwen's CER on
-  `quick` from 28 % to 48 %; `--details` lists truncated pages.
 
 ## Known issue: memory on census pages
 

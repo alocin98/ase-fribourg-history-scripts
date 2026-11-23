@@ -1,6 +1,6 @@
 from bench.dataset import Page
 from bench.report import period, score_page
-from bench.systems.vlm import output_tag_text, xml_text
+from bench.systems.vlm import loop_start, output_tag_text, xml_text
 
 PAGE_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15">
@@ -68,3 +68,11 @@ def test_churro_metadata_is_not_transcription():
         "</Body></Page></HistoricalDocument>"
     )
     assert xml_text(raw) == "443.\nVon der"
+
+
+def test_loop_start_keeps_one_copy_of_the_repeated_unit():
+    text = list(range(50))
+    line = [100, 101, 102]
+    assert loop_start(text + line * 200) == len(text) + len(line)
+    assert loop_start(text + [7] * 300) == len(text) + 1
+    assert loop_start(list(range(500))) is None

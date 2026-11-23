@@ -46,6 +46,19 @@ _TAG = re.compile(r"<[^>]*>")
 _COMMENTARY = re.compile(r"<(Metadata|Description|PhysicalDescription)\b[^>]*>.*?</\1>", re.DOTALL)
 
 
+def loop_start(tokens: list[int], max_period: int = 200, min_span: int = 200) -> int | None:
+    """If the last `min_span` tokens repeat a unit of at most `max_period` tokens,
+    returns where the repetition starts, keeping one copy of the unit. Otherwise None."""
+    n = len(tokens)
+    for period in range(1, min(max_period, n - min_span) + 1):
+        if tokens[n - min_span :] == tokens[n - min_span - period : n - period]:
+            start = n - min_span - period
+            while start > 0 and tokens[start - 1] == tokens[start - 1 + period]:
+                start -= 1
+            return start + period
+    return None
+
+
 def output_tag_text(raw: str) -> str:
     raw = _THINK.sub("", raw)
     match = _OUTPUT.search(raw)
@@ -69,6 +82,10 @@ PRESETS = {
         "user": DEFAULT_USER_PROMPT,
         "max_side": 2048,
         "postprocess": output_tag_text,
+        # Greedy decoding alone loops on some pages (a line or "w." repeated until the
+        # token limit) or switches to letter-spaced output. A mild penalty on the last
+        # 20 tokens stops both and was as good or better on every page we tried.
+        "sampling": {"repetition_penalty": 1.1, "repetition_context_size": 20},
     },
     "churro-3b": {
         "model": "stanford-oval/churro-3B",
@@ -76,6 +93,7 @@ PRESETS = {
         "user": "",
         "max_side": 2500,  # churro_ocr's MAX_INLINE_IMAGE_DIM
         "postprocess": xml_text,
+        "sampling": {},
     },
 }
 
@@ -90,6 +108,7 @@ class VLM:
         self.max_side = config["max_side"]
         self.max_tokens = max_tokens
         self.postprocess = config["postprocess"]
+        self.sampling = config["sampling"]
         self.messages = [
             {"role": "system", "content": config["system"]},
             {"role": "user", "content": config["user"]},
@@ -102,11 +121,46 @@ class VLM:
             "max_side": self.max_side,
             "max_tokens": max_tokens,
             "temperature": 0.0,
+            **self.sampling,
+            "loop_guard": "stop when the last 200 tokens repeat a unit of at most 200 tokens",
             "prompt": self.messages,
         }
 
+    def generate(self, prompt: str, image_path: Path):
+        """Greedy decoding that stops and trims a repetition loop instead of running
+        to the token limit. Returns the text, the tokens removed and the last result."""
+        from mlx_vlm import stream_generate
+
+        tokenizer = self.processor.tokenizer
+        tokenizer.stopping_criteria.reset(self.model.config.eos_token_id)
+        tokens, pieces, last, cut = [], [], None, None
+        for result in stream_generate(
+            self.model,
+            self.processor,
+            prompt,
+            image=[str(image_path)],
+            max_tokens=self.max_tokens,
+            temperature=0.0,
+            **self.sampling,
+        ):
+            last = result
+            pieces.append(result.text)
+            if result.token is not None:
+                tokens.append(result.token)
+                if len(tokens) % 32 == 0:
+                    cut = loop_start(tokens)
+                    if cut is not None:
+                        break
+        if cut is None:
+            text = "".join(pieces)
+        else:
+            text = tokenizer.decode(tokens[:cut], skip_special_tokens=True)
+        clean_output = getattr(self.processor, "clean_output", None)
+        if callable(clean_output):
+            text = clean_output(text)
+        return text, len(tokens) - cut if cut is not None else 0, last
+
     def transcribe(self, page) -> Prediction:
-        from mlx_vlm import generate
         from mlx_vlm.prompt_utils import apply_chat_template
 
         image = load_image(page.image_path)
@@ -121,25 +175,18 @@ class VLM:
             enable_thinking=False,
         )
         start = perf_counter()
-        result = generate(
-            self.model,
-            self.processor,
-            prompt,
-            image=[str(path)],
-            max_tokens=self.max_tokens,
-            temperature=0.0,
-            verbose=False,
-        )
+        text, loop_tokens, result = self.generate(prompt, path)
         elapsed = perf_counter() - start
         return Prediction(
-            text=self.postprocess(result.text),
+            text=self.postprocess(text),
             timings={"recognition": elapsed, "total": elapsed},
             extra={
-                "raw_output": result.text,
+                "raw_output": text,
                 "image_size": list(image.size),
                 "prompt_tokens": result.prompt_tokens,
                 "generation_tokens": result.generation_tokens,
                 "truncated": result.generation_tokens >= self.max_tokens,
+                "loop_tokens_removed": loop_tokens,
                 "peak_memory_gb": result.peak_memory,
             },
         )

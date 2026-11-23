@@ -7,8 +7,8 @@ Headline numbers of every report and of the baselines, best first. Updated with 
 | model                                    | date       | CER % | WER % | s / page | pages |
 | ---------------------------------------- | ---------- | ----- | ----- | -------- | ----- |
 | CHURRO 3B (baseline)                     | 2026-11-16 | 11.8  | 29.3  | 48.9     | 30    |
+| Qwen3.5-9B (baseline)                    | 2026-11-23 | 22.6  | 50.6  | 34.1     | 30    |
 | [McCATMuS](2026-11-16_mccatmus_quick.md) | 2026-11-16 | 39.7  | 83.7  | 6.4      | 30    |
-| Qwen3.5-9B (baseline)                    | 2026-11-16 | 48.5  | 107.1 | 50.5     | 30    |
 | [TrOCR](2026-11-16_trocr_quick.md)       | 2026-11-16 | 68.2  | 96.3  | 8.5      | 30    |
 
 ## Language detection (higher is better)
@@ -20,6 +20,7 @@ Headline numbers of every report and of the baselines, best first. Updated with 
 ## Remarks
 
 ### Manual Review of the data
+
 I went through the 10 test pages from this PR (commit 8270b54) by hand. For every word-level difference between the human reference and each model's output, I checked the manuscript and decided which side was right: reference correct (model worse), model correct (model better than the reference), or both wrong. That makes 393 differences, of which 234 are decided.
 
 Fully reviewed pages (01, 03–09):
@@ -38,4 +39,5 @@ The reference itself contains errors. I found 27 cases where the model was right
 **Limits**: the German page (02) and the medieval French page (10) are almost entirely unreviewed, so there is no conclusion for those. Many "errors" are typographic (’ vs ', oe vs œ), which matters if the goal is name extraction. This is 8 pages: it shows a trend, not a robust measurement.
 
 ### Some points about qwen
-The qwen model got stuck in a repetition loop which led to a too high error rate. This can be seen by having an error rate of above 100% which is quite odd. This can happen by habing the model being stuck in a loop and producing ways too much characters. We need to address this in the future by increasing the temperature a bit for example.
+
+The first Qwen run got stuck in repetition loops on 2 of the 30 pages (one line, or "w.", repeated until the 4096-token limit), which pushed its CER to 48.5 % and WER above 100 %. Qwen now runs with a mild repetition penalty (1.1 over the last 20 tokens, still greedy) and a guard that stops and trims a loop if one still happens. In the re-run (2026-11-23) no page loops or hits the limit, and CER drops to 22.6 %. The penalty also helps on the 28 pages that never looped (CER 21.0 → 19.9 %, WER 53.4 → 47.0 %), but 6 of them got slightly worse. The manual review above was done on the outputs of the first run.
