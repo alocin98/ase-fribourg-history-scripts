@@ -339,6 +339,13 @@ def transcription_details(run: Run, runs: list[Run]) -> str:
         if s.record["extra"].get("truncated")
     ]
     problems += [
+        f"- repetition loop cut after {s.record['extra']['loop_tokens_removed']} tokens "
+        f"({r.label}): {s.page.page_id}"
+        for r in runs
+        for s in r.scores
+        if s.record["extra"].get("loop_tokens_removed")
+    ]
+    problems += [
         f"- failed ({r.label}): {page_id}: {error}"
         for r in runs
         for page_id, error in sorted(r.errors.items())

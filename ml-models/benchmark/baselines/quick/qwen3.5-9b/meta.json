@@ -1,14 +1,17 @@
 {
+  "started": "2026-11-23T09:40:01",
   "system": "qwen3.5-9b",
   "task": "htr",
   "set": "quick",
-  "options": {},
   "info": {
     "model": "mlx-community/Qwen3.5-9B-8bit",
     "runtime": "mlx-vlm 0.7.12",
     "max_side": 2048,
     "max_tokens": 4096,
     "temperature": 0.0,
+    "repetition_penalty": 1.1,
+    "repetition_context_size": 20,
+    "loop_guard": "stop when the last 200 tokens repeat a unit of at most 200 tokens",
     "prompt": [
       {
         "role": "system",
@@ -53,16 +56,14 @@
     "revolutionary_city__data_hsprevcity-9366__f626db"
   ],
   "hardware": {
-    "machine": "arm64",
     "cpu": "Apple M5",
     "memory_gb": 24.0,
     "os": "macOS-26.6.2-arm64-arm-64bit",
     "python": "3.12.14"
   },
-  "git_commit": "44c2e06-dirty",
-  "started": "2026-11-16T12:44:42",
-  "load_seconds": 4.38,
-  "finished": "2026-11-16T13:44:00",
+  "git_commit": "c689e87-dirty",
+  "load_seconds": 4.3,
+  "finished": "2026-11-23T09:57:12",
   "failed_pages": 0,
-  "peak_rss_gb": 3.63
+  "peak_rss_gb": 5.74
 }

@@ -18,26 +18,26 @@
 | model | CER % | WER % | s / page | peak memory GB |
 |---|---|---|---|---|
 | **TrOCR** | 68.2 (59.2–74.4) | 96.3 (88.0–102.4) | 8.5 | 7.7 |
-| Qwen3.5-9B (baseline) | 48.5 (16.1–92.3) | 107.1 (41.3–177.2) | 50.5 | 12.0 |
+| Qwen3.5-9B (baseline) | 22.6 (15.1–27.7) | 50.6 (36.5–60.2) | 34.1 | 12.0 |
 | CHURRO 3B (baseline) | 11.8 (8.7–15.0) | 29.3 (22.1–36.4) | 48.9 | 9.0 |
 
 ## CER by language and era (%)
 
 | group | pages | **TrOCR** | Qwen3.5-9B (baseline) | CHURRO 3B (baseline) |
 |---|---|---|---|---|
-| `de_post1700` | 5 | 84.5 | 291.5 | 13.9 |
-| `de_pre1700` | 5 | 76.0 | 37.5 | 8.6 |
-| `en_post1800` | 5 | 46.2 | 15.2 | 7.6 |
+| `de_post1700` | 5 | 84.5 | 38.0 | 13.9 |
+| `de_pre1700` | 5 | 76.0 | 24.5 | 8.6 |
+| `en_post1800` | 5 | 46.2 | 16.6 | 7.6 |
 | `en_pre1800` | 5 | 46.6 | 5.4 | 5.2 |
-| `fr_post1700` | 5 | 63.9 | 22.0 | 25.6 |
-| `fr_pre1700` | 5 | 70.1 | 30.6 | 15.0 |
+| `fr_post1700` | 5 | 63.9 | 20.7 | 25.6 |
+| `fr_pre1700` | 5 | 70.1 | 27.0 | 15.0 |
 
 ## Word errors by type (% of reference words)
 
 | model | substituted | deleted | inserted |
 |---|---|---|---|
 | **TrOCR** | 64.3 | 27.3 | 4.7 |
-| Qwen3.5-9B (baseline) | 45.4 | 3.0 | 58.7 |
+| Qwen3.5-9B (baseline) | 40.9 | 4.4 | 5.3 |
 | CHURRO 3B (baseline) | 19.5 | 3.8 | 6.0 |
 
 ## How to read this
@@ -58,5 +58,5 @@
 ---
 
 Run `20261116-1434_trocr_quick` · commit `44c2e06-dirty` · Apple M5, 24.0 GB · 2026-11-16  
-Baseline Qwen3.5-9B: `mlx-community/Qwen3.5-9B-8bit`, run on 2026-11-16 (`baselines/quick/qwen3.5-9b/`)  
+Baseline Qwen3.5-9B: `mlx-community/Qwen3.5-9B-8bit`, run on 2026-11-23 (`baselines/quick/qwen3.5-9b/`)  
 Baseline CHURRO 3B: `stanford-oval/churro-3B`, run on 2026-11-16 (`baselines/quick/churro-3b/`)
