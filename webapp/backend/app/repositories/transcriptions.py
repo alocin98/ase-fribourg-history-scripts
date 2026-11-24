@@ -1,11 +1,15 @@
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.documents import Document, Page
-from app.models.transcriptions import PageTranscription, TranscriptionJob
+from app.models.transcriptions import (
+    PageTranscription,
+    TranscriptionEntities,
+    TranscriptionJob,
+)
 
 
 class TranscriptionJobStatus:
@@ -201,9 +205,10 @@ class TranscriptionRepository:
 
     async def save_page_transcriptions(
         self, transcriptions: list[dict[str, object]]
-    ) -> None:
+    ) -> dict[UUID, UUID]:
+        """Enregistre les transcriptions et renvoie l'id de chacune, par page."""
         if not transcriptions:
-            return
+            return {}
         statement = insert(PageTranscription).values(transcriptions)
         statement = statement.on_conflict_do_update(
             index_elements=[PageTranscription.page_id],
@@ -215,19 +220,26 @@ class TranscriptionRepository:
                 "updated_at": func.now(),
             },
         )
-        await self.session.execute(statement)
+        result = await self.session.execute(
+            statement.returning(PageTranscription.page_id, PageTranscription.id)
+        )
+        return {page_id: transcription_id for page_id, transcription_id in result}
 
     async def get_document_pages_with_transcriptions(
         self,
         document_id: UUID,
         owner_id: UUID,
-    ) -> list[tuple[Page, PageTranscription | None]]:
+    ) -> list[tuple[Page, PageTranscription | None, TranscriptionEntities | None]]:
         result = await self.session.execute(
-            select(Page, PageTranscription)
+            select(Page, PageTranscription, TranscriptionEntities)
             .join(Document)
             .outerjoin(
                 PageTranscription,
                 PageTranscription.page_id == Page.id,
+            )
+            .outerjoin(
+                TranscriptionEntities,
+                TranscriptionEntities.transcription_id == PageTranscription.id,
             )
             .where(
                 Page.document_id == document_id,
@@ -236,6 +248,65 @@ class TranscriptionRepository:
             .order_by(Page.page_number)
         )
         return list(result.all())
+
+    async def get_page_with_transcription(
+        self,
+        page_id: UUID,
+    ) -> tuple[Page, PageTranscription | None, TranscriptionEntities | None] | None:
+        result = await self.session.execute(
+            select(Page, PageTranscription, TranscriptionEntities)
+            .outerjoin(
+                PageTranscription,
+                PageTranscription.page_id == Page.id,
+            )
+            .outerjoin(
+                TranscriptionEntities,
+                TranscriptionEntities.transcription_id == PageTranscription.id,
+            )
+            .where(Page.id == page_id)
+        )
+        return result.one_or_none()
+
+    ## Entities
+
+    async def get_page_transcription_with_entities(
+        self,
+        page_id: UUID,
+    ) -> tuple[PageTranscription, TranscriptionEntities | None] | None:
+        result = await self.session.execute(
+            select(PageTranscription, TranscriptionEntities)
+            .outerjoin(
+                TranscriptionEntities,
+                TranscriptionEntities.transcription_id == PageTranscription.id,
+            )
+            .where(PageTranscription.page_id == page_id)
+        )
+        return result.one_or_none()
+
+    async def save_transcription_entities(self, rows: list[dict[str, object]]) -> None:
+        """Enregistre les entités ({transcription_id, entities}) de chaque transcription."""
+        if not rows:
+            return
+        statement = insert(TranscriptionEntities).values(rows)
+        statement = statement.on_conflict_do_update(
+            index_elements=[TranscriptionEntities.transcription_id],
+            set_={
+                "entities": statement.excluded.entities,
+                "updated_at": func.now(),
+            },
+        )
+        await self.session.execute(statement)
+
+    async def delete_transcription_entities(
+        self, transcription_ids: list[UUID]
+    ) -> None:
+        if not transcription_ids:
+            return
+        await self.session.execute(
+            delete(TranscriptionEntities).where(
+                TranscriptionEntities.transcription_id.in_(transcription_ids)
+            )
+        )
 
     async def commit(self):
         await self.session.commit()

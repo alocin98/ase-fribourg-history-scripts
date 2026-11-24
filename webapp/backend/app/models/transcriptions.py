@@ -62,3 +62,25 @@ class PageTranscription(Base):
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
+
+
+class TranscriptionEntities(Base):
+    """Entités nommées (personnes, dates, lieux) trouvées dans une transcription."""
+
+    __tablename__ = "entities"
+
+    id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
+    )
+    transcription_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("page_transcriptions.id", ondelete="CASCADE"),
+        unique=True,
+    )
+    # Liste de {text, label, start, end, score} ; start/end sont des positions dans
+    # le texte complet de la transcription.
+    entities: Mapped[list[dict]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )

@@ -1,6 +1,5 @@
 from uuid import UUID
 
-import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Security, status
 
 from app.api.dependencies.auth import get_current_user
@@ -9,66 +8,18 @@ from app.api.dependencies.services import (
     DocumentServiceDep,
     TranscriptionServiceDep,
 )
-from app.api.schemas.transcriptions import (
-    EntityRecognitionRequest,
-    EntityRecognitionResponse,
-    TranscriptionResponse,
-)
-from app.core.config import settings
+from app.api.schemas.transcriptions import TranscriptionResponse
 from app.models.user import User
 from app.workers.queue import enqueue_document_transcription, enqueue_page_transcription
 
 router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 
 
-async def request_entity_recognition(
-    request: EntityRecognitionRequest,
-) -> EntityRecognitionResponse:
-    try:
-        async with httpx.AsyncClient(timeout=60) as client:
-            response = await client.post(
-                f"{settings.MODEL_BACKEND_URL.rstrip('/')}/entities",
-                json=request.model_dump(),
-            )
-        response.raise_for_status()
-    except httpx.TimeoutException as error:
-        raise HTTPException(
-            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            detail="Entity recognition timed out",
-        ) from error
-    except httpx.HTTPError as error:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Entity recognition service is unavailable",
-        ) from error
-
-    try:
-        return EntityRecognitionResponse.model_validate(response.json())
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Entity recognition service returned an invalid response",
-        ) from error
-
-
-@router.post(
-    "/entities",
-    dependencies=[Security(csrf_header)],
-    name="recognize_entities",
-    description="Find people, dates, and locations in transcribed text.",
-)
-async def recognize_entities(
-    request: EntityRecognitionRequest,
-    _current_user: User = Depends(get_current_user),
-) -> EntityRecognitionResponse:
-    return await request_entity_recognition(request)
-
-
 @router.post(
     "/document/{document_id}",
     dependencies=[Security(csrf_header)],
     name="create_document_transcription",
-    description="Create a transcription job for a document owned by the current user.",
+    description="Create a job that transcribes the pages of a document owned by the current user and finds their named entities.",
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def create_document_transcription_job(
@@ -95,7 +46,7 @@ async def create_document_transcription_job(
     "/document/{document_id}/pages/{page_id}",
     dependencies=[Security(csrf_header)],
     name="create_page_transcription",
-    description="Create a transcription job for a specific page of a document owned by the current user.",
+    description="Create a job that transcribes a specific page of a document owned by the current user and finds its named entities.",
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def create_page_transcription(

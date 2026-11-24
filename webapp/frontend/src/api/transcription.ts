@@ -41,39 +41,25 @@ export type TranscriptionLine = {
   words: TranscriptionWord[]
 }
 
+export type EntityLabel = 'person' | 'date' | 'location'
+
+export type RecognizedEntity = {
+  text: string
+  label: EntityLabel
+  // Positions dans le texte complet de la page.
+  start: number
+  end: number
+  score: number
+}
+
 export type PageTranscription = {
   text: string
   lines: TranscriptionLine[]
   imageSize: [number, number] | null
   // Faux pour une ancienne transcription (texte seul) : elle reste à refaire.
   complete: boolean
-}
-
-export type EntityLabel = 'person' | 'date' | 'location'
-
-export type RecognizedEntity = {
-  text: string
-  label: EntityLabel
-  start: number
-  end: number
-  score: number
-}
-
-type EntityRecognitionResponse = {
-  entities: RecognizedEntity[]
-}
-
-export async function recognizeEntities(
-  text: string,
-  signal?: AbortSignal,
-): Promise<RecognizedEntity[]> {
-  if (!text.trim()) return []
-  const response = await request<EntityRecognitionResponse>('/transcriptions/entities', {
-    method: 'POST',
-    body: JSON.stringify({ text, threshold: 0.5 }),
-    signal,
-  })
-  return response.entities
+  // Entités trouvées avec la transcription, null si elles restent à chercher.
+  entities: RecognizedEntity[] | null
 }
 
 // Réponse du backend (schéma PageTranscriptionRead).
@@ -82,6 +68,8 @@ type PageTranscriptionResponse = {
   lines?: TranscriptionLine[] | null
   image_width?: number | null
   image_height?: number | null
+  // null tant que les entités n'ont pas été cherchées.
+  entities?: RecognizedEntity[] | null
 }
 
 function readText(payload: unknown): string | null {
@@ -103,14 +91,15 @@ function readTranscription(payload: unknown): PageTranscription | null {
   if (text === null) return null
 
   const response = payload as PageTranscriptionResponse
+  const entities = Array.isArray(response.entities) ? response.entities : null
   if (!response.lines) {
-    return { text, lines: [], imageSize: null, complete: false }
+    return { text, lines: [], imageSize: null, complete: false, entities }
   }
   let imageSize: [number, number] | null = null
   if (response.image_width && response.image_height) {
     imageSize = [response.image_width, response.image_height]
   }
-  return { text, lines: response.lines, imageSize, complete: true }
+  return { text, lines: response.lines, imageSize, complete: true, entities }
 }
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {

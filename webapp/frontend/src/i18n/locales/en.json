@@ -141,8 +141,7 @@
       "person": "Person",
       "date": "Date",
       "location": "Location",
-      "loading": "Finding people, dates and places…",
-      "failed": "Entities could not be recognized."
+      "show": "Show entities"
     },
     "transcribe": "Transcribe",
     "transcribing": "Transcribing…",

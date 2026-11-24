@@ -5,15 +5,18 @@ from uuid import UUID
 
 import httpx
 
-from app.api.schemas.transcriptions import TranscriptionLine
+from app.api.schemas.transcriptions import RecognizedEntity, TranscriptionLine
 from app.core.config import settings
 from app.infrastructure.database.session import session_factory
 from app.infrastructure.storage.s3 import download_file_to_path
 from app.models.documents import Page
-from app.models.transcriptions import PageTranscription
-from app.services.transcriptions import TranscriptionService
+from app.models.transcriptions import PageTranscription, TranscriptionEntities
+from app.services.transcriptions import PageResult, TranscriptionService
 
 logger = logging.getLogger(__name__)
+
+# Score minimal d'une entité pour être gardée.
+ENTITY_THRESHOLD = 0.5
 
 
 def needs_transcription(transcription: PageTranscription | None) -> bool:
@@ -22,22 +25,20 @@ def needs_transcription(transcription: PageTranscription | None) -> bool:
     return transcription is None or transcription.lines is None
 
 
-async def transcribe_page_content(
-    service: TranscriptionService,
-    page_id: UUID,
-    existing: PageTranscription | None = None,
-    page: Page | None = None,
-) -> dict[str, object] | None:
-    if existing is None:
-        existing = await service.get_page_transcription(page_id)
-    if not needs_transcription(existing):
-        return None
+def needs_work(
+    transcription: PageTranscription | None,
+    entities: TranscriptionEntities | None,
+) -> bool:
+    # Une page est terminée quand elle a une transcription complète et ses entités.
+    return needs_transcription(transcription) or entities is None
 
-    if page is None:
-        page = await service.get_page_for_worker(page_id)
-    if page is None:
-        return None
 
+def model_url(path: str) -> str:
+    return f"{settings.MODEL_BACKEND_URL.rstrip('/')}{path}"
+
+
+async def transcribe_image(page: Page) -> dict[str, object]:
+    """Envoie l'image de la page au modèle et renvoie la transcription à enregistrer."""
     # Télécharger l'image dans un répertoire temporaire
     with tempfile.TemporaryDirectory() as temporary_directory:
         image_path = Path(temporary_directory) / Path(page.image_key).name
@@ -47,7 +48,7 @@ async def transcribe_page_content(
         with image_path.open("rb") as image_file:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    f"{settings.MODEL_BACKEND_URL.rstrip('/')}/predict",
+                    model_url("/predict"),
                     files={
                         "file": (
                             image_path.name,
@@ -61,7 +62,7 @@ async def transcribe_page_content(
         # 422 : le modèle n'a trouvé aucune ligne, la page est vide.
         if response.status_code == 422:
             return {
-                "page_id": page_id,
+                "page_id": page.id,
                 "text": "",
                 "lines": [],
                 "image_width": None,
@@ -89,7 +90,7 @@ async def transcribe_page_content(
         image_width, image_height = response_data["image_size"]
 
     return {
-        "page_id": page_id,
+        "page_id": page.id,
         "text": text,
         "lines": lines,
         "image_width": image_width,
@@ -97,17 +98,63 @@ async def transcribe_page_content(
     }
 
 
-async def page_transcription(
-    service: TranscriptionService,
-    page_id: UUID,
-    existing: PageTranscription | None = None,
-    page: Page | None = None,
-) -> bool:
-    result = await transcribe_page_content(service, page_id, existing, page)
-    if result is None:
-        return False
-    await service.save_page_transcriptions([result])
-    return True
+async def recognize_entities(text: str) -> list[dict]:
+    """Personnes, dates et lieux du texte, positions relatives au texte complet."""
+    if not text.strip():
+        return []
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            model_url("/entities"),
+            json={"text": text, "threshold": ENTITY_THRESHOLD},
+            # Le modèle GLiNER est chargé au premier appel.
+            timeout=settings.MODEL_REQUEST_TIMEOUT,
+        )
+    response.raise_for_status()
+    response_data = response.json()
+
+    if not isinstance(response_data, dict) or not isinstance(
+        response_data.get("entities"), list
+    ):
+        raise ValueError("Model backend response does not contain entities")
+
+    return [
+        RecognizedEntity.model_validate(entity).model_dump()
+        for entity in response_data["entities"]
+    ]
+
+
+async def process_page(
+    page: Page,
+    existing: PageTranscription | None,
+    entities: TranscriptionEntities | None,
+) -> PageResult | None:
+    """Transcrit la page si besoin, puis y cherche les entités.
+
+    Renvoie None si la page est déjà terminée. Une erreur de transcription est levée ;
+    une erreur de reconnaissance donne entities=None, pour garder le texte obtenu.
+    """
+    if not needs_work(existing, entities):
+        return None
+
+    transcription = None
+    text = existing.text if existing is not None else None
+    if needs_transcription(existing):
+        transcription = await transcribe_image(page)
+        text = transcription["text"]
+
+    try:
+        found = await recognize_entities(text or "")
+    except Exception:
+        logger.exception("Entity recognition of page %s failed", page.id)
+        found = None
+
+    return PageResult(
+        page_id=page.id,
+        transcription_id=existing.id if existing is not None else None,
+        transcription=transcription,
+        entities=found,
+    )
 
 
 async def transcribe_document(job_id: UUID) -> None:
@@ -123,33 +170,37 @@ async def transcribe_document(job_id: UUID) -> None:
             document_id=job.document_id,
             owner_id=job.owner_id,
         )
+        # Un rollback expire les objets de la session : détachés, ils restent lisibles
+        # pour les pages suivantes.
+        session.expunge_all()
 
         if await service.start_job(job_id) is None:
             return
 
-        # Les pages déjà transcrites sont sautées, et une page en échec
-        # n'empêche pas de transcrire les suivantes.
+        # Les pages déjà terminées sont sautées, et une page en échec
+        # n'empêche pas de traiter les suivantes.
         failed = False
-        pending: list[dict[str, object]] = []
+        pending: list[PageResult] = []
 
         async def flush_pending() -> None:
             nonlocal failed
             if not pending:
                 return
             try:
-                await service.save_page_transcriptions(pending)
-                pending.clear()
+                await service.save_page_results(pending)
             except Exception:
                 logger.exception("Persisting a transcription batch failed")
                 await session.rollback()
-                pending.clear()
                 failed = True
+            pending.clear()
 
-        for page, existing in pages:
+        for page, existing, entities in pages:
             try:
-                result = await transcribe_page_content(service, page.id, existing, page)
+                result = await process_page(page, existing, entities)
                 if result is not None:
                     pending.append(result)
+                    if result.entities is None:
+                        failed = True
                 if len(pending) >= 20:
                     await flush_pending()
             except Exception:
@@ -176,22 +227,26 @@ async def transcribe_page(job_id: UUID) -> None:
         if job is None:
             return
 
-        existing = await service.get_page_transcription(job.page_id)
+        found = await service.get_page_for_worker(job.page_id)
         if await service.start_job(job_id) is None:
             return
 
-        if not needs_transcription(existing):
+        if found is None:
             await service.complete_job(job_id)
             return
 
         try:
-            if not await page_transcription(service, job.page_id):
-                await service.complete_job(job_id)
-                return
+            result = await process_page(*found)
+            if result is not None:
+                await service.save_page_results([result])
         except Exception:
             # Après un rollback, job est périmé : on n'utilise plus que job_id.
             logger.exception("Transcription job %s failed", job_id)
             await session.rollback()
+            await service.fail_job(job_id)
+            return
+
+        if result is not None and result.entities is None:
             await service.fail_job(job_id)
             return
 

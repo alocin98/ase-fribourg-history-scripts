@@ -18,12 +18,10 @@ import {
 } from '../../api/documents'
 import {
   getPageTranscription,
-  recognizeEntities,
   transcribeDocument,
   transcribePage,
   type PageTranscription,
   type TranscriptionLine as TranscriptionLineData,
-  type RecognizedEntity,
 } from '../../api/transcription'
 import DocumentActions from './DocumentActions'
 import DocumentsFrame from './DocumentsFrame'
@@ -34,6 +32,7 @@ import PageImage from './PageImage'
 import PageRating from './PageRating'
 import TranscriptionLine from './TranscriptionLine'
 import DocumentRating from './DocumentRating'
+import EntitiesToggle from './EntitiesToggle'
 import {
   confidencePercent,
   levelColors,
@@ -46,9 +45,13 @@ import { entitiesByLine } from './entities'
 // Délai minimal entre deux relectures des pages pendant la transcription du document.
 const REFRESH_INTERVAL_MS = 3000
 
-// Une page reste à transcrire sans transcription, ou avec une ancienne (texte seul).
+const SHOW_ENTITIES_KEY = 'ase_show_entities'
+
+// Une page reste à transcrire sans transcription, avec une ancienne (texte seul),
+// ou tant que ses entités n'ont pas été trouvées.
 function needsWork(transcription: PageTranscription | null | undefined): boolean {
-  return transcription === null || (transcription !== undefined && !transcription.complete)
+  if (transcription === undefined) return false
+  return transcription === null || !transcription.complete || transcription.entities === null
 }
 
 const panelClass =
@@ -78,13 +81,9 @@ export default function DocumentOverviewPage() {
   const [isShareOpen, setIsShareOpen] = useState(false)
   // undefined : pas encore lue, null : aucune transcription, objet : transcription enregistrée.
   const [texts, setTexts] = useState<Record<string, PageTranscription | null>>({})
-  const [entityResults, setEntityResults] = useState<
-    Record<
-      string,
-      { text: string; entities: RecognizedEntity[]; loading: boolean; failed: boolean }
-    >
-  >({})
-  const entityRequested = useRef<Record<string, string>>({})
+  const [showEntities, setShowEntities] = useState(
+    () => localStorage.getItem(SHOW_ENTITIES_KEY) === 'true',
+  )
   // Ligne survolée (et d'où vient le survol) ou ouverte dans la fenêtre, pour une page donnée.
   const [hover, setHover] = useState<{
     pageId: string
@@ -109,8 +108,6 @@ export default function DocumentOverviewPage() {
     setPages([])
     setSelectedId(null)
     setTexts({})
-    setEntityResults({})
-    entityRequested.current = {}
     setDocumentJob(null)
     setDocumentJobFailed(false)
     documentAbort.current?.abort()
@@ -198,43 +195,6 @@ export default function DocumentOverviewPage() {
       cancelled = true
     }
   }, [documentId, pages])
-
-  const selectedText = selectedId ? texts[selectedId]?.text : undefined
-
-  // Entity recognition runs on plain text after OCR and is cached per page in this view.
-  useEffect(() => {
-    if (!selectedId || !selectedText?.trim()) return
-    const pageId = selectedId
-    const text = selectedText
-    if (entityRequested.current[pageId] === text) return
-    entityRequested.current[pageId] = text
-    const controller = new AbortController()
-    setEntityResults((current) => ({
-      ...current,
-      [pageId]: { text, entities: [], loading: true, failed: false },
-    }))
-
-    void recognizeEntities(text, controller.signal)
-      .then((entities) => {
-        setEntityResults((current) => ({
-          ...current,
-          [pageId]: { text, entities, loading: false, failed: false },
-        }))
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return
-        setEntityResults((current) => ({
-          ...current,
-          [pageId]: { text, entities: [], loading: false, failed: true },
-        }))
-      })
-    return () => {
-      controller.abort()
-      if (entityRequested.current[pageId] === text) {
-        delete entityRequested.current[pageId]
-      }
-    }
-  }, [selectedId, selectedText])
 
   // line-clamp masque la hauteur réelle : on mesure une copie sans limite.
   useLayoutEffect(() => {
@@ -377,10 +337,10 @@ export default function DocumentOverviewPage() {
   const failed = selectedId !== null && failedId === selectedId && !shownText
   const imageSize = shownText ? shownText.imageSize : null
   const lines = shownText ? linesOf(shownText) : []
-  const entityState = selectedId ? entityResults[selectedId] : undefined
-  const lineEntities = shownText
-    ? entitiesByLine(shownText.text, lines, entityState?.entities ?? [])
-    : {}
+  const lineEntities =
+    showEntities && shownText?.entities
+      ? entitiesByLine(shownText.text, lines, shownText.entities)
+      : {}
   const hovered = hover !== null && hover.pageId === selectedId ? hover : null
   const openedIndex = opened !== null && opened.pageId === selectedId ? opened.index : null
   const focused = focus !== null && focus.pageId === selectedId ? focus : null
@@ -745,33 +705,20 @@ export default function DocumentOverviewPage() {
                 )}
               </section>
               <section className={`${panelClass} p-5`}>
-                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
-                  {t('documents.transcription')}
-                </h2>
-                {shownText && shownText.text !== '' && (
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-[#71717a]">
-                    {entityState?.loading ? (
-                      <span>{t('documents.entities.loading')}</span>
-                    ) : entityState?.failed ? (
-                      <span className="text-[#dc2626]">{t('documents.entities.failed')}</span>
-                    ) : (
-                      <>
-                        <span>
-                          <i className="mr-1 inline-block size-2 rounded-full bg-[#60a5fa]" />
-                          {t('documents.entities.person')}
-                        </span>
-                        <span>
-                          <i className="mr-1 inline-block size-2 rounded-full bg-[#fbbf24]" />
-                          {t('documents.entities.date')}
-                        </span>
-                        <span>
-                          <i className="mr-1 inline-block size-2 rounded-full bg-[#4ade80]" />
-                          {t('documents.entities.location')}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                )}
+                <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <h2 className="m-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+                    {t('documents.transcription')}
+                  </h2>
+                  {shownText?.entities && shownText.text !== '' && (
+                    <EntitiesToggle
+                      checked={showEntities}
+                      onChange={(next) => {
+                        setShowEntities(next)
+                        localStorage.setItem(SHOW_ENTITIES_KEY, String(next))
+                      }}
+                    />
+                  )}
+                </div>
                 {hasBoxes && (
                   <div className="mt-3">
                     <LineSource src={imageSrc} size={imageSize} line={activeLine} />

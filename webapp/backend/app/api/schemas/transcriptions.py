@@ -1,7 +1,7 @@
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel
 
 
 class TranscriptionResponse(BaseModel):
@@ -25,10 +25,16 @@ class TranscriptionLine(BaseModel):
     words: list[TranscriptionWord] = []
 
 
-class PageTranscriptionRead(BaseModel):
-    # Lu directement depuis l'objet PageTranscription de la base.
-    model_config = ConfigDict(from_attributes=True)
+class RecognizedEntity(BaseModel):
+    text: str
+    label: Literal["person", "date", "location"]
+    # Positions dans le texte complet de la transcription.
+    start: int
+    end: int
+    score: float
 
+
+class PageTranscriptionRead(BaseModel):
     page_id: UUID
     text: str | None
     # None pour les anciennes transcriptions (texte seul), à refaire.
@@ -36,20 +42,5 @@ class PageTranscriptionRead(BaseModel):
     # Taille de l'image vue par le modèle, None pour les anciennes transcriptions.
     image_width: int | None
     image_height: int | None
-
-
-class EntityRecognitionRequest(BaseModel):
-    text: str = Field(min_length=1, max_length=100_000)
-    threshold: float = Field(default=0.5, ge=0, le=1)
-
-
-class RecognizedEntity(BaseModel):
-    text: str
-    label: Literal["person", "date", "location"]
-    start: int
-    end: int
-    score: float
-
-
-class EntityRecognitionResponse(BaseModel):
-    entities: list[RecognizedEntity]
+    # None tant que les entités n'ont pas été cherchées (ou si cela a échoué).
+    entities: list[RecognizedEntity] | None
