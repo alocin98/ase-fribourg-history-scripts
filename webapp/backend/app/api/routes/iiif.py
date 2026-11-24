@@ -7,7 +7,7 @@ from fastapi.responses import Response
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.iiif import transform_image
-from app.api.dependencies.services import DocumentServiceDep
+from app.api.dependencies.injection import DocumentServiceDep
 from app.api.schemas.iiif import InfoResponse
 from app.infrastructure.storage.s3 import download_file_to_path
 from app.models.user import User

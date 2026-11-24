@@ -27,3 +27,9 @@ class PageRead(BaseModel):
 
 class DocumentUploadResponse(BaseModel):
     id: UUID
+
+
+class DocumentSearchResult(BaseModel):
+    page_id: UUID
+    page_number: int
+    text_excerpt: str
