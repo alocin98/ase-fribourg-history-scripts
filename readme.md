@@ -45,6 +45,9 @@ The code is organized as follows:
   |- ml-backend: code for the deployed ml backend
 ```
 
+## ML Models
+An overview of the used ML Models can be seen here: [Leaderboard](./ml-models/reports/leaderboard.md)
+
 
 ## Further reading
 
