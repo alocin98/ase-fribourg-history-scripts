@@ -1,10 +1,25 @@
+from datetime import datetime
+from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey, Index, String
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    String,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
+
+
+class DocumentShareRole(StrEnum):
+    VIEWER = "viewer"
+    EDITOR = "editor"
 
 
 class Document(Base):
@@ -44,3 +59,39 @@ class Page(Base):
     mime_type: Mapped[str] = mapped_column(String(100))
     page_number: Mapped[int]
     image_key: Mapped[str] = mapped_column(String(500))
+
+
+class DocumentShare(Base):
+    __tablename__ = "document_shares"
+    __table_args__ = (
+        CheckConstraint(
+            "role IN ('viewer', 'editor')",
+            name="ck_document_shares_role",
+        ),
+        Index("ix_document_shares_user_id_document_id", "user_id", "document_id"),
+    )
+
+    document_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("documents.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    role: Mapped[DocumentShareRole] = mapped_column(
+        Enum(
+            DocumentShareRole,
+            name="document_share_role",
+            native_enum=False,
+            length=20,
+        ),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
