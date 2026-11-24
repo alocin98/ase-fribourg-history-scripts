@@ -6,10 +6,11 @@ reports also compare the models on the pages that none of the checked models has
 
 Checked on 2026-11-23 (scripts and downloads of that check are not kept):
 
-- `ppocrv6`: the dataset list of the model card (zenodo 21788410). It names the whole
-  repositories of the sources below, and its test split is a random 5 % of lines, so
-  the pages we test on are in its training data. `enhg_lit463` is in it as the
-  graphemic version of the same pages (zenodo 18441031).
+- `ppocrv6` (and `ppocrv6-ft`, fine-tuned on our train split): the dataset list of the
+  model card (zenodo 21788410). It names the whole repositories of the sources below,
+  and its test split is a random 5 % of lines, so the pages we test on are in its
+  training data. `enhg_lit463` is in it as the graphemic version of the same pages
+  (zenodo 18441031).
 - `medusa-9b`: the dataset tables of the MEDUSA 0.1 and 0.2 model cards. Our medieval
   French manuscripts are all in CATMuS Medieval (line texts matched page by page;
   MEDUSA's CMMHWR training set has as many lines as all CATMuS Romance and Latin lines,
@@ -67,6 +68,8 @@ SEEN_SOURCES = {
     },
 }
 SEEN_SOURCES["churro-3b"] = {"valais_de", "valais_fr"}
+# Fine-tuned on our train split, which shares no document with the test split.
+SEEN_SOURCES["ppocrv6-ft"] = SEEN_SOURCES["ppocrv6"]
 SEEN_PAGES = {
     "churro-3b": set(_PAGES["churro-3b"]),
     "mccatmus": set(_PAGES["mccatmus"]),
@@ -87,7 +90,8 @@ def checked(system: str) -> bool:
 
 def times_seen(page) -> int:
     """How many of the checked models were trained on `page`."""
-    systems = (SEEN_SOURCES.keys() | SEEN_PAGES.keys()) - {"lid-mccatmus"}  # = mccatmus
+    # The same models under another name: lid-mccatmus = mccatmus, ppocrv6-ft = ppocrv6.
+    systems = (SEEN_SOURCES.keys() | SEEN_PAGES.keys()) - {"lid-mccatmus", "ppocrv6-ft"}
     return sum(seen(system, page) for system in systems)
 
 

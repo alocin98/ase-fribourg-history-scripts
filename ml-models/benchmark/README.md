@@ -7,8 +7,8 @@ recognition comes later, once we have ground truth for it.
 
 - **Page sets**: two frozen lists of test pages, `quick` (30 pages, for development) and
   `full` (315 pages), in `subsets/`.
-- **Candidates**: the models we work on (TrOCR, McCATMuS, PP-OCRv6, MEDUSA, later our
-  fine-tuned models).
+- **Candidates**: the models we work on (TrOCR, McCATMuS, PP-OCRv6, MEDUSA, and our
+  fine-tuned PP-OCRv6).
   Their raw output goes to `runs/` (not committed), their report to `../reports/`.
 - **Baselines**: two vision-language models we don't tune (Qwen3.5-9B, CHURRO). They are
   run once per page set, stored in `baselines/` and shown in every report as the target.
@@ -50,7 +50,7 @@ To add a candidate, write a class with `task` (`"htr"` or `"lid"`), `info` and
 `webapp/ml-backend/readme.md`), the MLX models need transformers 5, and PP-OCRv6 needs
 kraken 7, whose safetensors pin conflicts with transformers 5. `.venv-trocr` runs
 `trocr`, `mccatmus`, `lid-mccatmus`, the reports and the checks, `.venv-vlm` runs the
-baselines and `medusa-9b` (Apple Silicon only), `.venv-kraken7` runs `ppocrv6`. `make
+baselines and `medusa-9b` (Apple Silicon only), `.venv-kraken7` runs `ppocrv6` and `ppocrv6-ft`. `make
 run` picks the right one.
 
 ## Page sets
@@ -89,6 +89,7 @@ each other.
 | `trocr`        | The current ML backend (`webapp/ml-backend/app/pipeline.py`): Kraken BLLA + `trocr-small-handwritten`.    |
 | `mccatmus`     | Kraken BLLA + [McCATMuS](https://doi.org/10.5281/zenodo.13788177), multilingual, 16th–21st century. Downloaded to `../models/mccatmus/` on first use. |
 | `ppocrv6`      | Kraken 7 BLLA + [PP-OCRv6 medium](https://doi.org/10.5281/zenodo.21788410), pretrained on ~6.2M lines in 37 languages. Downloaded to `../models/ppocrv6/` on first use. |
+| `ppocrv6-ft`   | The same pipeline with PP-OCRv6 medium fine-tuned on our train split (`../finetune/ppocrv6/`, writes `../models/ppocrv6/finetuned.safetensors`). |
 | `medusa-9b`    | [MEDUSA 0.2 9B](https://huggingface.co/ENC-PSL/Medusa0.2Line-9B) (8-bit MLX), a VLM for single medieval lines, on the lines of the latest `ppocrv6` run. |
 | `lid-mccatmus` | Language detection, approach A (see below).                                                                |
 | `qwen3.5-9b`   | Baseline: `mlx-community/Qwen3.5-9B-8bit`, whole page in, text out.                                        |

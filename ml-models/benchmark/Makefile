@@ -8,6 +8,7 @@ SET ?= quick
 
 # The environment of each system; the others run in .venv-trocr.
 PY_ppocrv6 := $(KRAKEN7)
+PY_ppocrv6-ft := $(KRAKEN7)
 PY_medusa-9b := $(VLM)
 PYTHON = $(or $(PY_$(SYSTEM)),$(TROCR))
 

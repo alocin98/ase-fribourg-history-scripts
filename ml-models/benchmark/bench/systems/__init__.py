@@ -43,6 +43,11 @@ SYSTEMS = {
     "mccatmus": System("McCATMuS", "mccatmus.McCATMuS"),
     "lid-mccatmus": System("Language detection A", "mccatmus.McCATMuS", {"max_lines": 10}),
     "ppocrv6": System("PP-OCRv6 medium", "ppocrv6.PPOCRv6"),
+    "ppocrv6-ft": System(
+        "PP-OCRv6 medium fine-tuned",
+        "ppocrv6.PPOCRv6",
+        {"model": "ppocrv6/finetuned.safetensors"},
+    ),
     "medusa-9b": System("MEDUSA 0.2 9B", "medusa.Medusa"),
     "qwen3.5-9b": System("Qwen3.5-9B", "vlm.VLM", {"preset": "qwen3.5-9b"}, True),
     "churro-3b": System("CHURRO 3B", "vlm.VLM", {"preset": "churro-3b"}, True),

@@ -3,6 +3,9 @@ recognizer pretrained on ~6.2M lines in 37 languages. Needs kraken >= 7.1, so it
 .venv-kraken7.
 
 The run also stores each line's polygon, so `medusa` can read exactly the same lines.
+
+`ppocrv6-ft` runs the same pipeline with our fine-tuned weights
+(`ml-models/finetune/ppocrv6`), which are not downloaded but trained.
 """
 
 import os
@@ -21,11 +24,14 @@ MODEL_PATH = MODELS_DIR / "ppocrv6" / "medium.safetensors"
 class PPOCRv6:
     task = "htr"
 
-    def __init__(self):
+    def __init__(self, model: str | None = None):
         from kraken.configs import RecognitionInferenceConfig, SegmentationInferenceConfig
         from kraken.tasks import RecognitionTaskModel, SegmentationTaskModel
 
-        if not MODEL_PATH.exists():
+        model_path = MODELS_DIR / model if model else MODEL_PATH
+        if model and not model_path.exists():
+            raise SystemExit(f"{model_path} is missing: see ml-models/finetune/ppocrv6/README.md")
+        if not model_path.exists():
             print(f"Downloading PP-OCRv6 medium to {MODEL_PATH}")
             MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
             partial = MODEL_PATH.with_suffix(".part")
@@ -40,10 +46,14 @@ class PPOCRv6:
             accelerator="cpu", num_threads=threads, num_line_workers=0
         )
         self.seg_model = SegmentationTaskModel.load_model()  # kraken's default BLLA model
-        self.rec_model = RecognitionTaskModel.load_model(MODEL_PATH)
+        self.rec_model = RecognitionTaskModel.load_model(model_path)
         self.info = {
             "segmentation": f"kraken-blla (default, kraken {version('kraken')})",
-            "recognition": f"PP-OCRv6 medium ({MODEL_PATH.name}, zenodo 21788410)",
+            "recognition": (
+                f"PP-OCRv6 medium fine-tuned on our train split ({model})"
+                if model
+                else f"PP-OCRv6 medium ({MODEL_PATH.name}, zenodo 21788410)"
+            ),
             "device": "cpu",
             "decoder": "greedy CTC",
         }

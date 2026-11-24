@@ -17,6 +17,12 @@ read by PP-OCRv6.
   medieval French sets, ...). Only 6 of the 30 `quick` pages are new to it. See
   `../../benchmark/bench/overlap.py`.
 
+## Fine-tuned
+
+`finetuned.safetensors` in this folder is our fine-tune on the train split, made by
+`../../finetune/ppocrv6/run.sh` (benchmark system `ppocrv6-ft`). See
+[its README](../../finetune/ppocrv6/README.md).
+
 ## Download
 
 The benchmark downloads the model into this folder the first time it is used. To

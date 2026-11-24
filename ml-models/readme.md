@@ -7,3 +7,5 @@ Here, we are posting our ML experiments.
   [benchmark/README.md](benchmark/README.md).
 - `reports/`: the benchmark reports and the [leaderboard](reports/leaderboard.md).
 - `models/`: one folder per model, with where to download it. Weights are not committed.
+- `finetune/`: training our own versions of these models. PP-OCRv6 is fine-tuned in one
+  command on a GPU machine, see [finetune/ppocrv6/README.md](finetune/ppocrv6/README.md).

@@ -1,0 +1,3 @@
+# Kraken 7 with PP-OCRv6, the same as the benchmark, plus the training logger.
+-r ../../benchmark/requirements-kraken7.txt
+tensorboard==2.21.0
