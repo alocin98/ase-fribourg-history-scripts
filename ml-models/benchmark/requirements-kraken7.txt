@@ -1,0 +1,3 @@
+# PP-OCRv6 needs kraken >= 7.1, which pins torch 2.9+ and conflicts with both other venvs.
+-r requirements.txt
+kraken==7.2

@@ -15,12 +15,33 @@ DATA_DIR = REPO_ROOT / "data" / "manuscripts"
 SETS_DIR = BENCH_DIR / "subsets"
 
 SETS = {
-    "quick": "5 pages per language/era group, for development",
-    "full": "the whole test split without the census pages",
+    "quick": "5 pages per language/era group, those the fewest models were trained on",
+    "full": "the whole test split without pages whose transcription leaves out text",
 }
-# Printed census forms where only the handwritten entries are transcribed: reading the
-# printed text would count as errors.
-EXCLUDED_SOURCES = {"valais_de", "valais_fr"}
+# Pages with printed or stamped text that the human transcription leaves out: a model
+# that reads it gets every word counted as an error. Checked by eye on 2026-11-23.
+# - Valais census: printed forms, only the handwritten entries are transcribed.
+# - Poilus wills: every test page has court and registration stamps and notes
+#   ("Enregistré à Paris ...") that are not transcribed, only the will itself.
+EXCLUDED_SOURCES = {"valais_de", "valais_fr", "poilus_testaments"}
+# - Denver JCRS: only the handwriting is transcribed; these pages also have a printed
+#   letterhead, stamp or form (a telegram, a receipt).
+EXCLUDED_PAGES = {
+    "denver_jcrs__page_B002_01_0104_0144_007__0af3b3",
+    "denver_jcrs__page_B002_01_0105_0060_005__36aef3",
+    "denver_jcrs__page_B002_01_0105_0135_021__0da96a",
+    "denver_jcrs__page_B002_01_0105_0148_007__8be149",
+    "denver_jcrs__page_B002_01_0107_0030_026__302938",
+    "denver_jcrs__page_B002_01_0108_0024_003__685c42",
+    "denver_jcrs__page_B002_01_0108_0048_004__d2726f",
+    "denver_jcrs__page_B002_01_0108_0132_002__84c20f",
+    "denver_jcrs__page_B002_01_0113_0158_001__08db5b",
+    "denver_jcrs__page_B002_01_0117_0147_007__cb0b2f",
+}
+
+
+def excluded(page) -> bool:
+    return page.source in EXCLUDED_SOURCES or page.page_id in EXCLUDED_PAGES
 
 
 @dataclass(frozen=True)
@@ -50,11 +71,22 @@ class Page:
 
 
 def load_pages(split: str = "test") -> list[Page]:
+    """The pages of the v1 release (metadata.csv) and the pages that data/add_sources.py
+    adds (metadata_added.csv)."""
     metadata = DATA_DIR / "metadata.csv"
     if not metadata.exists():
         raise SystemExit(f"{metadata} not found, run ./data/download_manuscripts.sh {split}")
-    with metadata.open(encoding="utf-8") as f:
-        rows = [row for row in csv.DictReader(f) if row["split"] == split]
+    rows = []
+    for path in (metadata, DATA_DIR / "metadata_added.csv"):
+        if path.exists():
+            with path.open(encoding="utf-8") as f:
+                rows += [row for row in csv.DictReader(f) if row["split"] == split]
+    missing = [row["image"] for row in rows if not (DATA_DIR / row["image"]).exists()]
+    if missing:
+        raise SystemExit(
+            f"{len(missing)} page images missing (e.g. {missing[0]}): run "
+            f"./data/download_manuscripts.sh {split}, then uv run data/add_sources.py"
+        )
     pages = [
         Page(
             row["page_id"],
@@ -81,21 +113,31 @@ def select(pages: list[Page], set_name: str, limit: int | None = None) -> list[P
     return [by_id[page_id] for page_id in read_set(set_name)][:limit]
 
 
-def make_sets(pages: list[Page], per_group: int = 5, seed: int = 42) -> dict:
-    """`quick` takes pages from different documents where a group has enough of them."""
-    full = [p for p in pages if p.source not in EXCLUDED_SOURCES]
+def make_sets(pages: list[Page], per_group: int = 5, seed: int = 42, seen_by=None) -> dict:
+    """`quick` takes the pages that the fewest benchmarked models were trained on
+    (`seen_by(page)`, see overlap.py), and among those pages from different documents
+    where a group has enough of them."""
+    if seen_by is None:
+        from .overlap import times_seen as seen_by
+    full = [p for p in pages if not excluded(p)]
     quick = []
     for group in sorted({p.group for p in full}):
         rng = random.Random(f"{seed}-{group}")
         in_group = [p for p in full if p.group == group]
-        first_pages = {}
-        for page in in_group:
-            first_pages.setdefault(page.doc_id, page)
-        firsts = [first_pages[doc] for doc in sorted(first_pages)]
-        rest = [p for p in in_group if p not in firsts]
-        rng.shuffle(firsts)
-        rng.shuffle(rest)
-        quick += (firsts + rest)[:per_group]
+        chosen = []
+        for level in sorted({seen_by(p) for p in in_group}):
+            candidates = [p for p in in_group if seen_by(p) == level]
+            first_pages = {}
+            for page in candidates:
+                first_pages.setdefault(page.doc_id, page)
+            firsts = [first_pages[doc] for doc in sorted(first_pages)]
+            rest = [p for p in candidates if p not in firsts]
+            rng.shuffle(firsts)
+            rng.shuffle(rest)
+            chosen += (firsts + rest)[: per_group - len(chosen)]
+            if len(chosen) == per_group:
+                break
+        quick += chosen
     return {"quick": sorted(quick, key=lambda p: p.page_id), "full": full}
 
 

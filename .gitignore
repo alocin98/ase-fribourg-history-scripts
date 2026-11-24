@@ -4,6 +4,7 @@ data/manuscripts/train/
 data/manuscripts/test/
 __pycache__/
 data/manuscripts/_release/
+data/manuscripts/_sources/
 *.pyc
 webapp/backend/storage/
 .env
