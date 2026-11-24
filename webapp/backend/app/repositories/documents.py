@@ -1,9 +1,15 @@
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.documents import Document, Page
+from app.models.documents import (
+    Document,
+    DocumentAccessRole,
+    DocumentShare,
+    DocumentShareRole,
+    Page,
+)
 from app.models.transcriptions import PageTranscription
 
 
@@ -50,27 +56,65 @@ class DocumentRepository:
     async def get_all(self, owner_id: UUID) -> list[Document]:
         result = await self.session.scalars(
             select(Document)
-            .where(Document.owner_id == owner_id)
+            .where(
+                (Document.owner_id == owner_id)
+                | exists().where(
+                    (DocumentShare.document_id == Document.id)
+                    & (DocumentShare.user_id == owner_id)
+                )
+            )
             .order_by(Document.id.desc())
         )
         return list(result.all())
 
+    async def get_access_role(
+        self,
+        document_id: UUID,
+        user_id: UUID,
+    ) -> DocumentAccessRole | None:
+        document_owner_id = await self.session.scalar(
+            select(Document.owner_id).where(Document.id == document_id)
+        )
+        if document_owner_id == user_id:
+            return DocumentAccessRole.OWNER
+
+        share_role = await self.session.scalar(
+            select(DocumentShare.role).where(
+                DocumentShare.document_id == document_id,
+                DocumentShare.user_id == user_id,
+            )
+        )
+        if share_role == DocumentShareRole.EDITOR:
+            return DocumentAccessRole.EDITOR
+        if share_role == DocumentShareRole.VIEWER:
+            return DocumentAccessRole.VIEWER
+        return None
+
+    async def document_exists(self, document_id: UUID) -> bool:
+        return await self.session.scalar(
+            select(Document.id).where(Document.id == document_id)
+        ) is not None
+
     async def get_document_by_id(
         self,
         document_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
     ) -> Document | None:
         return await self.session.scalar(
             select(Document).where(
                 Document.id == document_id,
-                Document.owner_id == owner_id,
+                (Document.owner_id == user_id)
+                | exists().where(
+                    (DocumentShare.document_id == Document.id)
+                    & (DocumentShare.user_id == user_id)
+                ),
             )
         )
 
     async def get_pages(
         self,
         document_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
         after_page_number: int | None,
         limit: int,
     ) -> tuple[list[Page], bool]:
@@ -82,7 +126,11 @@ class DocumentRepository:
             .outerjoin(Page, page_join)
             .where(
                 Document.id == document_id,
-                Document.owner_id == owner_id,
+                (Document.owner_id == user_id)
+                | exists().where(
+                    (DocumentShare.document_id == Document.id)
+                    & (DocumentShare.user_id == user_id)
+                ),
             )
             .order_by(Page.page_number)
         )
@@ -94,14 +142,18 @@ class DocumentRepository:
     async def get_all_pages_by_document_id(
         self,
         document_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
     ) -> list[Page]:
         result = await self.session.scalars(
             select(Page)
             .join(Document)
             .where(
                 Page.document_id == document_id,
-                Document.owner_id == owner_id,
+                (Document.owner_id == user_id)
+                | exists().where(
+                    (DocumentShare.document_id == Document.id)
+                    & (DocumentShare.user_id == user_id)
+                ),
             )
             .order_by(Page.page_number)
         )
@@ -110,10 +162,17 @@ class DocumentRepository:
     async def get_page_by_id(
         self,
         page_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
         document_id: UUID | None = None,
     ) -> Page | None:
-        conditions = [Page.id == page_id, Document.owner_id == owner_id]
+        conditions = [
+            Page.id == page_id,
+            (Document.owner_id == user_id)
+            | exists().where(
+                (DocumentShare.document_id == Document.id)
+                & (DocumentShare.user_id == user_id)
+            ),
+        ]
         if document_id is not None:
             conditions.append(Page.document_id == document_id)
         return await self.session.scalar(select(Page).join(Document).where(*conditions))
@@ -121,7 +180,7 @@ class DocumentRepository:
     async def search_in_document(
         self,
         document_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
         query: str,
     ) -> list[tuple[Page, PageTranscription]]:
         result = await self.session.execute(
@@ -130,7 +189,11 @@ class DocumentRepository:
             .join(PageTranscription, PageTranscription.page_id == Page.id)
             .where(
                 Page.document_id == document_id,
-                Document.owner_id == owner_id,
+                (Document.owner_id == user_id)
+                | exists().where(
+                    (DocumentShare.document_id == Document.id)
+                    & (DocumentShare.user_id == user_id)
+                ),
                 PageTranscription.text.ilike(f"%{query}%"),
             )
             .order_by(Page.page_number)
@@ -157,6 +220,52 @@ class DocumentRepository:
             delete(Document).where(Document.owner_id == owner_id)
         )
         return stored
+
+    async def list_shares(self, document_id: UUID) -> list[DocumentShare]:
+        result = await self.session.scalars(
+            select(DocumentShare)
+            .where(DocumentShare.document_id == document_id)
+            .order_by(DocumentShare.created_at)
+        )
+        return list(result.all())
+
+    async def set_share(
+        self,
+        document_id: UUID,
+        user_id: UUID,
+        role: DocumentShareRole,
+    ) -> DocumentShare:
+        share = await self.session.scalar(
+            select(DocumentShare).where(
+                DocumentShare.document_id == document_id,
+                DocumentShare.user_id == user_id,
+            )
+        )
+        if share is None:
+            share = DocumentShare(
+                document_id=document_id,
+                user_id=user_id,
+                role=role,
+            )
+            self.session.add(share)
+            await self.session.flush()
+        else:
+            share.role = role
+            await self.session.flush()
+        return share
+
+    async def delete_share(self, document_id: UUID, user_id: UUID) -> bool:
+        share = await self.session.scalar(
+            select(DocumentShare).where(
+                DocumentShare.document_id == document_id,
+                DocumentShare.user_id == user_id,
+            )
+        )
+        if share is None:
+            return False
+        await self.session.delete(share)
+        await self.session.flush()
+        return True
 
     async def commit(self):
         await self.session.commit()

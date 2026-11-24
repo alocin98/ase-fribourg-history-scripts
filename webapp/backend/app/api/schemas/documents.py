@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -33,3 +35,21 @@ class DocumentSearchResult(BaseModel):
     page_id: UUID
     page_number: int
     text_excerpt: str
+
+
+class DocumentShareCreate(BaseModel):
+    email: str
+    role: Literal["viewer", "editor"]
+
+
+class DocumentShareUpdate(BaseModel):
+    role: Literal["viewer", "editor"]
+
+
+class DocumentShareRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    document_id: UUID
+    user_id: UUID
+    role: str
+    created_at: datetime

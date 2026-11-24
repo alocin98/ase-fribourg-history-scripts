@@ -32,6 +32,9 @@ class UserService:
     async def get(self, user_id: UUID) -> User | None:
         return await self.repository.get_by_id(user_id)
 
+    async def get_by_email(self, email: str) -> User | None:
+        return await self.repository.get_by_email(email)
+
     async def update(
         self,
         user: User,

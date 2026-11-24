@@ -21,6 +21,7 @@ from app.api.dependencies.csrf import csrf_header
 from app.api.dependencies.injection import (
     DocumentServiceDep,
     TranscriptionServiceDep,
+    UserServiceDep,
 )
 from app.api.dependencies.pdf import build_document_pdf
 from app.api.dependencies.zip_files import extract_and_upload_pages
@@ -28,9 +29,13 @@ from app.api.schemas.documents import (
     DocumentCreate,
     DocumentRead,
     DocumentSearchResult,
+    DocumentShareCreate,
+    DocumentShareRead,
+    DocumentShareUpdate,
     DocumentUploadResponse,
     PageRead,
 )
+from app.models.documents import DocumentAccessRole, DocumentShareRole
 from app.api.schemas.transcriptions import PageTranscriptionRead
 from app.infrastructure.database.session import get_db
 from app.infrastructure.storage.s3 import (
@@ -38,8 +43,39 @@ from app.infrastructure.storage.s3 import (
     download_file,
 )
 from app.models.user import User
+from app.services.documents import DocumentService
 
 router = APIRouter(prefix="/documents", tags=["documents"])
+
+
+async def require_document_access(
+    service: DocumentService,
+    document_id: UUID,
+    user_id: UUID,
+    minimum_role: DocumentAccessRole | None = None,
+) -> DocumentAccessRole:
+    if not await service.document_exists(document_id):
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    role = await service.get_access_role(document_id, user_id)
+    if role is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this document",
+        )
+
+    if minimum_role is not None:
+        rank = {
+            DocumentAccessRole.VIEWER: 1,
+            DocumentAccessRole.EDITOR: 2,
+            DocumentAccessRole.OWNER: 3,
+        }
+        if rank[role] < rank[minimum_role]:
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have the required document role",
+            )
+    return role
 
 
 @router.post(
@@ -82,9 +118,19 @@ async def upload_files_to_document(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> DocumentUploadResponse:
-    document = await service.get_owned(document_id, current_user.id)
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.EDITOR,
+    )
+    document = await service.require_access(
+        document_id,
+        current_user.id,
+        DocumentAccessRole.EDITOR,
+    )
     if document is None:
-        raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(status_code=403, detail="Editor access required")
 
     try:
         pages = await extract_and_upload_pages(file, document_id)
@@ -116,8 +162,18 @@ async def delete_document(
     service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
 ) -> None:
-    if not await service.delete(document_id, current_user.id):
+    if not await service.document_exists(document_id):
         raise HTTPException(status_code=404, detail="Document not found")
+    role = await service.get_access_role(document_id, current_user.id)
+    if role is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this document",
+        )
+    if role != DocumentAccessRole.OWNER:
+        raise HTTPException(status_code=403, detail="Owner access required")
+    if not await service.delete(document_id, current_user.id):
+        raise HTTPException(status_code=403, detail="Owner access required")
     await delete_prefix(f"{document_id}/")
 
 
@@ -137,6 +193,126 @@ async def list_user_documents(
 
 
 @router.get(
+    "/{document_id}/shares",
+    response_model=list[DocumentShareRead],
+    dependencies=[Security(csrf_header)],
+)
+async def list_document_shares(
+    document_id: UUID,
+    service: DocumentServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.OWNER,
+    )
+    return await service.list_shares(document_id)
+
+
+@router.post(
+    "/{document_id}/shares",
+    response_model=DocumentShareRead,
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_document_share(
+    document_id: UUID,
+    data: DocumentShareCreate,
+    service: DocumentServiceDep,
+    user_service: UserServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.OWNER,
+    )
+    target = await user_service.get_by_email(data.email)
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot share document with yourself")
+    share_role = DocumentShareRole(data.role)
+    return await service.set_share(document_id, target.id, share_role)
+
+
+@router.patch(
+    "/{document_id}/shares/{user_id}",
+    response_model=DocumentShareRead,
+    dependencies=[Security(csrf_header)],
+)
+async def update_document_share(
+    document_id: UUID,
+    user_id: UUID,
+    data: DocumentShareUpdate,
+    service: DocumentServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.OWNER,
+    )
+    shares = await service.list_shares(document_id)
+    if not any(share.user_id == user_id for share in shares):
+        raise HTTPException(status_code=404, detail="Share not found")
+    return await service.set_share(
+        document_id,
+        user_id,
+        DocumentShareRole(data.role),
+    )
+
+
+@router.delete(
+    "/{document_id}/shares/me",
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def revoke_own_document_share(
+    document_id: UUID,
+    service: DocumentServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    if not await service.document_exists(document_id):
+        raise HTTPException(status_code=404, detail="Document not found")
+    role = await service.get_access_role(document_id, current_user.id)
+    if role in (None, DocumentAccessRole.OWNER):
+        if role is None:
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this document",
+            )
+        raise HTTPException(status_code=404, detail="Share not found")
+    if not await service.delete_share(document_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Share not found")
+
+
+@router.delete(
+    "/{document_id}/shares/{user_id}",
+    dependencies=[Security(csrf_header)],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_document_share(
+    document_id: UUID,
+    user_id: UUID,
+    service: DocumentServiceDep,
+    current_user: User = Depends(get_current_user),
+):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.OWNER,
+    )
+    if not await service.delete_share(document_id, user_id):
+        raise HTTPException(status_code=404, detail="Share not found")
+
+
+@router.get(
     "/{document_id}/pages",
     response_model=list[PageRead],
     dependencies=[Security(csrf_header)],
@@ -153,9 +329,15 @@ async def list_document_pages(
     current_user: User = Depends(get_current_user),
 ):
     after_page_number: int | None = (page - 1) * page_size if page > 1 else None
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.VIEWER,
+    )
     pages, document_exists = await service.list_pages(
         document_id=document_id,
-        owner_id=current_user.id,
+        user_id=current_user.id,
         after_page_number=after_page_number,
         limit=page_size,
     )
@@ -189,10 +371,16 @@ async def get_document_page(
     service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
 ):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.VIEWER,
+    )
     page = await service.get_owned_page(
         document_id=document_id,
         page_id=page_id,
-        owner_id=current_user.id,
+        user_id=current_user.id,
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
@@ -219,8 +407,14 @@ async def get_page_transcription(
     transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
 ):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.VIEWER,
+    )
     page = await service.get_owned_page(
-        document_id=document_id, page_id=page_id, owner_id=current_user.id
+        document_id=document_id, page_id=page_id, user_id=current_user.id
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
@@ -243,13 +437,23 @@ async def download_document(
     transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
 ):
-    document = await service.get_owned(document_id, current_user.id)
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.VIEWER,
+    )
+    document = await service.require_access(
+        document_id,
+        current_user.id,
+        DocumentAccessRole.VIEWER,
+    )
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
     pages = await transcription_service.get_document_pages(
         document_id=document_id,
-        owner_id=current_user.id,
+        user_id=current_user.id,
     )
     if not pages:
         raise HTTPException(status_code=404, detail="Document has no pages")
@@ -287,5 +491,11 @@ async def search_document_transcriptions(
     term: str = Query(..., min_length=3),
     current_user: User = Depends(get_current_user),
 ):
+    await require_document_access(
+        service,
+        document_id,
+        current_user.id,
+        DocumentAccessRole.VIEWER,
+    )
     results = await service.search_in_document(document_id, current_user.id, term)
     return results

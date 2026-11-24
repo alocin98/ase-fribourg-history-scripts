@@ -22,6 +22,12 @@ class DocumentShareRole(StrEnum):
     EDITOR = "editor"
 
 
+class DocumentAccessRole(StrEnum):
+    OWNER = "owner"
+    EDITOR = "editor"
+    VIEWER = "viewer"
+
+
 class Document(Base):
     __tablename__ = "documents"
     __table_args__ = (Index("ix_documents_owner_id_id", "owner_id", "id"),)
@@ -87,6 +93,7 @@ class DocumentShare(Base):
             name="document_share_role",
             native_enum=False,
             length=20,
+            values_callable=lambda roles: [role.value for role in roles],
         ),
         nullable=False,
     )

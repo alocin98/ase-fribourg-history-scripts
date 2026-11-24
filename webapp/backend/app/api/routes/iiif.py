@@ -21,13 +21,19 @@ async def get_owned_page(
     current_user: User,
     service: DocumentService,
 ):
+    page_record = await service.get_page_by_id_unrestricted(page_id)
+    if page_record is None:
+        raise HTTPException(status_code=404, detail="Page not found")
     page = await service.get_owned_page_by_id(
         page_id=page_id,
-        owner_id=current_user.id,
+        user_id=current_user.id,
     )
 
     if page is None:
-        raise HTTPException(status_code=404, detail="Page not found")
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this document",
+        )
 
     return page
 
