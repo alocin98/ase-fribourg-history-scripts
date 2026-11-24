@@ -35,13 +35,13 @@ from app.api.schemas.documents import (
     DocumentUploadResponse,
     PageRead,
 )
-from app.models.documents import DocumentAccessRole, DocumentShareRole
 from app.api.schemas.transcriptions import PageTranscriptionRead
 from app.infrastructure.database.session import get_db
 from app.infrastructure.storage.s3 import (
     delete_prefix,
     download_file,
 )
+from app.models.documents import DocumentAccessRole, DocumentShareRole
 from app.models.user import User
 from app.services.documents import DocumentService
 
@@ -234,7 +234,9 @@ async def create_document_share(
     if target is None:
         raise HTTPException(status_code=404, detail="User not found")
     if target.id == current_user.id:
-        raise HTTPException(status_code=400, detail="Cannot share document with yourself")
+        raise HTTPException(
+            status_code=400, detail="Cannot share document with yourself"
+        )
     share_role = DocumentShareRole(data.role)
     return await service.set_share(document_id, target.id, share_role)
 

@@ -91,9 +91,12 @@ class DocumentRepository:
         return None
 
     async def document_exists(self, document_id: UUID) -> bool:
-        return await self.session.scalar(
-            select(Document.id).where(Document.id == document_id)
-        ) is not None
+        return (
+            await self.session.scalar(
+                select(Document.id).where(Document.id == document_id)
+            )
+            is not None
+        )
 
     async def get_document_by_id(
         self,

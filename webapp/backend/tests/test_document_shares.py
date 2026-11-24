@@ -38,5 +38,3 @@ async def test_require_document_access_roles(role, minimum_role, allowed):
 
 def test_document_share_roles_are_restricted():
     assert {role.value for role in DocumentShareRole} == {"viewer", "editor"}
-
-
