@@ -1,7 +1,5 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.security import get_password_hash
 from app.models.user import User
 from app.repositories.user import UserRepository
@@ -14,13 +12,9 @@ class UserAlreadyExistsError(Exception):
 class UserService:
     def __init__(
         self,
-        session: AsyncSession,
-        repository: UserRepository | None = None,
+        repository: UserRepository,
     ):
-        self.session = session
-        self.repository = (
-            repository if repository is not None else UserRepository(session)
-        )
+        self.repository = repository
 
     async def create(self, *, email: str, name: str, password: str) -> User:
         if await self.repository.get_by_email(email) is not None:

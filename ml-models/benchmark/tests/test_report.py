@@ -1,6 +1,6 @@
 from bench.dataset import Page
 from bench.report import period, score_page
-from bench.systems.vlm import output_tag_text, xml_text
+from bench.systems.vlm import loop_start, output_tag_text, xml_text
 
 PAGE_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15">
@@ -68,3 +68,36 @@ def test_churro_metadata_is_not_transcription():
         "</Body></Page></HistoricalDocument>"
     )
     assert xml_text(raw) == "443.\nVon der"
+
+
+def test_loop_start_keeps_one_copy_of_the_repeated_unit():
+    text = list(range(50))
+    line = [100, 101, 102]
+    assert loop_start(text + line * 200) == len(text) + len(line)
+    assert loop_start(text + [7] * 300) == len(text) + 1
+    assert loop_start(list(range(500))) is None
+
+
+def test_leaderboard_keeps_the_remarks(tmp_path, monkeypatch):
+    import bench.report as report
+
+    monkeypatch.setattr(report, "REPORTS_DIR", tmp_path)
+    monkeypatch.setattr(report, "load_baselines", lambda set_name, pages: [])
+    remarks = "## Remarks\n\nWritten by hand.\n\n### More\n\nText."
+    (tmp_path / "leaderboard.md").write_text("# Leaderboard\n\nold table\n\n" + remarks + "\n")
+    summary = {
+        "task": "htr",
+        "label": "X",
+        "set": "quick",
+        "pages": 30,
+        "cer": 0.1,
+        "wer": 0.2,
+        "seconds_per_page": 1.0,
+        "date": "2026-11-23",
+        "seen_pages": 4,
+    }
+    report.update_leaderboard("x.md", summary, {})
+    text = (tmp_path / "leaderboard.md").read_text()
+    assert "old table" not in text
+    assert "| [X](x.md) | 2026-11-23 | 10.0 | 20.0 | 1.0 | 30 | 4 |" in text
+    assert text.endswith(remarks + "\n")

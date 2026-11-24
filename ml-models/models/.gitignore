@@ -4,3 +4,5 @@
 *.bin
 *.pt
 *.part
+# MLX conversions are folders of weights plus config: generated, see medusa/README.md.
+*-mlx-*/

@@ -10,3 +10,4 @@ pyvips
 pwdlib[argon2]
 pwdlib[bcrypt]
 aioboto3
+reportlab

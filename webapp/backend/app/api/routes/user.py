@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.api.dependencies.auth import get_current_user
 from app.api.dependencies.csrf import csrf_header
-from app.api.dependencies.services import DocumentServiceDep, UserServiceDep
+from app.api.dependencies.injection import DocumentServiceDep, UserServiceDep
 from app.api.schemas.user import UserCreate, UserRead, UserUpdate
 from app.core.config import settings
 from app.infrastructure.storage.s3 import delete_prefix

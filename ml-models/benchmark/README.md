@@ -6,8 +6,9 @@ against the same targets. It covers **transcription** and **language detection**
 recognition comes later, once we have ground truth for it.
 
 - **Page sets**: two frozen lists of test pages, `quick` (30 pages, for development) and
-  `full` (266 pages), in `subsets/`.
-- **Candidates**: the models we work on (TrOCR, McCATMuS, later our fine-tuned models).
+  `full` (315 pages), in `subsets/`.
+- **Candidates**: the models we work on (TrOCR, McCATMuS, PP-OCRv6, MEDUSA, later our
+  fine-tuned models).
   Their raw output goes to `runs/` (not committed), their report to `../reports/`.
 - **Baselines**: two vision-language models we don't tune (Qwen3.5-9B, CHURRO). They are
   run once per page set, stored in `baselines/` and shown in every report as the target.
@@ -21,13 +22,16 @@ metrics can change without running the models again.
 
 ```sh
 ./data/download_manuscripts.sh test     # from the repo root, once (~0.7 GB)
+uv run data/add_sources.py              # adds 68 newer German test pages (~0.6 GB download)
 
 cd ml-models/benchmark
-make install                            # two venvs, see below
+make install                            # three venvs, see below
 make check                              # format, lint, tests (same as CI)
 
 make run SYSTEM=mccatmus                # quick set: run and write the report
 make run SYSTEM=mccatmus SET=full
+make run SYSTEM=ppocrv6                 # before medusa-9b, which reads its lines
+make run SYSTEM=medusa-9b               # see ../models/medusa/README.md first
 make run SYSTEM=lid-mccatmus            # language detection
 make baselines SET=full                 # once per set, ~6.5 h for full on an M5
 ```
@@ -42,10 +46,12 @@ To add a candidate, write a class with `task` (`"htr"` or `"lid"`), `info` and
 `transcribe(page) -> Prediction` in `bench/systems/` and register it in `SYSTEMS` in
 `bench/systems/__init__.py`.
 
-**Two environments.** Kraken pins torch 2.4 and transformers 4.57 (see
-`webapp/ml-backend/readme.md`), the MLX models need transformers 5. `.venv-trocr` runs
-`trocr`, `mccatmus`, `lid-mccatmus` and the reports, `.venv-vlm` runs the baselines (Apple
-Silicon only).
+**Three environments.** Kraken 5.3 pins torch 2.4 and transformers 4.57 (see
+`webapp/ml-backend/readme.md`), the MLX models need transformers 5, and PP-OCRv6 needs
+kraken 7, whose safetensors pin conflicts with transformers 5. `.venv-trocr` runs
+`trocr`, `mccatmus`, `lid-mccatmus`, the reports and the checks, `.venv-vlm` runs the
+baselines and `medusa-9b` (Apple Silicon only), `.venv-kraken7` runs `ppocrv6`. `make
+run` picks the right one.
 
 ## Page sets
 
@@ -53,15 +59,28 @@ Both sets come from the test split; the train split is kept for training. Train 
 never share a document, but they share collections, so a model trained on our train split
 has seen similar hands, never these pages.
 
-- `quick`: 5 pages per language/era group, from different documents where possible.
-- `full`: the whole test split without the Valais census pages.
+- `quick`: 5 pages per language/era group: the pages the fewest checked models were
+  trained on (see below), and among them pages from different documents where possible.
+  Since 2026-11-23 its 10 German pages are new to every checked model; of the other 20,
+  11 have been seen by one model and 9 by two (no French or English page by fewer).
+- `full`: the whole test split without the pages below.
 
-The census pages (`valais_de`, `valais_fr`, 34 test pages) are printed forms where only the
-handwritten entries are transcribed. A model that reads the printed headers would get every
-printed word counted as an error, so they are left out of both sets.
+Some pages have printed or stamped text that the human transcription leaves out. A model
+that reads it gets every word counted as an error, so these pages are in neither set
+(`EXCLUDED_SOURCES` and `EXCLUDED_PAGES` in `bench/dataset.py`, checked by eye):
 
-The sets are written once with `python -m bench make-sets` and must not change, because
-the stored baselines refer to exactly these pages.
+- the Valais census pages (`valais_de`, `valais_fr`, 34 test pages): printed forms where
+  only the handwritten entries are transcribed;
+- the Poilus wills (`poilus_testaments`, 9): court and registration stamps and notes on
+  every page, only the will is transcribed;
+- 10 of the 22 Denver pages (`denver_jcrs`): printed letterheads, a stamp, a telegram
+  and a receipt form, only the handwriting is transcribed.
+
+The sets are written with `python -m bench make-sets` and must not change, because the
+stored baselines refer to exactly these pages. They were rewritten once, on 2026-11-23,
+to add the pages of `data/add_sources.py`, to prefer pages no model has seen and to drop
+the Poilus and Denver pages above; all systems and baselines were run again on them. Results from before compare only with
+each other.
 
 ## Systems
 
@@ -69,6 +88,8 @@ the stored baselines refer to exactly these pages.
 | -------------- | ---------------------------------------------------------------------------------------------------------- |
 | `trocr`        | The current ML backend (`webapp/ml-backend/app/pipeline.py`): Kraken BLLA + `trocr-small-handwritten`.    |
 | `mccatmus`     | Kraken BLLA + [McCATMuS](https://doi.org/10.5281/zenodo.13788177), multilingual, 16th–21st century. Downloaded to `../models/mccatmus/` on first use. |
+| `ppocrv6`      | Kraken 7 BLLA + [PP-OCRv6 medium](https://doi.org/10.5281/zenodo.21788410), pretrained on ~6.2M lines in 37 languages. Downloaded to `../models/ppocrv6/` on first use. |
+| `medusa-9b`    | [MEDUSA 0.2 9B](https://huggingface.co/ENC-PSL/Medusa0.2Line-9B) (8-bit MLX), a VLM for single medieval lines, on the lines of the latest `ppocrv6` run. |
 | `lid-mccatmus` | Language detection, approach A (see below).                                                                |
 | `qwen3.5-9b`   | Baseline: `mlx-community/Qwen3.5-9B-8bit`, whole page in, text out.                                        |
 | `churro-3b`    | Baseline: `stanford-oval/churro-3B`, whole page in, text out.                                              |
@@ -95,6 +116,28 @@ adds **strict**:
 - normalized: also lower case, accents removed, `ſ` → `s` and other compatibility forms
   folded, punctuation replaced by spaces. Fairer for models with different transcription
   conventions (TrOCR cannot write `ſ` at all).
+
+## Pages in the training data
+
+Our sources are public datasets, and so are the training sets of most published models.
+A model that was trained on a test page scores better on it than on a new manuscript.
+`bench/overlap.py` (with `bench/seen_pages.json`) lists the test pages each model's
+published training data contains, and how this was checked. Reports compare all models
+on the pages no checked model has seen, and on the pages the candidate has and hasn't
+seen; the leaderboard shows how many pages each model has seen.
+
+- `ppocrv6` was trained on the full repositories of 17 of our 26 v1 sources.
+- `medusa-9b` was trained on all our medieval French manuscripts (CATMuS Medieval) and
+  5 Königsfelden pages (Tridis).
+- `churro-3b` was trained on 124 of our test pages (CHURRO-DS training split, matched by
+  page), most of the French ones among them.
+- `mccatmus` was trained on 38 (CATMuS Modern: CREMMA MSS 17–19, Lectaurep, Poilus).
+- Not checked: TrOCR and Qwen3.5, whose training data is not published.
+
+No v1 page is new to all checked models: where one is clean, another has trained on it.
+So `data/add_sources.py` adds 68 German pages published after all these models were
+trained (Grand Tour diaries 1652–1689, Laßberg letters 1805–1853). There are no such
+pages for French and English yet.
 
 ## Language detection
 
@@ -133,11 +176,6 @@ fixed without a new run.
 We don't tune these models, so their failures are part of the baseline:
 
 - **Invented text**: CHURRO wrote "Stahlgewichte" where the page says "Nahrungsmittel".
-- **Letter-spaced output**: Qwen sometimes switches to "D i c o i g i t" on hard pages.
-  Every letter then counts as a word, so WER can go above 100 % while CER suffers less.
-- **Repetition loops**: Qwen sometimes repeats a line or a token until the token limit (2
-  of 30 `quick` pages). We score these pages as they are. One such page moves Qwen's CER on
-  `quick` from 28 % to 48 %; `--details` lists truncated pages.
 
 ## Known issue: memory on census pages
 

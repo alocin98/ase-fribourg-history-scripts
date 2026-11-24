@@ -65,3 +65,12 @@ def test_sets_are_written_once(tmp_path):
         raise AssertionError("existing sets must not be overwritten")
     except FileExistsError:
         pass
+
+
+def test_quick_prefers_pages_fewer_models_have_seen():
+    pages = [page(f"p{i}", doc_id=f"d{i}") for i in range(6)]
+    seen_by = {"p0": 2, "p1": 0, "p2": 1, "p3": 2, "p4": 0, "p5": 1}
+    quick = make_sets(pages, per_group=3, seen_by=lambda p: seen_by[p.page_id])["quick"]
+    ids = {p.page_id for p in quick}
+    assert {"p1", "p4"} <= ids  # the two pages no model has seen
+    assert len(ids & {"p2", "p5"}) == 1  # then one of the pages one model has seen
