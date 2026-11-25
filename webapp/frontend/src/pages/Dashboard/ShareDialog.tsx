@@ -189,7 +189,6 @@ export default function ShareDialog({ documentId, onClose }: Props) {
                 >
                   <span className="min-w-0 truncate font-sans text-[0.9rem] font-semibold text-[#2a1d10]">
                     {share.name}
-
                   </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <select

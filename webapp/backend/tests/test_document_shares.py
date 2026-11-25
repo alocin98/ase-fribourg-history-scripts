@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
@@ -84,7 +84,7 @@ async def test_list_shares_includes_user_name():
         document_id=document_id,
         user_id=uuid4(),
         role=DocumentShareRole.VIEWER,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     repository = SimpleNamespace(
         list_shares=AsyncMock(return_value=[(share, "Marie Dupont")])
@@ -111,7 +111,7 @@ async def test_set_share_returns_user_name():
         document_id=document_id,
         user_id=user_id,
         role=DocumentShareRole.EDITOR,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     repository = SimpleNamespace(
         set_share=AsyncMock(return_value=(share, "Marie Dupont")),
