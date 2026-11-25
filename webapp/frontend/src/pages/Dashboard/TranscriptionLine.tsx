@@ -28,7 +28,7 @@ export default function TranscriptionLine({ line, active, reveal, onHover, onOpe
       <button
         ref={ref}
         type="button"
-        className={`group grid w-full cursor-pointer grid-cols-[1.75rem_minmax(0,1fr)_auto] items-baseline gap-2 rounded-lg px-2 py-1 text-left font-sans text-[0.98rem] leading-7 text-[#27272a] ${active ? 'bg-[#eef2ff]' : 'hover:bg-[#fafafa]'}`}
+        className={`group grid w-full cursor-pointer grid-cols-[1.75rem_minmax(0,1fr)_auto] items-baseline gap-2 rounded-lg px-2 py-1 text-left font-sans text-[0.98rem] leading-7 text-[#33251a] ${active ? 'bg-[#f5ead6]' : 'hover:bg-[#faf5ec]'}`}
         aria-haspopup="dialog"
         onMouseEnter={() => onHover(line.index)}
         onMouseLeave={() => onHover(null)}
@@ -36,11 +36,11 @@ export default function TranscriptionLine({ line, active, reveal, onHover, onOpe
         onBlur={() => onHover(null)}
         onClick={() => onOpen(line.index)}
       >
-        <span className="text-right font-sans text-[0.72rem] text-[#a1a1aa] tabular-nums">
+        <span className="text-right font-sans text-[0.72rem] text-[#a8957b] tabular-nums">
           {line.index}
         </span>
         <span className="break-words whitespace-pre-wrap">
-          {line.text || <span className="text-[#a1a1aa]">—</span>}
+          {line.text || <span className="text-[#a8957b]">—</span>}
         </span>
         {line.confidence !== null && (
           <span

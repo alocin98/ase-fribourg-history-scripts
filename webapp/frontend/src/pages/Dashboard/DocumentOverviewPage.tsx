@@ -49,7 +49,7 @@ function needsWork(transcription: PageTranscription | null | undefined): boolean
 }
 
 const panelClass =
-  'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_10px_28px_rgba(23,28,51,0.06)]'
+  'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-[#fffdf8] shadow-[0_10px_28px_rgba(42,29,16,0.06)]'
 
 // Trois colonnes : noms des images, image choisie, transcription.
 export default function DocumentOverviewPage() {
@@ -398,15 +398,15 @@ export default function DocumentOverviewPage() {
     <DocumentsFrame>
       <main className="flex h-full min-h-0 flex-col overflow-hidden px-5 py-6 sm:px-8 lg:px-10">
         {document === undefined ? (
-          <p className="m-0 font-sans text-[1rem] text-[#5d657c]">{t('common.loading')}</p>
+          <p className="m-0 font-sans text-[1rem] text-[#6b5a45]">{t('common.loading')}</p>
         ) : document === null ? (
-          <p className="m-0 font-sans text-[1rem] text-[#5d657c]">{t('documents.missing')}</p>
+          <p className="m-0 font-sans text-[1rem] text-[#6b5a45]">{t('documents.missing')}</p>
         ) : (
           <>
             <div className="flex w-full min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <h1 className="m-0 min-w-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] break-words text-[#171c33]">
+                  <h1 className="m-0 min-w-0 font-serif text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-semibold break-words text-[#2a1d10]">
                     {document.name}
                   </h1>
                   {documentRating && (
@@ -421,14 +421,14 @@ export default function DocumentOverviewPage() {
                   <div className="relative mt-2 min-w-0">
                     <p
                       ref={descriptionRef}
-                      className={`mb-0 max-w-full font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#5d657c] ${descriptionOpen ? '' : 'line-clamp-2'} ${!descriptionOpen && descriptionOverflows ? 'pr-7' : ''}`}
+                      className={`mb-0 max-w-full font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#6b5a45] ${descriptionOpen ? '' : 'line-clamp-2'} ${!descriptionOpen && descriptionOverflows ? 'pr-7' : ''}`}
                     >
                       {document.description}
                     </p>
                     {descriptionOverflows && (
                       <button
                         type="button"
-                        className={`grid size-6 cursor-pointer place-items-center rounded-full bg-[#f5f6fa] text-[#171c33] ${descriptionOpen ? 'mt-1' : 'absolute right-0 bottom-0'}`}
+                        className={`grid size-6 cursor-pointer place-items-center rounded-full bg-[#f4ede0] text-[#2a1d10] ${descriptionOpen ? 'mt-1' : 'absolute right-0 bottom-0'}`}
                         aria-expanded={descriptionOpen}
                         aria-label={t(
                           descriptionOpen
@@ -472,7 +472,7 @@ export default function DocumentOverviewPage() {
                   <div className="group relative shrink-0">
                     <button
                       type="button"
-                      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] hover:border-[#c9cdf8]"
+                      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e8dcc8] bg-[#fffdf8] text-[#7a4d22] hover:border-[#d9c19a]"
                       onClick={() => setIsShareOpen(true)}
                       aria-label={t('documents.share.action')}
                     >
@@ -495,7 +495,7 @@ export default function DocumentOverviewPage() {
                     </button>
                     <span
                       role="tooltip"
-                      className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#171c33] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(23,28,51,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100"
+                      className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#2a1d10] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(42,29,16,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100"
                     >
                       {t('documents.share.action')}
                     </span>
@@ -504,7 +504,7 @@ export default function DocumentOverviewPage() {
                 <div className="group relative shrink-0">
                   <button
                     type="button"
-                    className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] hover:border-[#c9cdf8] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e8dcc8] bg-[#fffdf8] text-[#7a4d22] hover:border-[#d9c19a] disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={() => {
                       void exportPdf()
                     }}
@@ -516,7 +516,7 @@ export default function DocumentOverviewPage() {
                   >
                     {isExporting ? (
                       <span
-                        className="size-3.5 animate-spin rounded-full border-2 border-[#4338a8]/40 border-t-[#4338a8]"
+                        className="size-3.5 animate-spin rounded-full border-2 border-[#7a4d22]/40 border-t-[#7a4d22]"
                         aria-hidden="true"
                       />
                     ) : (
@@ -538,7 +538,7 @@ export default function DocumentOverviewPage() {
                   </button>
                   <span
                     role="tooltip"
-                    className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#171c33] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(23,28,51,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100"
+                    className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#2a1d10] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(42,29,16,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100"
                   >
                     {isExporting ? t('documents.exportingPdf') : t('documents.exportPdf')}
                   </span>
@@ -546,7 +546,7 @@ export default function DocumentOverviewPage() {
                 {canEdit && (remainingIds.length > 0 || documentJob) && (
                   <button
                     type="button"
-                    className="inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-3 font-sans text-[0.75rem] font-bold whitespace-nowrap text-white disabled:cursor-not-allowed disabled:opacity-70"
+                    className="inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[#8a5a2b] hover:bg-[#6e4520] px-3 font-sans text-[0.75rem] font-bold whitespace-nowrap text-white disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={documentJob !== null || pendingId !== null}
                     onClick={() => {
                       void transcribeRemaining()
@@ -569,7 +569,7 @@ export default function DocumentOverviewPage() {
                 {canEdit && (
                   <button
                     type="button"
-                    className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-3 font-sans text-[0.75rem] font-bold whitespace-nowrap text-[#4338a8] hover:bg-[#4f46e5] hover:text-white"
+                    className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-3 font-sans text-[0.75rem] font-bold whitespace-nowrap text-[#7a4d22] hover:bg-[#8a5a2b] hover:text-white"
                     onClick={() => setIsOpen(true)}
                   >
                     {t('documents.upload')}
@@ -594,11 +594,11 @@ export default function DocumentOverviewPage() {
             )}
             <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 overflow-hidden min-[900px]:grid-cols-[10.5rem_minmax(0,1fr)_minmax(0,1.45fr)]">
               <section className={`${panelClass} p-3`}>
-                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#6b5a45] uppercase">
                   {t('documents.images')}
                 </h2>
                 {pages.length === 0 ? (
-                  <p className="mt-3 mb-0 font-sans text-[0.8rem] leading-5 text-[#71717a]">
+                  <p className="mt-3 mb-0 font-sans text-[0.8rem] leading-5 text-[#6b5a45]">
                     {t('documents.noImages')}
                   </p>
                 ) : (
@@ -611,26 +611,26 @@ export default function DocumentOverviewPage() {
                         <li key={page.id}>
                           <button
                             type="button"
-                            className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-left font-sans text-[0.8rem] ${selected ? 'bg-[#f4f4f5] font-semibold text-[#18181b] shadow-[inset_0_0_0_1px_#e4e4e7]' : 'text-[#3f3f46] hover:bg-[#fafafa]'}`}
+                            className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-left font-sans text-[0.8rem] ${selected ? 'bg-[#f1e9da] font-semibold text-[#2a1d10] shadow-[inset_0_0_0_1px_#e8dcc8]' : 'text-[#4a3b2a] hover:bg-[#faf5ec]'}`}
                             aria-pressed={selected}
                             onClick={() => {
                               setSelectedId(page.id)
                               setFocus(null)
                             }}
                           >
-                            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white font-sans text-[0.7rem] font-semibold text-[#3f3f46] shadow-[0_1px_2px_rgba(23,28,51,0.08)]">
+                            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[#fffdf8] font-sans text-[0.7rem] font-semibold text-[#4a3b2a] shadow-[0_1px_2px_rgba(42,29,16,0.08)]">
                               {page.page_number}
                             </span>
                             <span className="flex min-w-0 flex-col">
                               {label}
                               {rating !== undefined && (
-                                <span className="inline-flex items-center gap-1.5 text-[0.7rem] font-normal text-[#71717a]">
+                                <span className="inline-flex items-center gap-1.5 text-[0.7rem] font-normal text-[#6b5a45]">
                                   <span
                                     className="size-2 shrink-0 rounded-full"
                                     style={{
                                       backgroundColor: rating
                                         ? levelColors[rating.level].stroke
-                                        : '#d4d4d8',
+                                        : '#dccdb3',
                                     }}
                                     aria-hidden="true"
                                   />
@@ -651,7 +651,7 @@ export default function DocumentOverviewPage() {
               </section>
               <section className={`${panelClass} p-3`}>
                 {shownText && lines.length > 0 && <PageRating lines={lines} />}
-                <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-white">
+                <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-[#fffdf8]">
                   {selectedId && (
                     <PageImage
                       key={selectedId}
@@ -674,7 +674,7 @@ export default function DocumentOverviewPage() {
                   <div className="mt-3 flex shrink-0 justify-center">
                     <button
                       type="button"
-                      className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.8rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-[#8a5a2b] hover:bg-[#6e4520] px-4 font-sans text-[0.8rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
                       onClick={() => {
                         void transcribe()
                       }}
@@ -692,7 +692,7 @@ export default function DocumentOverviewPage() {
                 )}
               </section>
               <section className={`${panelClass} p-5`}>
-                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#6b5a45] uppercase">
                   {t('documents.transcription')}
                 </h2>
                 {hasBoxes && (
@@ -700,13 +700,13 @@ export default function DocumentOverviewPage() {
                     <LineSource src={imageSrc} size={imageSize} line={activeLine} />
                   </div>
                 )}
-                <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#27272a]">
+                <div className="mt-4 min-h-0 flex-1 overflow-y-auto font-sans text-[0.98rem] leading-7 break-words whitespace-pre-wrap text-[#33251a]">
                   {failed ? (
-                    <p className="m-0 text-[#71717a]" role="alert">
+                    <p className="m-0 text-[#6b5a45]" role="alert">
                       {t('errors.transcriptionFailed')}
                     </p>
                   ) : waiting ? (
-                    <p className="m-0 text-[#71717a]">{t('documents.transcribing')}</p>
+                    <p className="m-0 text-[#6b5a45]">{t('documents.transcribing')}</p>
                   ) : shownText && shownText.text !== '' ? (
                     <ol className="m-0 grid list-none gap-0.5 p-0">
                       {lines.map((line) => (
@@ -724,9 +724,9 @@ export default function DocumentOverviewPage() {
                       ))}
                     </ol>
                   ) : shownText === undefined && selectedId ? (
-                    <p className="m-0 text-[#71717a]">{t('common.loading')}</p>
+                    <p className="m-0 text-[#6b5a45]">{t('common.loading')}</p>
                   ) : (
-                    <p className="m-0 text-[#a1a1aa]">{t('documents.transcriptionEmpty')}</p>
+                    <p className="m-0 text-[#a8957b]">{t('documents.transcriptionEmpty')}</p>
                   )}
                 </div>
               </section>
@@ -748,18 +748,18 @@ export default function DocumentOverviewPage() {
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 grid place-items-center bg-[rgba(23,28,51,0.35)] p-4"
+          className="fixed inset-0 z-40 grid place-items-center bg-[rgba(42,29,16,0.35)] p-4"
           onMouseDown={closeDialog}
         >
           <form
-            className="w-[min(440px,100%)] rounded-2xl bg-white p-5 shadow-[0_24px_50px_rgba(23,28,51,0.16)] sm:p-6"
+            className="w-[min(440px,100%)] rounded-2xl bg-[#fffdf8] p-5 shadow-[0_24px_50px_rgba(42,29,16,0.16)] sm:p-6"
             onMouseDown={(event) => event.stopPropagation()}
             onSubmit={handleSubmit}
           >
-            <h2 className="m-0 font-sans text-[1.15rem] font-bold text-[#171c33]">
+            <h2 className="m-0 font-serif text-[1.15rem] font-semibold text-[#2a1d10]">
               {t('documents.upload')}
             </h2>
-            <p className="mt-1 mb-0 font-sans text-[0.9rem] leading-6 text-[#5d657c]">
+            <p className="mt-1 mb-0 font-sans text-[0.9rem] leading-6 text-[#6b5a45]">
               {t('documents.dropHint')}
             </p>
             <input
@@ -771,7 +771,7 @@ export default function DocumentOverviewPage() {
             />
             <button
               type="button"
-              className={`mt-5 flex min-h-40 w-full cursor-pointer items-center justify-center rounded-2xl border border-dashed px-4 text-center font-sans text-[0.95rem] break-all ${isOver ? 'border-[#514fec] bg-[#f5f6ff] text-[#312e81]' : 'border-[#d4d8e6] bg-[#fafafe] text-[#5d657c]'}`}
+              className={`mt-5 flex min-h-40 w-full cursor-pointer items-center justify-center rounded-2xl border border-dashed px-4 text-center font-sans text-[0.95rem] break-all ${isOver ? 'border-[#8a5a2b] bg-[#f8f0e0] text-[#5e3b18]' : 'border-[#dccdb3] bg-[#fcf8f0] text-[#6b5a45]'}`}
               onClick={() => fileInput.current?.click()}
               onDragOver={(event) => {
                 event.preventDefault()
@@ -790,7 +790,7 @@ export default function DocumentOverviewPage() {
             <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.9rem] font-bold text-[#4338a8]"
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-4 font-sans text-[0.9rem] font-bold text-[#7a4d22]"
                 onClick={closeDialog}
                 disabled={isSaving}
               >
@@ -798,7 +798,7 @@ export default function DocumentOverviewPage() {
               </button>
               <button
                 type="submit"
-                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.9rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full bg-[#8a5a2b] hover:bg-[#6e4520] px-4 font-sans text-[0.9rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isSaving}
               >
                 {isSaving ? t('documents.uploading') : t('documents.upload')}

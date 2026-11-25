@@ -1,26 +1,18 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-export default function Brand() {
+// Nom de l'application en lettres classiques. « light » pour un fond sombre (accueil).
+export default function Brand({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const { t } = useTranslation()
+  const light = tone === 'light'
 
   return (
     <Link
       to="/"
-      className="inline-flex min-w-0 shrink items-center gap-3 text-[#172033] no-underline"
+      className={`inline-flex min-w-0 shrink items-baseline font-serif text-[1.35rem] tracking-[0.01em] whitespace-nowrap no-underline ${light ? 'text-[#f4ead8]' : 'text-[#2a1d10]'}`}
       aria-label={t('brand.name')}
     >
-      <span className="grid size-[42px] shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#2563eb] to-[#7c3aed] font-extrabold text-white">
-        A
-      </span>
-      <span className="min-w-0">
-        <strong className="block truncate text-[0.95rem] sm:text-[1.05rem]">
-          {t('brand.name')}
-        </strong>
-        <small className="mt-[0.2rem] block truncate text-[0.7rem] text-[#667085] max-[520px]:hidden">
-          {t('brand.tagline')}
-        </small>
-      </span>
+      Manuscript&nbsp;<em className={light ? 'text-[#e3c48f]' : 'text-[#8a5a2b]'}>AI</em>
     </Link>
   )
 }

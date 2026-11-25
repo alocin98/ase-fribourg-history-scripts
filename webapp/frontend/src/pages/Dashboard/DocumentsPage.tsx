@@ -61,7 +61,7 @@ function DocumentsContent() {
 
   const titleLink = (document: StoredDocument) => (
     <Link
-      className="font-semibold text-[#4338a8] underline decoration-[#c7d2fe] underline-offset-[3px] hover:text-[#312e81]"
+      className="font-semibold text-[#7a4d22] underline decoration-[#dcc49c] underline-offset-[3px] hover:text-[#5e3b18]"
       to={`/app/documents/${document.id}/overview`}
     >
       {document.name}
@@ -82,42 +82,42 @@ function DocumentsContent() {
     const access = accessLabel(document, t('documents.accessViewer'), t('documents.accessEditor'))
     if (document.owner_name) {
       return (
-        <span className="text-[0.75rem] text-[#71717a]">
+        <span className="text-[0.75rem] text-[#6b5a45]">
           {t('documents.sharedBy', { name: document.owner_name })}
           {access ? ` · ${access}` : ''}
         </span>
       )
     }
-    if (access) return <span className="text-[0.75rem] text-[#71717a]">{access}</span>
+    if (access) return <span className="text-[0.75rem] text-[#6b5a45]">{access}</span>
     return null
   }
 
   const renderTable = (items: StoredDocument[]) => (
-    <div className="overflow-x-auto rounded-2xl border border-[#e6e8f2] bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-[#e8dcc8] bg-[#fffdf8]">
       <table className="w-full min-w-[36rem] table-fixed border-collapse text-left">
         <thead>
-          <tr className="border-b border-[#eef0f6]">
-            <th className="w-[34%] px-4 py-3 text-left align-top font-sans text-[0.75rem] font-bold tracking-[0.06em] text-[#8b93a7] uppercase">
+          <tr className="border-b border-[#efe6d6]">
+            <th className="w-[34%] px-4 py-3 text-left align-top font-sans text-[0.75rem] font-bold tracking-[0.06em] text-[#9c8a72] uppercase">
               {t('documents.name')}
             </th>
-            <th className="px-4 py-3 text-left align-top font-sans text-[0.75rem] font-bold tracking-[0.06em] text-[#8b93a7] uppercase">
+            <th className="px-4 py-3 text-left align-top font-sans text-[0.75rem] font-bold tracking-[0.06em] text-[#9c8a72] uppercase">
               {t('documents.description')}
             </th>
-            <th className="w-36 px-4 py-3 text-right align-top font-sans text-[0.75rem] font-bold tracking-[0.06em] whitespace-nowrap text-[#8b93a7] uppercase">
+            <th className="w-36 px-4 py-3 text-right align-top font-sans text-[0.75rem] font-bold tracking-[0.06em] whitespace-nowrap text-[#9c8a72] uppercase">
               {t('documents.actions')}
             </th>
           </tr>
         </thead>
         <tbody>
           {items.map((document) => (
-            <tr key={document.id} className="border-b border-[#f3f4fb] last:border-0">
+            <tr key={document.id} className="border-b border-[#f6efe2] last:border-0">
               <td className="px-4 py-3 align-top font-sans text-[0.95rem] break-words">
                 <div className="flex flex-col gap-1">
                   {titleLink(document)}
                   {metaFor(document)}
                 </div>
               </td>
-              <td className="px-4 py-3 align-top font-sans text-[0.9rem] break-words text-[#5d657c]">
+              <td className="px-4 py-3 align-top font-sans text-[0.9rem] break-words text-[#6b5a45]">
                 <span className="line-clamp-2">{document.description}</span>
               </td>
               <td className="w-36 px-4 py-3 align-top whitespace-nowrap">
@@ -135,11 +135,11 @@ function DocumentsContent() {
       {items.map((document) => (
         <li
           key={document.id}
-          className="flex min-h-28 flex-col rounded-xl border border-[#e6e8f2] bg-white p-3"
+          className="flex min-h-28 flex-col rounded-xl border border-[#e8dcc8] bg-[#fffdf8] p-3"
         >
           <span className="block truncate font-sans text-[0.86rem]">{titleLink(document)}</span>
           {metaFor(document) && <div className="mt-1">{metaFor(document)}</div>}
-          <p className="mt-1 mb-0 line-clamp-2 font-sans text-[0.78rem] leading-5 break-words text-[#5d657c]">
+          <p className="mt-1 mb-0 line-clamp-2 font-sans text-[0.78rem] leading-5 break-words text-[#6b5a45]">
             {document.description}
           </p>
           <div className="mt-auto pt-3">{actionsFor(document)}</div>
@@ -152,10 +152,10 @@ function DocumentsContent() {
     <main className="flex h-full min-h-0 flex-col overflow-hidden px-5 py-6 sm:px-8 lg:px-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="m-0 font-sans text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-bold tracking-[-0.03em] text-[#171c33]">
+          <h1 className="m-0 font-serif text-[clamp(1.45rem,3vw,1.85rem)] leading-tight font-semibold text-[#2a1d10]">
             {t('documents.title')}
           </h1>
-          <p className="mt-2 mb-0 max-w-xl font-sans text-[0.98rem] leading-7 text-[#5d657c]">
+          <p className="mt-2 mb-0 max-w-xl font-sans text-[0.98rem] leading-7 text-[#6b5a45]">
             {t('documents.intro')}
           </p>
         </div>
@@ -170,7 +170,7 @@ function DocumentsContent() {
                 key={mode}
                 type="button"
                 aria-pressed={display === mode}
-                className={`cursor-pointer border-0 border-b-2 bg-transparent px-0.5 pb-1 font-sans text-[0.82rem] font-bold ${display === mode ? 'border-[#514fec] text-[#312e81]' : 'border-transparent text-[#5d657c] hover:text-[#312e81]'}`}
+                className={`cursor-pointer border-0 border-b-2 bg-transparent px-0.5 pb-1 font-sans text-[0.82rem] font-bold ${display === mode ? 'border-[#8a5a2b] text-[#5e3b18]' : 'border-transparent text-[#6b5a45] hover:text-[#5e3b18]'}`}
                 onClick={() => choose(mode)}
               >
                 {t(mode === 'table' ? 'documents.asTable' : 'documents.asIcons')}
@@ -179,7 +179,7 @@ function DocumentsContent() {
           </div>
           <button
             type="button"
-            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border-0 bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.85rem] font-bold text-white"
+            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border-0 bg-[#8a5a2b] hover:bg-[#6e4520] px-4 font-sans text-[0.85rem] font-bold text-white"
             onClick={() => setIsCreating(true)}
           >
             {t('documents.create')}
@@ -195,7 +195,7 @@ function DocumentsContent() {
 
       <div className="mt-6 min-h-0 flex-1 overflow-auto">
         {listed?.length === 0 && (
-          <p className="mb-8 max-w-md font-sans text-[1rem] leading-7 text-[#5d657c]">
+          <p className="mb-8 max-w-md font-sans text-[1rem] leading-7 text-[#6b5a45]">
             {t('documents.empty')}
           </p>
         )}
@@ -205,7 +205,7 @@ function DocumentsContent() {
 
         {total > pageSize && (
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <p className="m-0 font-sans text-[0.85rem] text-[#5d657c]">
+            <p className="m-0 font-sans text-[0.85rem] text-[#6b5a45]">
               {t('documents.range', {
                 from: start + 1,
                 to: Math.min(start + pageSize, total),
@@ -215,7 +215,7 @@ function DocumentsContent() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className="inline-flex h-10 cursor-pointer items-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-10 cursor-pointer items-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-4 font-sans text-[0.82rem] font-bold text-[#7a4d22] disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => setPage(current - 1)}
                 disabled={current === 1}
               >
@@ -223,7 +223,7 @@ function DocumentsContent() {
               </button>
               <button
                 type="button"
-                className="inline-flex h-10 cursor-pointer items-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-10 cursor-pointer items-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-4 font-sans text-[0.82rem] font-bold text-[#7a4d22] disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => setPage(current + 1)}
                 disabled={current === pageCount}
               >
@@ -233,20 +233,20 @@ function DocumentsContent() {
           </div>
         )}
 
-        <section className="mt-10 border-t border-[#e6e8f2] pt-8">
-          <h2 className="m-0 font-sans text-[1.15rem] font-bold tracking-[-0.02em] text-[#171c33]">
+        <section className="mt-10 border-t border-[#e8dcc8] pt-8">
+          <h2 className="m-0 font-serif text-[1.15rem] font-semibold text-[#2a1d10]">
             {t('documents.sharedTitle')}
           </h2>
-          <p className="mt-2 mb-0 max-w-xl font-sans text-[0.95rem] leading-7 text-[#5d657c]">
+          <p className="mt-2 mb-0 max-w-xl font-sans text-[0.95rem] leading-7 text-[#6b5a45]">
             {t('documents.sharedIntro')}
           </p>
 
           {sharedList === null ? (
-            <p className="mt-6 mb-0 font-sans text-[0.95rem] text-[#5d657c]">
+            <p className="mt-6 mb-0 font-sans text-[0.95rem] text-[#6b5a45]">
               {t('common.loading')}
             </p>
           ) : sharedList.length === 0 ? (
-            <p className="mt-6 mb-0 max-w-md font-sans text-[0.95rem] leading-7 text-[#5d657c]">
+            <p className="mt-6 mb-0 max-w-md font-sans text-[0.95rem] leading-7 text-[#6b5a45]">
               {t('documents.sharedEmpty')}
             </p>
           ) : display === 'table' ? (

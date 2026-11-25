@@ -29,19 +29,19 @@ export default function PageRating({ lines }: Props) {
   const colors = levelColors[rating.level]
 
   return (
-    <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-xl bg-[#fafafa] px-3.5 py-2.5">
+    <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-xl bg-[#faf5ec] px-3.5 py-2.5">
       <div className="flex min-w-0 items-center gap-2">
         <span
           className="size-2.5 shrink-0 rounded-full"
           style={{ backgroundColor: colors.stroke }}
           aria-hidden="true"
         />
-        <p className="m-0 font-sans text-[0.92rem] font-bold text-[#171c33] tabular-nums">
+        <p className="m-0 font-sans text-[0.92rem] font-bold text-[#2a1d10] tabular-nums">
           {t('documents.pageConfidence', { value: confidencePercent(rating.average) })}
         </p>
         <ConfidenceInfo />
       </div>
-      <p className="m-0 flex flex-wrap gap-x-3 gap-y-1 font-sans text-[0.74rem] text-[#71717a] tabular-nums">
+      <p className="m-0 flex flex-wrap gap-x-3 gap-y-1 font-sans text-[0.74rem] text-[#6b5a45] tabular-nums">
         {bands.map(({ level, key }) => (
           <span key={level} className="inline-flex items-center gap-1.5">
             <span
