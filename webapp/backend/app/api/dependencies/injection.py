@@ -4,6 +4,9 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.session import get_db
+from app.repositories.documents import DocumentRepository
+from app.repositories.transcriptions import TranscriptionRepository
+from app.repositories.user import UserRepository
 from app.services.documents import DocumentService
 from app.services.transcriptions import TranscriptionService
 from app.services.users import UserService
@@ -12,19 +15,23 @@ from app.services.users import UserService
 async def get_document_service(
     session: Annotated[AsyncSession, Depends(get_db)],
 ) -> DocumentService:
-    return DocumentService(session)
+    document_repository = DocumentRepository(session)
+    return DocumentService(document_repository)
 
 
 async def get_transcription_service(
     session: Annotated[AsyncSession, Depends(get_db)],
 ) -> TranscriptionService:
-    return TranscriptionService(session)
+    document_repository = DocumentRepository(session)
+    transcription_repository = TranscriptionRepository(session)
+    return TranscriptionService(document_repository, transcription_repository)
 
 
 async def get_user_service(
     session: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserService:
-    return UserService(session)
+    user_repository = UserRepository(session)
+    return UserService(user_repository)
 
 
 TranscriptionServiceDep = Annotated[

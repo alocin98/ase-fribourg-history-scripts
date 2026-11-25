@@ -1,0 +1,14 @@
+[project]
+name = "htr-benchmark"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+extend-exclude = [".venv-trocr", ".venv-vlm", ".venv-kraken7"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

@@ -43,6 +43,29 @@ data/manuscripts/
 └── test/<group>/...
 ```
 
+## Added test pages
+
+Every v1 source is public, and so are the training sets of the models we benchmark, so
+each v1 test page is in the training data of at least one of them (see
+`ml-models/benchmark/bench/overlap.py`). `add_sources.py` adds 68 German test pages that
+were published after these models were trained:
+
+| source       | pages | group         | what                                                                                       | licence      |
+| ------------ | ----: | ------------- | ------------------------------------------------------------------------------------------ | ------------ |
+| `grand_tour` |    30 | `de_pre1700`  | [Grand Tour HTR](https://doi.org/10.5281/zenodo.23056692), HAB Wolfenbüttel: 10 pages each of three travel diaries (1652–59, 1664–69, 1689) | CC-BY-SA 4.0 |
+| `lassberg`   |    38 | `de_post1700` | [Laßberg letters](https://huggingface.co/datasets/dh-unibe/lassberg-letters-htr), Uni Bern: the test split, 12 letters (1805–1853) | CC-BY 4.0    |
+
+```sh
+./data/download_manuscripts.sh test   # first
+uv run data/add_sources.py            # ~0.6 GB, cached in manuscripts/_sources/
+```
+
+The pages go to `manuscripts/test/<group>/` like the others, their labels to
+`manuscripts/metadata_added.csv` (committed). The downloads are pinned and checksummed and
+the page choice is fixed, so every run gives the same pages. Grand Tour pages are taken
+only when Transkribus marks them as corrected (`GT`, `FINAL` or `DONE`), they have at least
+10 lines and are in German; the Laßberg test split is taken whole, without blank pages.
+
 ## Test sample
 
 `test_sample.zip` (~32 MB) holds 15 pages drawn at random (fixed seed) from the **test** split,

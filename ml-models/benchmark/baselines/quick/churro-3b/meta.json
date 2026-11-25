@@ -1,0 +1,67 @@
+{
+  "started": "2026-11-23T18:30:38",
+  "system": "churro-3b",
+  "task": "htr",
+  "set": "quick",
+  "info": {
+    "model": "stanford-oval/churro-3B",
+    "runtime": "mlx-vlm 0.7.12",
+    "max_side": 2500,
+    "max_tokens": 4096,
+    "temperature": 0.0,
+    "loop_guard": "stop when the last 200 tokens repeat a unit of at most 200 tokens",
+    "prompt": [
+      {
+        "role": "system",
+        "content": "Transcribe the entirety of this historical document to XML format."
+      },
+      {
+        "role": "user",
+        "content": ""
+      }
+    ]
+  },
+  "page_ids": [
+    "chateau_chavigny__data_5__49934f",
+    "cremma_mss17__correspondance-dom-bernard-de-montfaucon_f101__ad8acd",
+    "cremma_mss18__candide-ou-l-optismime-par-voltaire_9_7f748_default__7e55e6",
+    "cremma_mss19__administratif-proc_s-louise-michel_img132__7c3fae",
+    "cremma_mss19__manuscrit-zola-misc_f207__5e5c99",
+    "denver_jcrs__page_B002_01_0106_0047_015__6ccd1d",
+    "denver_jcrs__page_B002_01_0106_0091_004__c9e4b6",
+    "denver_jcrs__page_B002_01_0107_0132_008__007d49",
+    "fondue_fr_mss18__AEG_211_CHAEG_RC_211_248__d3b1f2",
+    "gallicorpora_15e__btv1b8448964p_btv1b8448964p_f21__7ef76e",
+    "grand_tour__221_extrav_0034_00034__450d6e",
+    "grand_tour__mss_267-1-extrav_00001-ebs04_p013__3b42d0",
+    "grand_tour__mss_267-1-extrav_00001-ebs04_p100__240eea",
+    "grand_tour__mss_89-blank_00181-00210_mss_89-blank_00181-00210-0005__ebfcfd",
+    "grand_tour__mss_89-blank_00181-00210_mss_89-blank_00181-00210-0006__e513f3",
+    "htromance_medieval_fr__bnf-fr-12603_btv1b104673329_f417__075647",
+    "htromance_medieval_fr__bnf-fr-5024_btv1b9059518w_f10__fcdb03",
+    "joseph_hooker__JDH_2_16_35_001__cc35aa",
+    "joseph_hooker__JDH_2_16_59_003__86171d",
+    "lassberg__K_2911-110_9985436_001__f647cd",
+    "lassberg__K_2911-17_9985431_001__6d426a",
+    "lassberg__lassberg-letter-0892_7609939_001__ae9940",
+    "lassberg__lassberg-letter-1209_duplicated_7151952_001__147842",
+    "lassberg__lassberg-letter-2921_772621_001__40ac0a",
+    "lectaurep_mariages__alto_FRAN_0056_00415_L__ef5c0d",
+    "revolutionary_city__data_apsrevcity-1017__cc9463",
+    "revolutionary_city__data_apsrevcity_7424__7cb839",
+    "revolutionary_city__data_hsprevcity-1678__acdd93",
+    "revolutionary_city__data_hsprevcity-9164__c58bf3",
+    "revolutionary_city__data_hsprevcity-9366__f626db"
+  ],
+  "hardware": {
+    "cpu": "Apple M5",
+    "memory_gb": 24.0,
+    "os": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.12.14"
+  },
+  "git_commit": "3df307e-dirty",
+  "load_seconds": 2.65,
+  "finished": "2026-11-23T19:48:14",
+  "failed_pages": 0,
+  "peak_rss_gb": 6.47
+}

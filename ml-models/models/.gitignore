@@ -1,0 +1,8 @@
+# Weights are not committed: download them as described in each model's README.
+*.mlmodel
+*.safetensors
+*.bin
+*.pt
+*.part
+# MLX conversions are folders of weights plus config: generated, see medusa/README.md.
+*-mlx-*/

@@ -1,0 +1,5 @@
+.venv-*/
+# Raw run outputs; the reports in ../reports/ are committed
+runs/
+.pytest_cache/
+.ruff_cache/

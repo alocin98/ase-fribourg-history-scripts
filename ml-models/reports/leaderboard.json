@@ -1,0 +1,59 @@
+{
+  "2026-11-23_trocr_quick.md": {
+    "task": "htr",
+    "label": "TrOCR",
+    "set": "quick",
+    "pages": 30,
+    "cer": 0.6779795359561896,
+    "wer": 0.967001629549158,
+    "seconds_per_page": 11.876228298460289,
+    "date": "2026-11-23",
+    "seen_pages": null,
+    "cer_unseen": 0.6779795359561896
+  },
+  "2026-11-23_mccatmus_quick.md": {
+    "task": "htr",
+    "label": "McCATMuS",
+    "set": "quick",
+    "pages": 30,
+    "cer": 0.4083681606379401,
+    "wer": 0.8100217273221075,
+    "seconds_per_page": 6.9861544125791015,
+    "date": "2026-11-23",
+    "seen_pages": 5,
+    "cer_unseen": 0.4147996304423144
+  },
+  "language-detection/2026-11-23_lid-mccatmus_quick.md": {
+    "task": "lid",
+    "label": "Language detection A",
+    "set": "quick",
+    "pages": 30,
+    "accuracy": 0.6666666666666666,
+    "seconds_per_page": 5.248713837432054,
+    "date": "2026-11-23"
+  },
+  "2026-11-23_ppocrv6_quick.md": {
+    "task": "htr",
+    "label": "PP-OCRv6 medium",
+    "set": "quick",
+    "pages": 30,
+    "cer": 0.1582360570687419,
+    "wer": 0.3881042911461162,
+    "seconds_per_page": 6.449565219541546,
+    "date": "2026-11-23",
+    "seen_pages": 14,
+    "cer_unseen": 0.20020604395604397
+  },
+  "2026-11-23_medusa-9b_quick.md": {
+    "task": "htr",
+    "label": "MEDUSA 0.2 9B",
+    "set": "quick",
+    "pages": 30,
+    "cer": 0.29480712878897053,
+    "wer": 0.5593427485062467,
+    "seconds_per_page": 63.130410518078136,
+    "date": "2026-11-23",
+    "seen_pages": 3,
+    "cer_unseen": 0.36424045742543654
+  }
+}

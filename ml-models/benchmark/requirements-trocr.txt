@@ -1,0 +1,3 @@
+# Kraken models: the current pipeline (TrOCR) and McCATMuS.
+-r requirements.txt
+-r ../../webapp/ml-backend/requirements.txt
