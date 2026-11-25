@@ -75,7 +75,7 @@ def run(name: str, pages: list[Page], set_name: str, run_dir: Path | None = None
         task=model.task,
         set=set_name,
         info=model.info,
-        page_ids=sorted(done | {page.page_id for page in pages}),
+        page_ids=sorted(page.page_id for page in pages),
         hardware=hardware(),
         git_commit=command("git", "describe", "--always", "--dirty", "--exclude=*"),
         load_seconds=round(perf_counter() - start, 2),

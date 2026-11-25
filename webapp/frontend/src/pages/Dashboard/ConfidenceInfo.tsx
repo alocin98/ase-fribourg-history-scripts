@@ -18,7 +18,7 @@ export default function ConfidenceInfo() {
     <>
       <button
         type="button"
-        className="grid size-5 shrink-0 cursor-pointer place-items-center rounded-full border border-[#d4d4d8] bg-white font-serif text-[0.7rem] font-bold text-[#71717a] italic hover:border-[#4f46e5] hover:text-[#4f46e5]"
+        className="grid size-5 shrink-0 cursor-pointer place-items-center rounded-full border border-[#dccdb3] bg-[#fffdf8] font-serif text-[0.7rem] font-bold text-[#6b5a45] italic hover:border-[#8a5a2b] hover:text-[#8a5a2b]"
         popoverTarget={id}
         aria-label={t('documents.confidenceInfo.open')}
         title={t('documents.confidenceInfo.open')}
@@ -28,13 +28,13 @@ export default function ConfidenceInfo() {
       <div
         id={id}
         popover="auto"
-        className="m-auto w-[min(30rem,calc(100%-2rem))] rounded-2xl border-0 bg-white p-5 font-sans text-[0.88rem] leading-6 text-[#3f3f46] shadow-[0_24px_50px_rgba(23,28,51,0.18)] backdrop:bg-[rgba(23,28,51,0.25)]"
+        className="m-auto w-[min(30rem,calc(100%-2rem))] rounded-2xl border-0 bg-[#fffdf8] p-5 font-sans text-[0.88rem] leading-6 text-[#4a3b2a] shadow-[0_24px_50px_rgba(42,29,16,0.18)] backdrop:bg-[rgba(42,29,16,0.25)]"
       >
-        <h2 className="m-0 text-[1rem] font-bold text-[#171c33]">
+        <h2 className="m-0 text-[1rem] font-bold text-[#2a1d10]">
           {t('documents.confidenceInfo.title')}
         </h2>
         <p className="mt-2 mb-0">{t('documents.confidenceInfo.tokens')}</p>
-        <p className="my-3 rounded-lg bg-[#f4f4f5] px-3 py-2 text-center font-mono text-[0.82rem] text-[#171c33]">
+        <p className="my-3 rounded-lg bg-[#f1e9da] px-3 py-2 text-center font-mono text-[0.82rem] text-[#2a1d10]">
           confidence = 1/n · Σ pᵢ
         </p>
         <p className="m-0">{t('documents.confidenceInfo.definition')}</p>
@@ -51,7 +51,7 @@ export default function ConfidenceInfo() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 mb-0 text-[0.8rem] leading-5 text-[#71717a]">
+        <p className="mt-3 mb-0 text-[0.8rem] leading-5 text-[#6b5a45]">
           {t('documents.confidenceInfo.caveat')}
         </p>
       </div>

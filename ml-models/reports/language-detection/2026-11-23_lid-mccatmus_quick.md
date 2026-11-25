@@ -2,16 +2,16 @@
 
 ## Data
 
-30 pages of the test split of the historic manuscripts dataset v1 (`data/manuscripts`): whole-page scans with a human transcription. Page set `quick`: 5 pages per language/era group, for development (`subsets/quick.txt`).
+30 pages of the test split of the historic manuscripts dataset v1 (`data/manuscripts`): whole-page scans with a human transcription. Page set `quick`: 5 pages per language/era group, those the fewest models were trained on (`subsets/quick.txt`).
 
 | group | language | period | pages | sources |
 |---|---|---|---|---|
-| `de_post1700` | German | 1700–1950 | 5 | mkn_kurrent |
-| `de_pre1700` | German | before 1700 | 5 | dresden_hofdiarium, koenigsfelden |
+| `de_post1700` | German | 1700–1950 | 5 | lassberg |
+| `de_pre1700` | German | before 1700 | 5 | grand_tour |
 | `en_post1800` | English | 1800–1950 | 5 | denver_jcrs, joseph_hooker |
 | `en_pre1800` | English | before 1800 | 5 | revolutionary_city |
-| `fr_post1700` | French | 1700–1950 | 5 | poilus_testaments |
-| `fr_pre1700` | French | before 1700 | 5 | cremma_medieval, cremma_mss17, gallicorpora_15e, htromance_medieval_fr |
+| `fr_post1700` | French | 1700–1950 | 5 | cremma_mss18, cremma_mss19, fondue_fr_mss18, lectaurep_mariages |
+| `fr_pre1700` | French | before 1700 | 5 | chateau_chavigny, cremma_mss17, gallicorpora_15e, htromance_medieval_fr |
 
 ## Method
 
@@ -30,11 +30,11 @@ Approach A, in two steps:
 | language | pages | accuracy % |
 |---|---|---|
 | German | 10 | 40.0 |
-| English | 10 | 70.0 |
+| English | 10 | 80.0 |
 | French | 10 | 80.0 |
-| **all** | 30 | **63.3** |
+| **all** | 30 | **66.7** |
 
-7.4 s per page.
+5.2 s per page.
 
 ## How to read this
 
@@ -43,4 +43,4 @@ Approach A, in two steps:
 
 ---
 
-Run `20261116-1636_lid-mccatmus_quick` · commit `44c2e06-dirty` · Apple M5, 24.0 GB · 2026-11-16
+Run `20261123-1926_lid-mccatmus_quick` · commit `3df307e-dirty` · Apple M5, 24.0 GB · 2026-11-23

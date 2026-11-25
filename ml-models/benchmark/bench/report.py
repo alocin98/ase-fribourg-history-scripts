@@ -7,13 +7,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from statistics import fmean
 
-from .dataset import BENCH_DIR, REPORTS_DIR, SETS, Page, load_pages
+from .dataset import BENCH_DIR, REPORTS_DIR, SETS, Page, load_pages, read_set
 from .metrics import VIEWS, Counts, bootstrap_interval, edits, match_lines, normalized
+from .overlap import checked, seen, times_seen
 from .run import BASELINES_DIR, read_records
 from .systems import SYSTEMS
 from .systems.vlm import PRESETS
 
 LANGUAGES = {"de": "German", "fr": "French", "en": "English", "la": "Latin"}
+REMARKS = "## Remarks"  # hand-written end of leaderboard.md, kept when it is rendered
 
 
 @dataclass
@@ -84,8 +86,13 @@ def load_run(path: Path, pages: dict[str, Page]) -> Run:
     # The raw answers of the vision-language models are parsed again here, so a
     # parsing fix needs no new run.
     parse = PRESETS.get(meta["system"], {}).get("postprocess")
+    # Only the pages that are in the set now: a run continued after the set changed
+    # (python -m bench run --resume) also holds pages that were dropped from it.
+    in_set = set(read_set(meta["set"]))
     scores, errors = [], {}
     for page_id, record in read_records(path).items():
+        if page_id not in in_set:
+            continue
         if "error" in record:
             errors[page_id] = record["error"]
             continue
@@ -271,6 +278,10 @@ def transcription_report(run: Run, baselines: list[Run], details: bool):
         "## Word errors by type (% of reference words)\n\n"
         + table(["model", "substituted", "deleted", "inserted"], rows)
     )
+    system = run.meta["system"]
+    seen_pages = [p for p in pages if seen(system, p)] if checked(system) else None
+    if seen_pages or any(times_seen(p) == 0 for p in pages):
+        out.append(training_overlap_section(run, runs, pages))
     out.append(HOW_TO_READ)
     if details:
         out.append(transcription_details(run, runs))
@@ -285,8 +296,60 @@ def transcription_report(run: Run, baselines: list[Run], details: bool):
         "wer": rate(run.scores, "words"),
         "seconds_per_page": mean_time(run.scores),
         "date": run.meta["started"][:10],
+        "seen_pages": None if seen_pages is None else len(seen_pages),
+        "cer_unseen": rate([s for s in run.scores if not seen(system, s.page)]),
     }
     return "\n\n".join(out) + "\n", summary
+
+
+def seen_count(run: Run) -> int | None:
+    """How many of the scored pages the model was trained on, None when not checked."""
+    system = run.meta["system"]
+    return sum(seen(system, s.page) for s in run.scores) if checked(system) else None
+
+
+def training_overlap_section(run: Run, runs: list[Run], pages: list[Page]) -> str:
+    """CER of all models on the pages no checked model was trained on and, when the
+    candidate was trained on some pages, on the pages it has and hasn't seen."""
+    system = run.meta["system"]
+    clean = {p.page_id for p in pages if times_seen(p) == 0}
+    own = {p.page_id for p in pages if seen(system, p)}
+    columns = [(f"all {len(pages)} pages", lambda s: True)]
+    if own:
+        columns += [
+            (
+                f"{len(pages) - len(own)} not seen by {run.label}",
+                lambda s: s.page.page_id not in own,
+            ),
+            (f"{len(own)} seen by {run.label}", lambda s: s.page.page_id in own),
+        ]
+    if clean:
+        columns.append((f"{len(clean)} seen by no model", lambda s: s.page.page_id in clean))
+    rows = [
+        [r.name, *(pct(rate([s for s in r.scores if keep(s)])) for _, keep in columns)]
+        for r in runs
+    ]
+    groups = ", ".join(f"`{g}`" for g in sorted({p.group for p in pages if p.page_id in clean}))
+    text = (
+        "## Pages in the training data\n\n"
+        "Our sources are public, and so is the training data of most models: a model "
+        "scores better on pages it was trained on than on new manuscripts. "
+    )
+    if clean:
+        text += (
+            f"{len(clean)} of {len(pages)} pages are in the training data of none of the "
+            f"checked models ({groups}); they are the fairest comparison. "
+        )
+    else:
+        text += "Every page is in the training data of at least one checked model. "
+    if own:
+        sources = ", ".join(sorted({p.source for p in pages if p.page_id in own}))
+        text += f"{run.label} was trained on {len(own)} pages ({sources}). "
+    text += (
+        "How many pages each model has seen is in the leaderboard; how this was checked, "
+        "and which models are not checked, is in `bench/overlap.py`."
+    )
+    return text + "\n\nCER % (normalized):\n\n" + table(["model", *(c for c, _ in columns)], rows)
 
 
 def transcription_details(run: Run, runs: list[Run]) -> str:
@@ -444,6 +507,7 @@ def update_leaderboard(report: str, summary: dict, pages: dict[str, Page]):
                 e["wer"],
                 e["seconds_per_page"],
                 e["pages"],
+                e.get("seen_pages"),
             )
             for file, e in entries.items()
             if e["task"] == "htr" and e["set"] == set_name
@@ -456,13 +520,17 @@ def update_leaderboard(report: str, summary: dict, pages: dict[str, Page]):
                 rate(b.scores, "words"),
                 mean_time(b.scores),
                 len(b.scores),
+                seen_count(b),
             )
             for b in load_baselines(set_name, pages)
         ]
         if rows:
             rows.sort(key=lambda row: row[2] if row[2] is not None else 9)
-            rows = [[name, date, pct(c), pct(w), num(s), n] for name, date, c, w, s, n in rows]
-            header = ["model", "date", "CER %", "WER %", "s / page", "pages"]
+            rows = [
+                [name, date, pct(c), pct(w), num(s), n, "not checked" if t is None else t]
+                for name, date, c, w, s, n, t in rows
+            ]
+            header = ["model", "date", "CER %", "WER %", "s / page", "pages", "seen in training"]
             out.append(
                 f"## Transcription, `{set_name}` set (normalized, lower is better)\n\n"
                 + table(header, rows)
@@ -484,4 +552,9 @@ def update_leaderboard(report: str, summary: dict, pages: dict[str, Page]):
         ]
         header = ["method", "set", "date", "accuracy %", "s / page", "pages"]
         out.append("## Language detection (higher is better)\n\n" + table(header, rows))
-    (REPORTS_DIR / "leaderboard.md").write_text("\n\n".join(out) + "\n")
+
+    # The remarks at the end are written by hand and kept as they are.
+    path = REPORTS_DIR / "leaderboard.md"
+    old = path.read_text() if path.exists() else ""
+    remarks = old[old.index(REMARKS) :].strip() if REMARKS in old else None
+    path.write_text("\n\n".join(out + ([remarks] if remarks else [])) + "\n")

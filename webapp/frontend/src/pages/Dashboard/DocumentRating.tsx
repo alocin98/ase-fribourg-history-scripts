@@ -14,13 +14,13 @@ export default function DocumentRating({ rating, rated, total }: Props) {
   const { t } = useTranslation()
 
   return (
-    <div className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white py-1 pr-1 pl-3 font-sans text-[0.78rem] text-[#5d657c] shadow-[inset_0_0_0_1px_#e4e4e7]">
+    <div className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#fffdf8] py-1 pr-1 pl-3 font-sans text-[0.78rem] text-[#6b5a45] shadow-[inset_0_0_0_1px_#e8dcc8]">
       <span
         className="size-2 shrink-0 rounded-full"
         style={{ backgroundColor: levelColors[rating.level].stroke }}
         aria-hidden="true"
       />
-      <span className="font-semibold text-[#171c33] tabular-nums">
+      <span className="font-semibold text-[#2a1d10] tabular-nums">
         {t('documents.documentConfidence', { value: confidencePercent(rating.average) })}
       </span>
       <span className="tabular-nums">{t('documents.pagesRated', { rated, total })}</span>

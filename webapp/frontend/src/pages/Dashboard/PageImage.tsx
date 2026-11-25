@@ -178,7 +178,7 @@ export default function PageImage({
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#f8f8fb]">
+    <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#faf5ec]">
       <div ref={viewerElement} className="absolute inset-0" aria-label={alt} />
       {hasBoxes && imageBounds && size !== null && (
         <PageOverlay
@@ -192,10 +192,10 @@ export default function PageImage({
           onZoom={zoomImage}
         />
       )}
-      <div className="absolute right-3 bottom-3 z-10 flex overflow-hidden rounded-lg bg-white/95 shadow-[0_2px_8px_rgba(23,28,51,0.18)]">
+      <div className="absolute right-3 bottom-3 z-10 flex overflow-hidden rounded-lg bg-[#fffdf8]/95 shadow-[0_2px_8px_rgba(42,29,16,0.18)]">
         <button
           type="button"
-          className="grid size-9 place-items-center border-r border-[#e4e4e7] text-lg text-[#27272a] hover:bg-[#f4f4f5]"
+          className="grid size-9 place-items-center border-r border-[#e8dcc8] text-lg text-[#33251a] hover:bg-[#f1e9da]"
           onClick={() => zoomBy(1.5)}
           aria-label={zoomInLabel}
         >
@@ -203,7 +203,7 @@ export default function PageImage({
         </button>
         <button
           type="button"
-          className="grid size-9 place-items-center border-r border-[#e4e4e7] text-lg text-[#27272a] hover:bg-[#f4f4f5]"
+          className="grid size-9 place-items-center border-r border-[#e8dcc8] text-lg text-[#33251a] hover:bg-[#f1e9da]"
           onClick={() => zoomBy(1 / 1.5)}
           aria-label={zoomOutLabel}
         >
@@ -211,7 +211,7 @@ export default function PageImage({
         </button>
         <button
           type="button"
-          className="grid size-9 place-items-center text-xs font-semibold text-[#27272a] hover:bg-[#f4f4f5]"
+          className="grid size-9 place-items-center text-xs font-semibold text-[#33251a] hover:bg-[#f1e9da]"
           onClick={resetZoom}
           aria-label={resetZoomLabel}
         >
@@ -345,7 +345,7 @@ function PageOverlay({
               rx={6}
               fill={active ? stroke : 'transparent'}
               fillOpacity={active ? 0.14 : 0}
-              stroke={active ? stroke : '#4f46e5'}
+              stroke={active ? stroke : '#8a5a2b'}
               strokeOpacity={active ? 1 : activeIndex === null ? 0.18 : 0.08}
               strokeWidth={active ? 2 : 1}
               vectorEffect="non-scaling-stroke"

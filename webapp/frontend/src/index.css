@@ -8,6 +8,7 @@
 /* Palette de l'application. Les pages utilisent surtout les classes Tailwind. */
 @theme {
   --font-sans: 'Segoe UI', 'Trebuchet MS', sans-serif;
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
   --animate-auth-in: auth-in 1.25s ease both;
   --animate-auth-from-right: auth-from-right 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-auth-from-left: auth-from-left 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -45,9 +46,9 @@
     }
   }
 
-  --color-paper: #f6f7fb;
-  --color-ink: #172033;
-  --color-accent: #4f46e5;
+  --color-paper: #f4ede0;
+  --color-ink: #2a1d10;
+  --color-accent: #8a5a2b;
 }
 
 @layer base {
@@ -83,6 +84,6 @@
     -webkit-text-fill-color: var(--color-ink);
     caret-color: var(--color-ink);
     transition: background-color 99999s ease-out;
-    box-shadow: 0 0 0 1000px #ffffff inset;
+    box-shadow: 0 0 0 1000px #fffdf8 inset;
   }
 }

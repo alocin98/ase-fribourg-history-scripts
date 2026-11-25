@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
 const iconButton =
-  'inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e6e8f2] bg-white text-[#4338a8] no-underline hover:border-[#c9cdf8]'
+  'inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#e8dcc8] bg-[#fffdf8] text-[#7a4d22] no-underline hover:border-[#d9c19a]'
 const dangerButton =
-  'inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#f3d0d0] bg-white text-[#dc2626] hover:border-[#dc2626]'
+  'inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-[#f3d0d0] bg-[#fffdf8] text-[#dc2626] hover:border-[#dc2626]'
 const tooltipClass =
-  'pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#171c33] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(23,28,51,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100'
+  'pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded-md bg-[#2a1d10] px-2 py-1 font-sans text-[0.7rem] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(42,29,16,0.2)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100'
 
 function Eye() {
   return (

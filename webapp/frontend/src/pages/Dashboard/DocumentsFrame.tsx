@@ -74,8 +74,8 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
 
   return (
     <DocumentsContext.Provider value={{ owned, shared }}>
-      <div className="flex h-dvh flex-col overflow-hidden bg-[#f5f6fa] font-sans text-[#172033]">
-        <header className="relative flex min-h-16 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[#e6e8f2] bg-white px-5 py-3 max-[640px]:px-3">
+      <div className="flex h-dvh flex-col overflow-hidden bg-[#f4ede0] font-sans text-[#2a1d10]">
+        <header className="relative flex min-h-16 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[#e8dcc8] bg-[#fffdf8] px-5 py-3 max-[640px]:px-3">
           <Brand />
           <div className="pointer-events-none absolute inset-x-0 top-1/2 hidden -translate-y-1/2 justify-center px-4 min-[720px]:flex">
             <div className="pointer-events-auto w-full max-w-[17.25rem]">
@@ -91,10 +91,10 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
                 to="/app/documents"
                 end
                 className={({ isActive }) =>
-                  `px-2 py-1.5 font-sans text-[0.88rem] font-semibold underline decoration-[#c7d2fe] underline-offset-[4px] ${
+                  `px-2 py-1.5 font-sans text-[0.88rem] font-semibold underline decoration-[#dcc49c] underline-offset-[4px] ${
                     isActive
-                      ? 'text-[#312e81] decoration-[#4338a8]'
-                      : 'text-[#3d4663] hover:text-[#312e81] hover:decoration-[#4338a8]'
+                      ? 'text-[#5e3b18] decoration-[#7a4d22]'
+                      : 'text-[#4a3b2a] hover:text-[#5e3b18] hover:decoration-[#7a4d22]'
                   }`
                 }
               >
@@ -104,7 +104,7 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
             <LanguageSwitcher compact />
             <button
               type="button"
-              className="inline-flex h-8 cursor-pointer items-center rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-8 cursor-pointer items-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-2.5 font-sans text-[0.72rem] font-bold text-[#7a4d22] hover:bg-[#8a5a2b] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               onClick={handleLogout}
               disabled={isLeaving}
             >
@@ -114,7 +114,7 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
         </header>
         {logoutFailed && (
           <p
-            className="m-0 bg-white px-5 pb-2 text-right text-[0.85rem] text-[#dc2626]"
+            className="m-0 bg-[#fffdf8] px-5 pb-2 text-right text-[0.85rem] text-[#dc2626]"
             role="alert"
           >
             {t('errors.server')}

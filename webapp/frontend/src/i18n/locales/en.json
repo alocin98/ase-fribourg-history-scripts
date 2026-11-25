@@ -239,5 +239,19 @@
     "shareAlreadyExists": "This document is already shared with that user.",
     "shareInvalid": "Could not share with this user.",
     "searchFailed": "Could not run the search. Please try again later."
+  },
+  "landing": {
+    "eyebrow": "Old handwriting, read again",
+    "title1": "Old manuscripts,",
+    "title2": "easy to read.",
+    "intro": "Upload a scan of a page. Manuscript AI finds each line, transcribes it, and lets you check the text next to the original.",
+    "start": "Open my documents",
+    "create": "Create an account",
+    "step1": "Upload a scanned page",
+    "step2": "Read it line by line",
+    "step3": "Search, correct, export",
+    "videoAlt": "An old manuscript whose pages turn slowly in warm light",
+    "credit": "Fribourg · ASE 2026",
+    "scroll": "Scroll to continue"
   }
 }

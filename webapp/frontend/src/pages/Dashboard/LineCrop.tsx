@@ -27,7 +27,7 @@ export default function LineCrop({ src, size: [width, height], bbox, maxHeightRe
 
   return (
     <div
-      className="max-w-full rounded-md bg-white bg-no-repeat shadow-[inset_0_0_0_1px_#e4e4e7]"
+      className="max-w-full rounded-md bg-[#fffdf8] bg-no-repeat shadow-[inset_0_0_0_1px_#e8dcc8]"
       style={{
         width: `min(100%, ${maxHeightRem * (cropWidth / cropHeight)}rem)`,
         aspectRatio: `${cropWidth} / ${cropHeight}`,

@@ -12,6 +12,7 @@ class PredLine:
     text: str
     bbox: tuple[int, int, int, int] | None = None
     confidence: float | None = None
+    polygon: list[list[int]] | None = None  # line boundary, when a system reuses the lines
 
 
 @dataclass
@@ -41,6 +42,8 @@ SYSTEMS = {
     "trocr": System("TrOCR", "trocr.TrOCR"),
     "mccatmus": System("McCATMuS", "mccatmus.McCATMuS"),
     "lid-mccatmus": System("Language detection A", "mccatmus.McCATMuS", {"max_lines": 10}),
+    "ppocrv6": System("PP-OCRv6 medium", "ppocrv6.PPOCRv6"),
+    "medusa-9b": System("MEDUSA 0.2 9B", "medusa.Medusa"),
     "qwen3.5-9b": System("Qwen3.5-9B", "vlm.VLM", {"preset": "qwen3.5-9b"}, True),
     "churro-3b": System("CHURRO 3B", "vlm.VLM", {"preset": "churro-3b"}, True),
 }

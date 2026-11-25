@@ -104,7 +104,7 @@ export default function TranscriptionSearch() {
       <div className="relative">
         <svg
           viewBox="0 0 24 24"
-          className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-[#8b93a7]"
+          className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-[#9c8a72]"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"
@@ -129,11 +129,11 @@ export default function TranscriptionSearch() {
           }}
           placeholder={t('search.placeholder')}
           autoComplete="off"
-          className="h-8 w-full rounded-full border border-[#e6e8f2] bg-[#f8f9fc] py-1 pr-3 pl-8 font-sans text-[0.82rem] text-[#172033] outline-none placeholder:text-[#98a2b3] focus:border-[#4f46e5] focus:bg-white focus:shadow-[0_0_0_3px_rgba(79,70,229,0.12)]"
+          className="h-8 w-full rounded-full border border-[#e8dcc8] bg-[#faf5ec] py-1 pr-3 pl-8 font-sans text-[0.82rem] text-[#2a1d10] outline-none placeholder:text-[#a8957b] focus:border-[#8a5a2b] focus:bg-[#fffdf8] focus:shadow-[0_0_0_3px_rgba(138,90,43,0.12)]"
         />
         {loading && (
           <span
-            className="absolute top-1/2 right-3 size-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-[#4338a8]/30 border-t-[#4338a8]"
+            className="absolute top-1/2 right-3 size-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-[#7a4d22]/30 border-t-[#7a4d22]"
             aria-hidden="true"
           />
         )}
@@ -141,7 +141,7 @@ export default function TranscriptionSearch() {
 
       {showPanel && (
         <div
-          className="absolute top-[calc(100%+0.4rem)] right-0 left-0 z-30 max-h-[min(22rem,60vh)] overflow-auto rounded-xl border border-[#e6e8f2] bg-white shadow-[0_16px_40px_rgba(23,28,51,0.14)]"
+          className="absolute top-[calc(100%+0.4rem)] right-0 left-0 z-30 max-h-[min(22rem,60vh)] overflow-auto rounded-xl border border-[#e8dcc8] bg-[#fffdf8] shadow-[0_16px_40px_rgba(42,29,16,0.14)]"
           role="listbox"
           aria-label={t('search.results')}
         >
@@ -150,11 +150,11 @@ export default function TranscriptionSearch() {
               {t('errors.searchFailed')}
             </p>
           ) : loading && hits.length === 0 ? (
-            <p className="m-0 px-3 py-3 font-sans text-[0.85rem] text-[#5d657c]">
+            <p className="m-0 px-3 py-3 font-sans text-[0.85rem] text-[#6b5a45]">
               {t('common.loading')}
             </p>
           ) : hits.length === 0 ? (
-            <p className="m-0 px-3 py-3 font-sans text-[0.85rem] text-[#5d657c]">
+            <p className="m-0 px-3 py-3 font-sans text-[0.85rem] text-[#6b5a45]">
               {t('search.empty')}
             </p>
           ) : (
@@ -164,18 +164,18 @@ export default function TranscriptionSearch() {
                   <button
                     type="button"
                     role="option"
-                    className="flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-2.5 py-2 text-left hover:bg-[#f5f6fa]"
+                    className="flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-2.5 py-2 text-left hover:bg-[#f4ede0]"
                     onClick={() => openHit(hit)}
                   >
-                    <span className="truncate font-sans text-[0.78rem] font-semibold text-[#4338a8]">
+                    <span className="truncate font-sans text-[0.78rem] font-semibold text-[#7a4d22]">
                       {hit.document_name}
-                      <span className="font-normal text-[#8b93a7]">
+                      <span className="font-normal text-[#9c8a72]">
                         {' '}
                         · {t('search.page', { n: hit.page_number })}
                       </span>
                     </span>
-                    <span className="line-clamp-2 font-sans text-[0.88rem] leading-6 text-[#27272a]">
-                      <span className="mr-1.5 text-[0.72rem] text-[#a1a1aa] tabular-nums">
+                    <span className="line-clamp-2 font-sans text-[0.88rem] leading-6 text-[#33251a]">
+                      <span className="mr-1.5 text-[0.72rem] text-[#a8957b] tabular-nums">
                         {hit.line_index}
                       </span>
                       <HighlightedText text={hit.line_text} query={query} />

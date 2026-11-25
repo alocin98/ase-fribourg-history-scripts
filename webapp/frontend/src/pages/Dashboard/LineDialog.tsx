@@ -16,7 +16,7 @@ type Props = {
 }
 
 const navButtonClass =
-  'grid size-9 cursor-pointer place-items-center rounded-full border border-[#e4e4e7] bg-white text-[#3f3f46] hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#e4e4e7] disabled:hover:text-[#3f3f46]'
+  'grid size-9 cursor-pointer place-items-center rounded-full border border-[#e8dcc8] bg-[#fffdf8] text-[#4a3b2a] hover:border-[#8a5a2b] hover:text-[#8a5a2b] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#e8dcc8] disabled:hover:text-[#4a3b2a]'
 
 function Chevron({ direction }: { direction: 'left' | 'right' }) {
   return (
@@ -63,7 +63,7 @@ export default function LineDialog({ src, size, lines, index, onNavigate, onClos
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      className="m-auto w-[calc(100%-2rem)] max-w-4xl rounded-2xl border border-[#e6e8f2] bg-white p-0 text-left text-[#172033] shadow-[0_24px_60px_rgba(23,28,51,0.18)] backdrop:bg-[#171c33]/40"
+      className="m-auto w-[calc(100%-2rem)] max-w-4xl rounded-2xl border border-[#e8dcc8] bg-[#fffdf8] p-0 text-left text-[#2a1d10] shadow-[0_24px_60px_rgba(42,29,16,0.18)] backdrop:bg-[#2a1d10]/40"
       onClose={onClose}
       onClick={(event) => {
         if (event.target === event.currentTarget) event.currentTarget.close()
@@ -73,12 +73,9 @@ export default function LineDialog({ src, size, lines, index, onNavigate, onClos
         if (event.key === 'ArrowRight' && next) onNavigate(next.index)
       }}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-[#f4f4f5] px-5 py-3.5 sm:px-6">
+      <div className="flex items-center justify-between gap-3 border-b border-[#f1e9da] px-5 py-3.5 sm:px-6">
         <div className="flex min-w-0 flex-wrap items-center gap-2.5">
-          <h2
-            id={titleId}
-            className="m-0 font-sans text-[1.1rem] font-bold tracking-[-0.01em] text-[#171c33]"
-          >
+          <h2 id={titleId} className="m-0 font-serif text-[1.1rem] font-semibold text-[#2a1d10]">
             {t('documents.lineDialog.title', { n: line.index, total: lines.length })}
           </h2>
           {line.confidence !== null && (
@@ -154,7 +151,7 @@ function LineDetail({
   return (
     <div className="flex max-h-[calc(100dvh-8rem)] flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6">
       {line.bbox && size && (
-        <div className="flex justify-center rounded-xl bg-[#fafafa] px-4 py-6">
+        <div className="flex justify-center rounded-xl bg-[#faf5ec] px-4 py-6">
           <LineCrop
             src={src}
             size={size}
@@ -165,13 +162,13 @@ function LineDetail({
         </div>
       )}
 
-      <p className="m-0 text-center font-sans text-[1.3rem] leading-10 text-[#171c33]">
+      <p className="m-0 text-center font-sans text-[1.3rem] leading-10 text-[#2a1d10]">
         {line.words.length > 0
           ? line.words.map((word, i) => (
               <span key={i}>
                 {i > 0 && ' '}
                 <span
-                  className={`rounded px-0.5 underline decoration-[3px] underline-offset-[6px] transition-colors duration-100 ${hoveredWord === i ? 'bg-[#eef2ff]' : ''}`}
+                  className={`rounded px-0.5 underline decoration-[3px] underline-offset-[6px] transition-colors duration-100 ${hoveredWord === i ? 'bg-[#f5ead6]' : ''}`}
                   style={{
                     textDecorationColor: levelColors[confidenceLevel(word.confidence)].stroke,
                   }}
@@ -186,16 +183,16 @@ function LineDetail({
       </p>
 
       <section>
-        <h3 className="m-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+        <h3 className="m-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#6b5a45] uppercase">
           {t('documents.lineDialog.words')}
         </h3>
         {line.words.length === 0 ? (
-          <p className="mt-2 mb-0 font-sans text-[0.85rem] text-[#a1a1aa]">
+          <p className="mt-2 mb-0 font-sans text-[0.85rem] text-[#a8957b]">
             {t('documents.lineDialog.noWords')}
           </p>
         ) : (
           <>
-            <p className="mt-1 mb-0 font-sans text-[0.78rem] text-[#71717a]">
+            <p className="mt-1 mb-0 font-sans text-[0.78rem] text-[#6b5a45]">
               {t('documents.lineDialog.wordsHint')}
             </p>
             <ol className="mt-3 mb-0 flex list-none flex-wrap gap-2 p-0">
@@ -205,12 +202,12 @@ function LineDetail({
                 return (
                   <li
                     key={i}
-                    className={`flex min-w-[5.5rem] flex-col gap-1.5 rounded-lg px-2.5 py-2 font-sans transition-colors duration-100 ${hoveredWord === i ? 'bg-[#eef2ff] shadow-[inset_0_0_0_1px_#c7d2fe]' : 'bg-[#fafafa]'}`}
+                    className={`flex min-w-[5.5rem] flex-col gap-1.5 rounded-lg px-2.5 py-2 font-sans transition-colors duration-100 ${hoveredWord === i ? 'bg-[#f5ead6] shadow-[inset_0_0_0_1px_#dcc49c]' : 'bg-[#faf5ec]'}`}
                     onMouseEnter={() => setHoveredWord(i)}
                     onMouseLeave={() => setHoveredWord(null)}
                   >
                     <span className="flex items-baseline justify-between gap-3">
-                      <span className="text-[0.92rem] font-semibold text-[#171c33]">
+                      <span className="text-[0.92rem] font-semibold text-[#2a1d10]">
                         {word.text}
                       </span>
                       <span
@@ -219,7 +216,7 @@ function LineDetail({
                         {percent} %
                       </span>
                     </span>
-                    <span className="h-1 overflow-hidden rounded-full bg-[#e4e4e7]">
+                    <span className="h-1 overflow-hidden rounded-full bg-[#e8dcc8]">
                       <span
                         className="block h-full rounded-full"
                         style={{

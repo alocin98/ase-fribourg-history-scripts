@@ -239,5 +239,19 @@
     "shareAlreadyExists": "Ce document est déjà partagé avec cet utilisateur.",
     "shareInvalid": "Impossible de partager avec cet utilisateur.",
     "searchFailed": "Impossible de lancer la recherche. Réessayez plus tard."
+  },
+  "landing": {
+    "eyebrow": "Écritures anciennes, lues à nouveau",
+    "title1": "Les manuscrits anciens,",
+    "title2": "enfin lisibles.",
+    "intro": "Déposez le scan d’une page. Manuscript AI repère chaque ligne, la transcrit, et vous laisse vérifier le texte à côté de l’original.",
+    "start": "Ouvrir mes documents",
+    "create": "Créer un compte",
+    "step1": "Déposez une page numérisée",
+    "step2": "Lisez-la ligne par ligne",
+    "step3": "Cherchez, corrigez, exportez",
+    "videoAlt": "Un manuscrit ancien dont les pages tournent doucement dans une lumière chaude",
+    "credit": "Fribourg · ASE 2026",
+    "scroll": "Faites défiler pour continuer"
   }
 }

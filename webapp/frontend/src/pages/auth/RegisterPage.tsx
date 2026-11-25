@@ -11,14 +11,14 @@ import LanguageSwitcher from '../../components/LanguageSwitcher'
 import { useAuthTransition } from './useAuthTransition'
 
 const inputClass =
-  'w-full rounded-lg border border-[#d4d8e6] bg-white px-3.5 py-2 font-sans text-base text-[#172033] outline-none placeholder:text-[0.8rem] placeholder:text-[#98a2b3] focus:border-[#4f46e5] focus:shadow-[0_0_0_3px_rgba(79,70,229,0.12)]'
-const labelClass = 'flex flex-col gap-1.5 font-sans text-[0.85rem] font-semibold text-[#1c2440]'
+  'w-full rounded-lg border border-[#dccdb3] bg-[#fffdf8] px-3.5 py-2 font-sans text-base text-[#2a1d10] outline-none placeholder:text-[0.8rem] placeholder:text-[#a8957b] focus:border-[#8a5a2b] focus:shadow-[0_0_0_3px_rgba(138,90,43,0.12)]'
+const labelClass = 'flex flex-col gap-1.5 font-sans text-[0.85rem] font-semibold text-[#33251a]'
 const navLinkClass =
-  'inline-flex h-8 items-center rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white'
+  'inline-flex h-8 items-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-2.5 font-sans text-[0.72rem] font-bold text-[#7a4d22] no-underline hover:bg-[#8a5a2b] hover:text-white'
 const navigationClass =
   'flex w-full items-center justify-between gap-3 px-5 py-5 sm:px-8 lg:px-10 max-[640px]:flex-wrap'
 const submitClass =
-  'w-fit shrink-0 cursor-pointer rounded-full border border-[#514fec] bg-white px-5 py-2.5 font-sans text-[0.95rem] font-bold text-[#514fec] hover:bg-[#514fec] hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
+  'w-fit shrink-0 cursor-pointer rounded-full border border-[#8a5a2b] bg-[#fffdf8] px-5 py-2.5 font-sans text-[0.95rem] font-bold text-[#8a5a2b] hover:bg-[#8a5a2b] hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -70,7 +70,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f5f6fa] font-sans text-[#172033]">
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f4ede0] font-sans text-[#2a1d10]">
       <nav className={navigationClass} aria-label={t('nav.auth')}>
         <Brand />
         <div className="flex flex-wrap items-center gap-1.5">
@@ -88,16 +88,16 @@ export default function RegisterPage() {
       <main
         className={`mx-auto flex min-h-0 w-full max-w-[760px] flex-1 items-center px-5 py-4 sm:px-8 ${enterAnimation}`}
       >
-        <div className="w-full overflow-hidden rounded-2xl border border-[#d5d9e8] bg-white bg-[radial-gradient(16px_16px_at_0_0,rgba(81,79,236,0.7),transparent_72%),radial-gradient(16px_16px_at_100%_100%,rgba(81,79,236,0.7),transparent_72%)] px-7 py-7 shadow-[0_10px_28px_rgba(49,46,129,0.06)] max-[640px]:px-5 max-[480px]:px-4">
-          <h1 className="m-0 font-sans text-[1.6rem] leading-[1.2] font-bold tracking-[-0.03em] text-[#171c33]">
+        <div className="w-full overflow-hidden rounded-2xl border border-[#dfd1b9] bg-[#fffdf8] bg-[radial-gradient(16px_16px_at_0_0,rgba(138,90,43,0.7),transparent_72%),radial-gradient(16px_16px_at_100%_100%,rgba(138,90,43,0.7),transparent_72%)] px-7 py-7 shadow-[0_10px_28px_rgba(90,60,25,0.06)] max-[640px]:px-5 max-[480px]:px-4">
+          <h1 className="m-0 font-serif text-[1.6rem] leading-[1.2] font-semibold text-[#2a1d10]">
             {t('register.title')}
           </h1>
-          <p className="mt-2 mb-5 font-sans text-base leading-[1.6] text-[#5d657c]">
+          <p className="mt-2 mb-5 font-sans text-base leading-[1.6] text-[#6b5a45]">
             {t('register.hint')}
           </p>
 
           <form
-            className="grid grid-cols-2 gap-4 rounded-xl border border-[#e3e0ef] bg-[#f8f9fc] p-5 max-[640px]:grid-cols-1"
+            className="grid grid-cols-2 gap-4 rounded-xl border border-[#e8dcc8] bg-[#faf5ec] p-5 max-[640px]:grid-cols-1"
             onSubmit={handleSubmit}
           >
             <label className={labelClass}>
@@ -149,10 +149,10 @@ export default function RegisterPage() {
               <button type="submit" className={submitClass} disabled={isSubmitting}>
                 {isSubmitting ? t('register.submitting') : t('register.submit')}
               </button>
-              <p className="m-0 ml-auto text-right font-sans text-[0.9rem] text-[#5d657c]">
+              <p className="m-0 ml-auto text-right font-sans text-[0.9rem] text-[#6b5a45]">
                 {t('register.hasAccount')}{' '}
                 <Link
-                  className="font-bold text-[#4f46e5] underline decoration-[#4f46e5] underline-offset-[3px]"
+                  className="font-bold text-[#8a5a2b] underline decoration-[#8a5a2b] underline-offset-[3px]"
                   to="/login"
                 >
                   {t('register.login')}
