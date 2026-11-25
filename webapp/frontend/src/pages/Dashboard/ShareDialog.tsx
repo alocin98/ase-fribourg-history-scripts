@@ -12,11 +12,11 @@ import {
 } from '../../api/documents'
 
 const fieldClass =
-  'mt-1 w-full rounded-lg border border-[#d4d8e6] bg-white px-3 py-2 font-sans text-[0.95rem] font-normal text-[#172033] outline-none placeholder:text-[#98a2b3] focus:border-[#4f46e5] focus:shadow-[0_0_0_3px_rgba(79,70,229,0.12)]'
+  'mt-1 w-full rounded-lg border border-[#dccdb3] bg-[#fffdf8] px-3 py-2 font-sans text-[0.95rem] font-normal text-[#2a1d10] outline-none placeholder:text-[#a8957b] focus:border-[#8a5a2b] focus:shadow-[0_0_0_3px_rgba(138,90,43,0.12)]'
 const primaryButton =
-  'inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 font-sans text-[0.82rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[#8a5a2b] hover:bg-[#6e4520] px-4 font-sans text-[0.82rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60'
 const neutralButton =
-  'inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-4 font-sans text-[0.82rem] font-bold text-[#7a4d22] hover:bg-[#8a5a2b] hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
 
 type Props = {
   documentId: string
@@ -109,20 +109,20 @@ export default function ShareDialog({ documentId, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-40 grid place-items-center bg-[rgba(23,28,51,0.35)] p-4"
+      className="fixed inset-0 z-40 grid place-items-center bg-[rgba(42,29,16,0.35)] p-4"
       onMouseDown={onClose}
     >
       <div
-        className="flex max-h-[min(36rem,calc(100dvh-2rem))] w-[min(480px,100%)] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_24px_50px_rgba(23,28,51,0.16)]"
+        className="flex max-h-[min(36rem,calc(100dvh-2rem))] w-[min(480px,100%)] flex-col overflow-hidden rounded-2xl bg-[#fffdf8] shadow-[0_24px_50px_rgba(42,29,16,0.16)]"
         onMouseDown={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="share-dialog-title"
       >
-        <div className="shrink-0 border-b border-[#eef0f6] px-5 py-4 sm:px-6">
+        <div className="shrink-0 border-b border-[#efe6d6] px-5 py-4 sm:px-6">
           <h2
             id="share-dialog-title"
-            className="m-0 font-sans text-[1.15rem] font-bold text-[#171c33]"
+            className="m-0 font-serif text-[1.15rem] font-semibold text-[#2a1d10]"
           >
             {t('documents.share.title')}
           </h2>
@@ -133,7 +133,7 @@ export default function ShareDialog({ documentId, onClose }: Props) {
             className="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end"
             onSubmit={handleSubmit}
           >
-            <label className="block min-w-0 font-sans text-[0.82rem] font-semibold text-[#1c2440]">
+            <label className="block min-w-0 font-sans text-[0.82rem] font-semibold text-[#33251a]">
               {t('documents.share.username')}
               <input
                 className={fieldClass}
@@ -145,7 +145,7 @@ export default function ShareDialog({ documentId, onClose }: Props) {
                 disabled={isSaving}
               />
             </label>
-            <label className="block font-sans text-[0.82rem] font-semibold text-[#1c2440]">
+            <label className="block font-sans text-[0.82rem] font-semibold text-[#33251a]">
               {t('documents.share.role')}
               <select
                 className={fieldClass}
@@ -173,7 +173,7 @@ export default function ShareDialog({ documentId, onClose }: Props) {
           )}
 
           {shares === null ? (
-            <p className="mt-5 mb-0 font-sans text-[0.9rem] text-[#5d657c]">
+            <p className="mt-5 mb-0 font-sans text-[0.9rem] text-[#6b5a45]">
               {t('common.loading')}
             </p>
           ) : shares.length > 0 ? (
@@ -181,14 +181,14 @@ export default function ShareDialog({ documentId, onClose }: Props) {
               {shares.map((share) => (
                 <li
                   key={share.id}
-                  className="flex flex-col gap-2 rounded-xl border border-[#eef0f6] bg-[#f8f9fc] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-xl border border-[#efe6d6] bg-[#faf5ec] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <span className="min-w-0 truncate font-sans text-[0.9rem] font-semibold text-[#171c33]">
+                  <span className="min-w-0 truncate font-sans text-[0.9rem] font-semibold text-[#2a1d10]">
                     {share.username}
                   </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <select
-                      className="h-8 rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.75rem] font-bold text-[#4338a8] outline-none disabled:opacity-60"
+                      className="h-8 rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-2.5 font-sans text-[0.75rem] font-bold text-[#7a4d22] outline-none disabled:opacity-60"
                       value={share.role}
                       disabled={busyShareId === share.id}
                       aria-label={t('documents.share.roleFor', { username: share.username })}
@@ -201,7 +201,7 @@ export default function ShareDialog({ documentId, onClose }: Props) {
                     </select>
                     <button
                       type="button"
-                      className="inline-flex h-8 cursor-pointer items-center rounded-full border border-[#f3d0d0] bg-white px-2.5 font-sans text-[0.75rem] font-bold text-[#dc2626] hover:border-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-8 cursor-pointer items-center rounded-full border border-[#f3d0d0] bg-[#fffdf8] px-2.5 font-sans text-[0.75rem] font-bold text-[#dc2626] hover:border-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={busyShareId === share.id}
                       onClick={() => {
                         void removeShare(share)
@@ -216,7 +216,7 @@ export default function ShareDialog({ documentId, onClose }: Props) {
           ) : null}
         </div>
 
-        <div className="flex shrink-0 justify-end border-t border-[#eef0f6] px-5 py-3 sm:px-6">
+        <div className="flex shrink-0 justify-end border-t border-[#efe6d6] px-5 py-3 sm:px-6">
           <button type="button" className={neutralButton} onClick={onClose}>
             {t('documents.cancel')}
           </button>

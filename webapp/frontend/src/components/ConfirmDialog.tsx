@@ -31,7 +31,7 @@ export default function ConfirmDialog({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-[#e6e8f2] bg-white p-6 text-left whitespace-normal text-[#172033] shadow-[0_24px_60px_rgba(23,28,51,0.18)] backdrop:bg-[#171c33]/40 sm:p-7"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-[#e8dcc8] bg-[#fffdf8] p-6 text-left whitespace-normal text-[#2a1d10] shadow-[0_24px_60px_rgba(42,29,16,0.18)] backdrop:bg-[#2a1d10]/40 sm:p-7"
       onClose={onClose}
       onCancel={(event) => {
         if (busy) event.preventDefault()
@@ -42,17 +42,17 @@ export default function ConfirmDialog({
     >
       <h2
         id={titleId}
-        className="m-0 font-sans text-[1.25rem] leading-tight font-bold tracking-[-0.02em] text-[#171c33]"
+        className="m-0 font-serif text-[1.25rem] leading-tight font-semibold text-[#2a1d10]"
       >
         {title}
       </h2>
       {message && (
-        <p className="mt-2 mb-0 font-sans text-[0.95rem] leading-6 text-[#5d657c]">{message}</p>
+        <p className="mt-2 mb-0 font-sans text-[0.95rem] leading-6 text-[#6b5a45]">{message}</p>
       )}
       <div className="mt-6 flex flex-wrap justify-end gap-2">
         <button
           type="button"
-          className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-5 font-sans text-[0.95rem] font-bold text-[#4338a8] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-5 font-sans text-[0.95rem] font-bold text-[#7a4d22] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={busy}
           onClick={() => dialogRef.current?.close()}
           autoFocus

@@ -1,29 +1,79 @@
-// Page / : présentation du projet
-import { useState } from 'react'
+// Page / : accueil avec un vieux livre qui tourne ses pages en fond.
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import manuscriptPage from '../assets/gillion-de-trazegnies-1464.jpg'
 import { useAuth } from '../auth/AuthProvider'
 import Brand from '../components/Brand'
+import DustLayer from '../components/DustLayer'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+
+const STEPS = ['step1', 'step2', 'step3'] as const
+const NUMERALS = ['I', 'II', 'III']
 
 export default function WelcomePage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { user, logout } = useAuth()
   const isSignedIn = Boolean(user)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isExiting, setIsExiting] = useState(false)
+  const nextPath = isSignedIn ? '/app' : '/login'
 
-  // Le bouton principal ouvre le compte si la session existe, sinon la connexion.
-  const openAccount = () => {
-    navigate(isSignedIn ? '/app' : '/login')
-  }
+  // Passe à la page suivante (connexion ou documents) avec un court fondu vers le haut.
+  const goNext = useCallback(() => {
+    if (isExiting) return
+    setIsExiting(true)
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.setTimeout(() => navigate(nextPath), reduce ? 0 : 550)
+  }, [isExiting, navigate, nextPath])
+
+  // Molette, glissé vers le haut sur mobile, ou flèche bas / Page suivante : on avance.
+  useEffect(() => {
+    let wheelTotal = 0
+    let wheelReset = 0
+    let touchStartY: number | null = null
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY <= 0) return
+      wheelTotal += e.deltaY
+      window.clearTimeout(wheelReset)
+      wheelReset = window.setTimeout(() => (wheelTotal = 0), 250)
+      if (wheelTotal > 60) goNext()
+    }
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0]?.clientY ?? null
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      const endY = e.changedTouches[0]?.clientY
+      if (touchStartY !== null && endY !== undefined && touchStartY - endY > 60) goNext()
+      touchStartY = null
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') goNext()
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend', onTouchEnd)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.clearTimeout(wheelReset)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [goNext])
+
+  // Pas de vidéo qui bouge si l'utilisateur a demandé moins d'animations.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) videoRef.current?.pause()
+  }, [])
 
   const signOut = async () => {
     setIsLeaving(true)
-    setIsMenuOpen(false)
     try {
       await logout()
     } finally {
@@ -31,124 +81,133 @@ export default function WelcomePage() {
     }
   }
 
+  const ghostButton =
+    'inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#e9d5b0]/30 bg-[#1a120b]/40 px-4 text-[0.8rem] font-semibold text-[#f4ead8] no-underline backdrop-blur-sm transition-colors hover:border-[#e9d5b0]/70 hover:bg-[#e9d5b0]/10 disabled:opacity-60'
+
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f5f6fa] font-sans text-[#172033]">
-      {/* Barre du haut : logo, langue, connexion ou profil. */}
-      <header className="w-full">
-        <div className="relative flex w-full items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-10">
-          <Brand />
-
-          <button
-            type="button"
-            className="ml-auto hidden size-[42px] shrink-0 cursor-pointer flex-col items-center justify-center gap-[5px] rounded-[10px] border border-[#d9dded] bg-white max-[1100px]:inline-flex"
-            aria-label={isMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
-            aria-expanded={isMenuOpen}
-            aria-controls="welcome-menu"
-            onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
-          >
-            <span className="block h-0.5 w-[18px] rounded-sm bg-[#1e1b4b]" />
-            <span className="block h-0.5 w-[18px] rounded-sm bg-[#1e1b4b]" />
-            <span className="block h-0.5 w-[18px] rounded-sm bg-[#1e1b4b]" />
-          </button>
-
-          <nav
-            id="welcome-menu"
-            className={`${isMenuOpen ? 'max-[1100px]:flex' : 'max-[1100px]:hidden'} flex items-center gap-5 font-sans min-[1101px]:shrink-0 max-[1100px]:absolute max-[1100px]:top-[calc(100%+0.4rem)] max-[1100px]:right-0 max-[1100px]:left-0 max-[1100px]:z-40 max-[1100px]:flex-col max-[1100px]:items-stretch max-[1100px]:gap-1 max-[1100px]:rounded-[14px] max-[1100px]:border max-[1100px]:border-[#e3e0ef] max-[1100px]:bg-white max-[1100px]:p-3 max-[1100px]:shadow-[0_16px_36px_rgba(30,27,75,0.12)]`}
-            aria-label={t('nav.main')}
-          >
-            <div className="flex items-center gap-1.5 max-[1100px]:w-full max-[1100px]:flex-col max-[1100px]:items-stretch">
-              {isSignedIn && (
-                <Link
-                  to="/app"
-                  className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('home.dashboard')} <span aria-hidden="true">↗</span>
-                </Link>
-              )}
-              <LanguageSwitcher
-                compact
-                className="max-[1100px]:mx-3 max-[1100px]:my-[0.35rem] max-[1100px]:h-auto max-[1100px]:self-start"
-              />
-              {!isSignedIn && (
-                <Link
-                  to="/login"
-                  className="inline-flex h-10 shrink-0 items-center justify-center gap-1 rounded-full border border-[#d9ddf5] bg-white px-4 font-sans text-[0.82rem] font-bold text-[#4338a8] no-underline hover:bg-[#4f46e5] hover:text-white max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('nav.signIn')} <span aria-hidden="true">↗</span>
-                </Link>
-              )}
-              {isSignedIn && (
-                <button
-                  type="button"
-                  className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#d9ddf5] bg-white px-2.5 font-sans text-[0.72rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white disabled:cursor-not-allowed disabled:opacity-60 max-[1100px]:h-auto max-[1100px]:w-full max-[1100px]:py-[0.7rem]"
-                  onClick={() => {
-                    void signOut()
-                  }}
-                  disabled={isLeaving}
-                >
-                  {t('nav.signOut')}
-                </button>
-              )}
-            </div>
-          </nav>
+    <div className="relative isolate flex h-dvh w-full flex-col overflow-hidden bg-[#140f0a] font-sans text-[#f4ead8]">
+      {/* Fond : le livre, assombri à gauche pour que le texte reste lisible. */}
+      <div
+        className={`pointer-events-none absolute inset-0 z-0 transition-[transform,opacity] duration-700 ease-in ${isExiting ? 'scale-[1.06] opacity-0' : ''}`}
+        aria-hidden="true"
+      >
+        <video
+          ref={videoRef}
+          className="absolute inset-y-0 right-0 h-full w-full object-cover min-[861px]:w-[78%] min-[861px]:[mask-image:linear-gradient(90deg,transparent,black_30%)]"
+          src="/landing/book.mp4"
+          poster="/landing/book-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-label={t('landing.videoAlt')}
+        />
+        <div
+          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,15,10,0.94)_0%,rgba(20,15,10,0.78)_38%,rgba(20,15,10,0.25)_70%,rgba(20,15,10,0.1)_100%)] max-[860px]:bg-[linear-gradient(180deg,rgba(20,15,10,0.55)_0%,rgba(20,15,10,0.88)_55%,rgba(20,15,10,0.96)_100%)]"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(10,7,4,0.7)_100%)]"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0">
+          <DustLayer />
         </div>
+      </div>
+
+      <header className="relative z-10 flex w-full flex-wrap items-center justify-between gap-3 px-5 py-5 sm:px-8 lg:px-12">
+        <Brand tone="light" />
+        <nav className="flex items-center gap-2" aria-label={t('nav.main')}>
+          <LanguageSwitcher compact tone="light" />
+          {isSignedIn ? (
+            <button
+              type="button"
+              className={ghostButton}
+              onClick={() => void signOut()}
+              disabled={isLeaving}
+            >
+              {t('nav.signOut')}
+            </button>
+          ) : (
+            <Link to="/login" className={ghostButton}>
+              {t('nav.signIn')}
+            </Link>
+          )}
+        </nav>
       </header>
 
       <main
-        className="flex min-h-0 w-full flex-1 justify-center px-5 pt-2 sm:px-8 lg:px-10"
-        id="accueil"
+        className={`relative z-10 flex transition-[transform,opacity] duration-500 ease-in ${isExiting ? '-translate-y-10 opacity-0' : ''} min-h-0 w-full flex-1 items-center px-5 sm:px-8 lg:px-12 max-[860px]:items-end max-[860px]:pb-6`}
       >
-        <div className="grid h-max w-full max-w-[1120px] content-start grid-cols-[minmax(0,1.05fr)_minmax(16rem,0.8fr)] items-stretch gap-12 max-[860px]:grid-cols-1 max-[860px]:content-center max-[860px]:gap-6">
-          {/* Titre et manuscrit de l'exemple. */}
-          <div className="flex min-w-0 flex-col justify-center">
-            <h1 className="m-0 font-sans text-[clamp(1.85rem,2.3vw,2.05rem)] leading-[1.08] font-bold tracking-[-0.045em] text-[#171c33] max-[860px]:text-[clamp(1.7rem,6vw,2.2rem)] max-[480px]:text-[1.35rem] max-[480px]:leading-[1.2]">
-              {t('home.titleLine1')}
-              <br />
-              {t('home.titleLine2')}
-            </h1>
-            <p className="mt-[1.4rem] mb-0 max-w-[34rem] font-sans text-[1.05rem] leading-[1.7] text-[#5d657c]">
-              {t('home.intro')}
-            </p>
-            <div className="mt-[1.8rem] flex flex-wrap items-center gap-[1.15rem]">
-              <button
-                type="button"
-                className="inline-flex min-h-[46px] cursor-pointer items-center gap-2 rounded-full border border-[#d9ddf5] bg-white px-[1.1rem] py-3 font-sans text-[0.95rem] font-bold text-[#4338a8] hover:bg-[#4f46e5] hover:text-white"
-                onClick={openAccount}
+        <div className="w-full max-w-[36rem]">
+          <p className="m-0 flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.22em] text-[#d9b98a] uppercase">
+            <span className="h-px w-8 bg-[#d9b98a]/70" aria-hidden="true" />
+            {t('landing.eyebrow')}
+          </p>
+
+          <h1 className="mt-5 mb-0 font-serif text-[clamp(2.3rem,4.6vw,4.2rem)] leading-[1.05] font-normal tracking-[-0.01em] text-[#f7efe0]">
+            {t('landing.title1')}
+            <br />
+            <em className="text-[#e3c48f]">{t('landing.title2')}</em>
+          </h1>
+
+          <p className="mt-6 mb-0 max-w-[31rem] text-[1.02rem] leading-[1.7] text-[#e8dcc6]/80">
+            {t('landing.intro')}
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              className="inline-flex min-h-[48px] cursor-pointer items-center gap-2 rounded-full border-0 bg-[#e9d5b0] px-6 text-[0.95rem] font-bold text-[#2a1d10] shadow-[0_10px_30px_rgba(233,213,176,0.18)] transition hover:bg-[#f4e4c4] hover:shadow-[0_12px_36px_rgba(233,213,176,0.3)]"
+              onClick={goNext}
+            >
+              {t('landing.start')} <span aria-hidden="true">→</span>
+            </button>
+            {!isSignedIn && (
+              <Link
+                to="/register"
+                className="inline-flex min-h-[48px] items-center rounded-full border border-[#e9d5b0]/35 px-6 text-[0.95rem] font-semibold text-[#f4ead8] no-underline transition-colors hover:border-[#e9d5b0]/80 hover:bg-[#e9d5b0]/10"
               >
-                {t('home.discover')} <span aria-hidden="true">→</span>
-              </button>
-            </div>
+                {t('landing.create')}
+              </Link>
+            )}
           </div>
 
-          <figure
-            className="relative m-0 w-fit max-w-full justify-self-center overflow-hidden rounded-[18px] border border-[#d4d0ea] bg-[#e8e6f2] shadow-[0_20px_46px_rgba(49,46,129,0.14)] after:pointer-events-none after:absolute after:inset-0 after:z-[2] after:bg-[linear-gradient(135deg,rgba(37,99,235,0.14),transparent_46%,rgba(124,58,237,0.18))] after:content-['']"
-            aria-label={t('home.manuscriptAlt')}
-          >
-            <img
-              className="block h-auto max-h-[min(30rem,calc(100dvh-8.5rem))] w-auto max-w-[min(100%,18.5rem)] max-[860px]:max-h-[min(15rem,36dvh)]"
-              src={manuscriptPage}
-              alt={t('home.manuscriptAlt')}
-            />
-            {/* Positions en % de l'image : 6e ligne du texte et canon dans la bordure du bas. */}
-            <span
-              className="absolute top-[56.2%] left-[8.5%] z-[3] h-[3%] w-[70%] rounded border-[1.5px] border-[#2563eb] bg-[rgba(37,99,235,0.08)] before:absolute before:top-[-4px] before:right-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']"
-              aria-hidden="true"
-            />
-            <span
-              className="absolute top-[80.5%] left-[46%] z-[3] h-[13.5%] w-[14%] rounded border-[1.5px] border-[#7c3aed] bg-[rgba(37,99,235,0.08)] before:absolute before:bottom-[-4px] before:left-[-4px] before:size-[7px] before:rounded-full before:bg-[#7c3aed] before:shadow-[0_0_0_4px_rgba(124,58,237,0.18)] before:content-['']"
-              aria-hidden="true"
-            />
-            <span className="absolute top-[51.6%] left-[8.5%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.45rem] py-[0.3rem] font-sans text-[0.6rem] font-bold tracking-[0.11em] text-white uppercase">
-              {t('home.line')}
-            </span>
-            <span className="absolute top-[85%] left-[62%] z-[4] rounded-[0.3rem] border border-white/55 bg-[rgba(49,46,129,0.82)] px-[0.45rem] py-[0.3rem] font-sans text-[0.6rem] font-bold tracking-[0.11em] text-white uppercase">
-              {t('home.cannon')}
-            </span>
-          </figure>
+          <ol className="mt-12 mb-0 grid list-none grid-cols-3 gap-4 border-t border-[#e9d5b0]/15 p-0 pt-6 max-[520px]:grid-cols-1 max-[520px]:gap-2 max-[520px]:pt-4">
+            {STEPS.map((step, i) => (
+              <li
+                key={step}
+                className="flex items-baseline gap-2.5 text-[0.85rem] leading-snug text-[#e8dcc6]/85"
+              >
+                <span className="font-serif text-[1.05rem] text-[#d9b98a] italic">
+                  {NUMERALS[i]}
+                </span>
+                {t(`landing.${step}`)}
+              </li>
+            ))}
+          </ol>
         </div>
       </main>
+
+      <footer
+        className={`relative z-10 grid grid-cols-[1fr_auto_1fr] items-end px-5 pb-4 transition-opacity duration-300 sm:px-8 lg:px-12 ${isExiting ? 'opacity-0' : ''}`}
+      >
+        <span />
+        <button
+          type="button"
+          onClick={goNext}
+          className="group flex cursor-pointer flex-col items-center gap-1.5 border-0 bg-transparent p-2 text-[0.66rem] font-semibold tracking-[0.2em] text-[#d9c7a6]/70 uppercase transition-colors hover:text-[#f4ead8]"
+        >
+          {t('landing.scroll')}
+          <span
+            className="block size-3 rotate-45 border-r border-b border-current motion-safe:animate-bounce"
+            aria-hidden="true"
+          />
+        </button>
+        <span className="text-right text-[0.68rem] tracking-[0.18em] text-[#d9c7a6]/45 uppercase max-[860px]:hidden">
+          {t('landing.credit')}
+        </span>
+      </footer>
     </div>
   )
 }

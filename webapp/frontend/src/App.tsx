@@ -16,7 +16,7 @@ function SessionGate({ children, redirectTo }: { children: ReactNode; redirectTo
   const { t } = useTranslation()
   if (!ready) {
     return (
-      <div className="grid min-h-dvh place-items-center bg-[#f5f6fa] font-sans text-[#5d657c]">
+      <div className="grid min-h-dvh place-items-center bg-[#f4ede0] font-sans text-[#6b5a45]">
         {t('common.loading')}
       </div>
     )
