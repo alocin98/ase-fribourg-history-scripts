@@ -260,7 +260,7 @@ async def update_document_share(
         DocumentAccessRole.OWNER,
     )
     shares = await service.list_shares(document_id)
-    if not any(share.user_id == user_id for share in shares):
+    if not any(share["user_id"] == user_id for share in shares):
         raise HTTPException(status_code=404, detail="Share not found")
     return await service.set_share(
         document_id,

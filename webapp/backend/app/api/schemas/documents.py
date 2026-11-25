@@ -61,5 +61,6 @@ class DocumentShareRead(BaseModel):
 
     document_id: UUID
     user_id: UUID
+    name: str
     role: str
     created_at: datetime

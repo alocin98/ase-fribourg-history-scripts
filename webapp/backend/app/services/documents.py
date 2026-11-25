@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import TypedDict
 from uuid import UUID
 
 from app.models.documents import (
@@ -8,6 +10,14 @@ from app.models.documents import (
     Page,
 )
 from app.repositories.documents import DocumentRepository
+
+
+class DocumentShareData(TypedDict):
+    document_id: UUID
+    user_id: UUID
+    name: str
+    role: str
+    created_at: datetime
 
 
 class DocumentService:
@@ -196,18 +206,29 @@ class DocumentService:
         await self.repository.commit()
         return stored
 
-    async def list_shares(self, document_id: UUID) -> list[DocumentShare]:
-        return await self.repository.list_shares(document_id)
+    @staticmethod
+    def _share_data(share: DocumentShare, name: str) -> DocumentShareData:
+        return {
+            "document_id": share.document_id,
+            "user_id": share.user_id,
+            "name": name,
+            "role": share.role.value,
+            "created_at": share.created_at,
+        }
+
+    async def list_shares(self, document_id: UUID) -> list[DocumentShareData]:
+        shares = await self.repository.list_shares(document_id)
+        return [self._share_data(share, name) for share, name in shares]
 
     async def set_share(
         self,
         document_id: UUID,
         user_id: UUID,
         role: DocumentShareRole,
-    ) -> DocumentShare:
-        share = await self.repository.set_share(document_id, user_id, role)
+    ) -> DocumentShareData:
+        share, name = await self.repository.set_share(document_id, user_id, role)
         await self.repository.commit()
-        return share
+        return self._share_data(share, name)
 
     async def delete_share(self, document_id: UUID, user_id: UUID) -> bool:
         deleted = await self.repository.delete_share(document_id, user_id)

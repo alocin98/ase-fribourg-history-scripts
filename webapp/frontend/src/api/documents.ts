@@ -30,9 +30,11 @@ export type DocumentPage = {
 }
 
 export type DocumentShare = {
-  id: string
-  username: string
+  document_id: string
+  user_id: string
+  name: string
   role: ShareRole
+  created_at: string
 }
 
 export function isDocumentOwner(document: StoredDocument | null | undefined): boolean {
@@ -147,9 +149,9 @@ export async function exportDocumentPdf(documentId: string, documentName: string
 
 // Routes attendues pour le partage :
 // GET    /documents/{id}/shares
-// POST   /documents/{id}/shares           { username, role }
-// PATCH  /documents/{id}/shares/{shareId} { role }
-// DELETE /documents/{id}/shares/{shareId}
+// POST   /documents/{id}/shares           { email, role }
+// PATCH  /documents/{id}/shares/{userId}  { role }
+// DELETE /documents/{id}/shares/{userId}
 
 export function listDocumentShares(documentId: string): Promise<DocumentShare[]> {
   return request<DocumentShare[]>(`/documents/${documentId}/shares`)
@@ -157,12 +159,12 @@ export function listDocumentShares(documentId: string): Promise<DocumentShare[]>
 
 export async function shareDocument(
   documentId: string,
-  username: string,
+  email: string,
   role: ShareRole,
 ): Promise<DocumentShare> {
   const share = await request<DocumentShare>(`/documents/${documentId}/shares`, {
     method: 'POST',
-    body: JSON.stringify({ username, role }),
+    body: JSON.stringify({ email, role }),
   })
   notifyDocumentsChanged()
   return share
@@ -170,10 +172,10 @@ export async function shareDocument(
 
 export async function updateDocumentShare(
   documentId: string,
-  shareId: string,
+  userId: string,
   role: ShareRole,
 ): Promise<DocumentShare> {
-  const share = await request<DocumentShare>(`/documents/${documentId}/shares/${shareId}`, {
+  const share = await request<DocumentShare>(`/documents/${documentId}/shares/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify({ role }),
   })
@@ -181,7 +183,7 @@ export async function updateDocumentShare(
   return share
 }
 
-export async function removeDocumentShare(documentId: string, shareId: string): Promise<void> {
-  await request<void>(`/documents/${documentId}/shares/${shareId}`, { method: 'DELETE' })
+export async function removeDocumentShare(documentId: string, userId: string): Promise<void> {
+  await request<void>(`/documents/${documentId}/shares/${userId}`, { method: 'DELETE' })
   notifyDocumentsChanged()
 }

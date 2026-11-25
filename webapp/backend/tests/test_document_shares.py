@@ -1,9 +1,11 @@
+from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 
+from app.api.schemas.documents import DocumentShareRead
 from app.models.documents import DocumentAccessRole, DocumentShareRole
 from app.services.documents import DocumentService
 
@@ -74,6 +76,57 @@ async def test_list_for_user_separates_owned_and_shared_documents():
             }
         ],
     }
+
+
+async def test_list_shares_includes_user_name():
+    document_id = uuid4()
+    share = SimpleNamespace(
+        document_id=document_id,
+        user_id=uuid4(),
+        role=DocumentShareRole.VIEWER,
+        created_at=datetime.now(timezone.utc),
+    )
+    repository = SimpleNamespace(
+        list_shares=AsyncMock(return_value=[(share, "Marie Dupont")])
+    )
+
+    result = await DocumentService(repository).list_shares(document_id)
+
+    assert result == [
+        {
+            "document_id": document_id,
+            "user_id": share.user_id,
+            "name": "Marie Dupont",
+            "role": "viewer",
+            "created_at": share.created_at,
+        }
+    ]
+    assert DocumentShareRead.model_validate(result[0]).name == "Marie Dupont"
+
+
+async def test_set_share_returns_user_name():
+    document_id = uuid4()
+    user_id = uuid4()
+    share = SimpleNamespace(
+        document_id=document_id,
+        user_id=user_id,
+        role=DocumentShareRole.EDITOR,
+        created_at=datetime.now(timezone.utc),
+    )
+    repository = SimpleNamespace(
+        set_share=AsyncMock(return_value=(share, "Marie Dupont")),
+        commit=AsyncMock(),
+    )
+
+    result = await DocumentService(repository).set_share(
+        document_id,
+        user_id,
+        DocumentShareRole.EDITOR,
+    )
+
+    assert result["name"] == "Marie Dupont"
+    assert DocumentShareRead.model_validate(result).user_id == user_id
+    repository.commit.assert_awaited_once()
 
 
 def test_document_share_roles_are_restricted():

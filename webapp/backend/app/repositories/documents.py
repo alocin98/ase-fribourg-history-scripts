@@ -66,10 +66,7 @@ class DocumentRepository:
                 (DocumentShare.document_id == Document.id)
                 & (DocumentShare.user_id == user_id),
             )
-            .where(
-                (Document.owner_id == user_id)
-                | (DocumentShare.user_id == user_id)
-            )
+            .where((Document.owner_id == user_id) | (DocumentShare.user_id == user_id))
             .order_by(Document.id.desc())
         )
         return list(result.all())
@@ -231,9 +228,13 @@ class DocumentRepository:
         )
         return stored
 
-    async def list_shares(self, document_id: UUID) -> list[DocumentShare]:
-        result = await self.session.scalars(
-            select(DocumentShare)
+    async def list_shares(
+        self,
+        document_id: UUID,
+    ) -> list[tuple[DocumentShare, str]]:
+        result = await self.session.execute(
+            select(DocumentShare, User.name)
+            .join(User, User.id == DocumentShare.user_id)
             .where(DocumentShare.document_id == document_id)
             .order_by(DocumentShare.created_at)
         )
@@ -244,7 +245,7 @@ class DocumentRepository:
         document_id: UUID,
         user_id: UUID,
         role: DocumentShareRole,
-    ) -> DocumentShare:
+    ) -> tuple[DocumentShare, str]:
         share = await self.session.scalar(
             select(DocumentShare).where(
                 DocumentShare.document_id == document_id,
@@ -262,7 +263,13 @@ class DocumentRepository:
         else:
             share.role = role
             await self.session.flush()
-        return share
+
+        user_name = await self.session.scalar(
+            select(User.name).where(User.id == user_id)
+        )
+        if user_name is None:
+            raise RuntimeError("Shared user was not found")
+        return share, user_name
 
     async def delete_share(self, document_id: UUID, user_id: UUID) -> bool:
         share = await self.session.scalar(
