@@ -12,6 +12,7 @@ type Props = {
   reveal: boolean
   onHover: (index: number | null) => void
   onOpen: (index: number) => void
+  onEntityInspect?: (entity: LineEntity) => void
   entities?: LineEntity[]
 }
 
@@ -25,6 +26,7 @@ function highlightedText(
   text: string,
   entities: LineEntity[],
   label: (kind: EntityLabel) => string,
+  inspect?: (entity: LineEntity) => void,
 ) {
   const parts = []
   let cursor = 0
@@ -34,8 +36,16 @@ function highlightedText(
     parts.push(
       <mark
         key={`${entity.start}-${entity.end}-${entity.label}`}
-        className={`rounded-sm px-0.5 text-inherit underline decoration-2 underline-offset-2 ${entityColors[entity.label]}`}
-        title={`${label(entity.label)} · ${Math.round(entity.score * 100)}%`}
+        className={`rounded-sm px-0.5 text-inherit underline decoration-2 underline-offset-2 ${entity.label === 'date' ? '' : 'cursor-help'} ${entityColors[entity.label]}`}
+        title={label(entity.label)}
+        onMouseEnter={() => {
+          if (entity.label !== 'date') inspect?.(entity)
+        }}
+        onClick={(event) => {
+          if (entity.label === 'date') return
+          event.stopPropagation()
+          inspect?.(entity)
+        }}
       >
         {text.slice(entity.start, entity.end)}
       </mark>,
@@ -53,6 +63,7 @@ export default function TranscriptionLine({
   reveal,
   onHover,
   onOpen,
+  onEntityInspect,
   entities = [],
 }: Props) {
   const { t } = useTranslation()
@@ -81,7 +92,12 @@ export default function TranscriptionLine({
         </span>
         <span className="break-words whitespace-pre-wrap">
           {line.text ? (
-            highlightedText(line.text, entities, (kind) => t(`documents.entities.${kind}`))
+            highlightedText(
+              line.text,
+              entities,
+              (kind) => t(`documents.entities.${kind}`),
+              onEntityInspect,
+            )
           ) : (
             <span className="text-[#a1a1aa]">—</span>
           )}

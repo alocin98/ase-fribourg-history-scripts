@@ -6,6 +6,7 @@ même regroupement des fragments BLLA et mêmes paramètres de génération.
 
 import math
 import os
+import re
 import threading
 from importlib import resources
 
@@ -18,9 +19,30 @@ from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
 TROCR_MODEL = os.environ.get("TROCR_MODEL", "microsoft/trocr-small-handwritten")
 TROCR_REVISION = os.environ.get("TROCR_REVISION")
+TROCR_NUM_BEAMS = int(os.environ.get("TROCR_NUM_BEAMS", "2"))
+TROCR_BATCH_SIZE = int(os.environ.get("TROCR_BATCH_SIZE", "4"))
 DEVICE = os.environ.get("DEVICE", "cpu")
 GLINER_MODEL = os.environ.get("GLINER_MODEL", "urchade/gliner_small-v2.1")
-ENTITY_LABELS = ("person", "date", "location")
+ENTITY_LABELS = ("person", "location")
+
+STRICT_DATE_RE = re.compile(
+    r"""
+    (?<!\w)
+    (?:
+        (?:0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?\s+
+        (?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|
+           Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Sept|Oct(?:ober)?|
+           Nov(?:ember)?|Dec(?:ember)?)\s+
+        (?:1\d{3}|20\d{2})
+        |
+        (?:0?[1-9]|[12]\d|3[01])[./-](?:0?[1-9]|1[0-2])[./-](?:1\d{3}|20\d{2})
+        |
+        (?:1\d{3}|20\d{2})
+    )
+    (?!\w)
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
 
 # BLLA redimensionne la page à 1800 px de haut, donc la mémoire croît avec le ratio
 # largeur/hauteur. Avec oneDNN, une page de ratio 1,38 tue déjà un conteneur dans une
@@ -83,6 +105,26 @@ def group_tokens(tokens, probs, to_string, word_start="\u2581"):
     return result, line_confidence
 
 
+def normalize_entity_text(text: str) -> str:
+    """Replace line breaks with spaces without changing character offsets."""
+    return text.replace("\r\n", "  ").replace("\r", " ").replace("\n", " ")
+
+
+def extract_strict_dates(text: str):
+    """Find only full day-month-year dates, numeric dates, and standalone years."""
+    return [
+        {
+            "text": match.group(0),
+            "label": "date",
+            "start": match.start(),
+            "end": match.end(),
+            # A rule match has no model confidence.
+            "score": None,
+        }
+        for match in STRICT_DATE_RE.finditer(text)
+    ]
+
+
 class Pipeline:
     """Charge BLLA + TrOCR une seule fois et sérialise les inférences."""
 
@@ -127,7 +169,7 @@ class Pipeline:
             crops.append(prepared.crop((left, top, right, bottom)))
         return len(segmentation.lines), crops, boxes
 
-    def transcribe_lines(self, images, batch_size=4):
+    def transcribe_lines(self, images, batch_size=TROCR_BATCH_SIZE):
         tokenizer = self.processor.tokenizer
         special_ids = set(tokenizer.all_special_ids)
         results = []
@@ -140,7 +182,7 @@ class Pipeline:
                 generated_ids = self.model.generate(
                     pixel_values,
                     max_new_tokens=128,
-                    num_beams=4,
+                    num_beams=TROCR_NUM_BEAMS,
                     return_dict_in_generate=True,
                     output_scores=True,
                 )
@@ -148,8 +190,10 @@ class Pipeline:
                 scores = self.model.compute_transition_scores(
                     generated_ids.sequences,
                     generated_ids.scores,
-                    generated_ids.beam_indices,
-                    normalize_logits=False,
+                    getattr(generated_ids, "beam_indices", None),
+                    # Beam search already returns log-probabilities. Greedy
+                    # decoding returns raw logits and needs explicit normalization.
+                    normalize_logits=TROCR_NUM_BEAMS == 1,
                 )
             texts = self.processor.batch_decode(
                 generated_ids.sequences, skip_special_tokens=True
@@ -193,7 +237,9 @@ class Pipeline:
         for line in lines:
             texts.append(line["text"])
         result = {
-            "text": "\n".join(texts),
+            # GLiNER needs the context across adjacent lines. Keep individual
+            # line geometry below, but expose the page as one space-joined text.
+            "text": " ".join(texts),
             "lines": [
                 {"index": i, "text": t, "bbox": list(b)}
                 for i, (t, b) in enumerate(zip(texts, boxes, strict=True), start=1)
@@ -220,11 +266,12 @@ class EntityRecognizer:
         self._lock = threading.Lock()
 
     def __call__(self, text: str, threshold: float = 0.5):
+        normalized_text = normalize_entity_text(text)
         with self._lock:
             entities = self.model.predict_entities(
-                text, list(ENTITY_LABELS), threshold=threshold
+                normalized_text, list(ENTITY_LABELS), threshold=threshold
             )
-        return [
+        recognized = [
             {
                 "text": entity["text"],
                 "label": entity["label"],
@@ -234,3 +281,14 @@ class EntityRecognizer:
             }
             for entity in entities
         ]
+        dates = extract_strict_dates(normalized_text)
+        date_spans = [(date["start"], date["end"]) for date in dates]
+        recognized = [
+            entity
+            for entity in recognized
+            if not any(
+                entity["start"] < date_end and entity["end"] > date_start
+                for date_start, date_end in date_spans
+            )
+        ]
+        return sorted([*recognized, *dates], key=lambda entity: entity["start"])

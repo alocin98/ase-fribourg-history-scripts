@@ -10,9 +10,9 @@ const lines: TranscriptionLine[] = [
 
 describe('entitiesByLine', () => {
   it('converts page offsets to line offsets', () => {
-    const result = entitiesByLine('John visited London.\nOn 12 May 1890.', lines, [
+    const result = entitiesByLine('John visited London. On 12 May 1890.', lines, [
       { text: 'London', label: 'location', start: 13, end: 19, score: 0.9 },
-      { text: '12 May 1890', label: 'date', start: 24, end: 35, score: 0.8 },
+      { text: '12 May 1890', label: 'date', start: 24, end: 35, score: null },
     ])
 
     expect(result[1][0]).toMatchObject({ text: 'London', start: 13, end: 19 })

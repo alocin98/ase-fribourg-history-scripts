@@ -23,7 +23,7 @@ class Entity(BaseModel):
     label: str
     start: int
     end: int
-    score: float
+    score: float | None
 
 
 class EntityResponse(BaseModel):

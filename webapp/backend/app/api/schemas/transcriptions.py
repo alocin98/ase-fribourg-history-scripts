@@ -31,7 +31,7 @@ class RecognizedEntity(BaseModel):
     # Positions dans le texte complet de la transcription.
     start: int
     end: int
-    score: float
+    score: float | None
 
 
 class PageTranscriptionRead(BaseModel):
@@ -44,3 +44,13 @@ class PageTranscriptionRead(BaseModel):
     image_height: int | None
     # None tant que les entités n'ont pas été cherchées (ou si cela a échoué).
     entities: list[RecognizedEntity] | None
+
+
+class EntitySummaryResponse(BaseModel):
+    query: str
+    found: bool
+    title: str | None = None
+    summary: str | None = None
+    url: str | None = None
+    thumbnail_url: str | None = None
+    source: Literal["Wikipedia"] = "Wikipedia"

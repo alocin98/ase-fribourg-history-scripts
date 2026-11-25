@@ -1,6 +1,11 @@
 from types import SimpleNamespace
 
-from app.pipeline import group_blla_fragments, group_tokens
+from app.pipeline import (
+    extract_strict_dates,
+    group_blla_fragments,
+    group_tokens,
+    normalize_entity_text,
+)
 
 
 def line(y):
@@ -42,3 +47,24 @@ def test_tokens_are_grouped_into_words():
 
 def test_empty_line_has_no_words_and_no_confidence():
     assert group_tokens([], [], to_string) == ([], None)
+
+
+def test_entity_text_uses_spaces_without_changing_offsets():
+    source = "John Smith\r\nvisited\nLondon."
+    normalized = normalize_entity_text(source)
+
+    assert normalized == "John Smith  visited London."
+    assert len(normalized) == len(source)
+    assert normalized.index("London") == source.index("London")
+
+
+def test_strict_dates_keep_full_dates_and_years_only():
+    text = "On 12 May 1890 and 03/11/2024 or in 1789, but not Monday or May."
+    entities = extract_strict_dates(text)
+
+    assert [entity["text"] for entity in entities] == [
+        "12 May 1890",
+        "03/11/2024",
+        "1789",
+    ]
+    assert all(entity["score"] is None for entity in entities)

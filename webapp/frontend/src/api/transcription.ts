@@ -49,7 +49,17 @@ export type RecognizedEntity = {
   // Positions dans le texte complet de la page.
   start: number
   end: number
-  score: number
+  score: number | null
+}
+
+export type EntitySummary = {
+  query: string
+  found: boolean
+  title: string | null
+  summary: string | null
+  url: string | null
+  thumbnail_url: string | null
+  source: 'Wikipedia'
 }
 
 export type PageTranscription = {
@@ -60,6 +70,22 @@ export type PageTranscription = {
   complete: boolean
   // Entités trouvées avec la transcription, null si elles restent à chercher.
   entities: RecognizedEntity[] | null
+}
+
+export async function getEntitySummary(
+  entity: Pick<RecognizedEntity, 'text' | 'label'>,
+  language: 'en' | 'fr',
+  signal?: AbortSignal,
+): Promise<EntitySummary> {
+  if (entity.label === 'date') {
+    throw new ApiError(400, 'Dates do not have an encyclopedia summary')
+  }
+  const params = new URLSearchParams({
+    query: entity.text,
+    label: entity.label,
+    language,
+  })
+  return request<EntitySummary>(`/transcriptions/entities/summary?${params}`, { signal })
 }
 
 // Réponse du backend (schéma PageTranscriptionRead).

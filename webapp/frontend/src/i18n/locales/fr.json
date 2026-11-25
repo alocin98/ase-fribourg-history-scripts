@@ -141,7 +141,12 @@
       "person": "Personne",
       "date": "Date",
       "location": "Lieu",
-      "show": "Afficher les entités"
+      "show": "Afficher les entités",
+      "summaryLoading": "Chargement d’une courte présentation Wikipédia…",
+      "summaryFailed": "La présentation Wikipédia n’a pas pu être chargée.",
+      "summaryMissing": "Aucune page Wikipédia correspondante n’a été trouvée.",
+      "readWikipedia": "Lire sur Wikipédia",
+      "closeSummary": "Fermer la présentation"
     },
     "transcribe": "Transcrire",
     "transcribing": "Transcription…",

@@ -20,7 +20,7 @@ class FakePipeline:
 
     def __call__(self, image, y_tolerance=60):
         return {
-            "text": "\n".join(line["text"] for line in self.lines),
+            "text": " ".join(line["text"] for line in self.lines),
             "lines": self.lines,
             "n_fragments": len(self.lines),
             "image_size": list(image.size),

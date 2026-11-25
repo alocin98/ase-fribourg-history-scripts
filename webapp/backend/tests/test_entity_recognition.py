@@ -4,6 +4,7 @@ from uuid import uuid4
 import httpx
 import pytest
 
+from app.api.routes import transcriptions
 from app.services.transcriptions import PageResult, TranscriptionService
 from app.workers import transcription as worker
 
@@ -188,3 +189,68 @@ async def test_save_page_results_links_entities_to_their_transcription():
     # Le texte de cette page a changé sans nouvelles entités : les anciennes partent.
     assert repository.deleted_ids == [failed_id]
     assert repository.committed
+
+
+class FakePersonWikipediaClient:
+    def __init__(self, **_kwargs):
+        pass
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_args):
+        return None
+
+    async def get(self, url, *_args, **_kwargs):
+        if "wikidata.org" in url:
+            body = {
+                "entities": {
+                    qid: {
+                        "claims": {
+                            "P31": [
+                                {
+                                    "mainsnak": {
+                                        "datavalue": {"value": {"id": "Q5"}}
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                    for qid in ("Q1", "Q2")
+                }
+            }
+        else:
+            body = {
+                "query": {
+                    "pages": [
+                        {
+                            "title": "Dean Rusk",
+                            "extract": "Dean Rusk was an American politician.",
+                            "fullurl": "https://en.wikipedia.org/wiki/Dean_Rusk",
+                            "pageprops": {"wikibase_item": "Q1"},
+                        },
+                        {
+                            "title": "Eric Sevareid",
+                            "extract": "Eric Sevareid was an American journalist.",
+                            "fullurl": "https://en.wikipedia.org/wiki/Eric_Sevareid",
+                            "pageprops": {"wikibase_item": "Q2"},
+                        },
+                    ]
+                }
+            }
+        return httpx.Response(200, json=body, request=httpx.Request("GET", url))
+
+
+async def test_person_summary_uses_fuzzy_name_and_human_wikidata_type(monkeypatch):
+    transcriptions._wikipedia_cache.clear()
+    monkeypatch.setattr(
+        transcriptions.httpx, "AsyncClient", FakePersonWikipediaClient
+    )
+
+    result = await transcriptions.request_entity_summary(
+        "Eric Severeid", "person", "en"
+    )
+
+    assert transcriptions.fuzzy_person_query("Eric Severeid") == "Eric~1 Severeid~1"
+    assert result.title == "Eric Sevareid"
+    assert result.summary == "Eric Sevareid was an American journalist."

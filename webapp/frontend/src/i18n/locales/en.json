@@ -141,7 +141,12 @@
       "person": "Person",
       "date": "Date",
       "location": "Location",
-      "show": "Show entities"
+      "show": "Show entities",
+      "summaryLoading": "Loading a short Wikipedia introduction…",
+      "summaryFailed": "The Wikipedia introduction could not be loaded.",
+      "summaryMissing": "No matching Wikipedia page was found.",
+      "readWikipedia": "Read on Wikipedia",
+      "closeSummary": "Close the introduction"
     },
     "transcribe": "Transcribe",
     "transcribing": "Transcribing…",
