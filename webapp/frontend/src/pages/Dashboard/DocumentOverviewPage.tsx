@@ -17,10 +17,13 @@ import {
   type StoredDocument,
 } from '../../api/documents'
 import {
+  getEntitySummary,
   getPageTranscription,
   transcribeDocument,
   transcribePage,
+  type EntitySummary,
   type PageTranscription,
+  type RecognizedEntity,
   type TranscriptionLine as TranscriptionLineData,
 } from '../../api/transcription'
 import DocumentActions from './DocumentActions'
@@ -32,6 +35,7 @@ import PageImage from './PageImage'
 import PageRating from './PageRating'
 import TranscriptionLine from './TranscriptionLine'
 import DocumentRating from './DocumentRating'
+import EntitiesToggle from './EntitiesToggle'
 import {
   confidencePercent,
   levelColors,
@@ -39,21 +43,34 @@ import {
   pageRating,
   type Rating,
 } from './transcriptionLines'
+import { entitiesByLine } from './entities'
 
 // Délai minimal entre deux relectures des pages pendant la transcription du document.
 const REFRESH_INTERVAL_MS = 3000
 
-// Une page reste à transcrire sans transcription, ou avec une ancienne (texte seul).
+const SHOW_ENTITIES_KEY = 'ase_show_entities'
+
+// Une page reste à transcrire sans transcription, avec une ancienne (texte seul),
+// ou tant que ses entités n'ont pas été trouvées.
 function needsWork(transcription: PageTranscription | null | undefined): boolean {
-  return transcription === null || (transcription !== undefined && !transcription.complete)
+  if (transcription === undefined) return false
+  return transcription === null || !transcription.complete || transcription.entities === null
 }
 
 const panelClass =
   'flex min-h-0 flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_10px_28px_rgba(23,28,51,0.06)]'
 
+type EntityInfoState = {
+  pageId: string
+  entity: RecognizedEntity
+  loading: boolean
+  failed: boolean
+  result: EntitySummary | null
+}
+
 // Trois colonnes : noms des images, image choisie, transcription.
 export default function DocumentOverviewPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { documentId = '' } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -75,6 +92,12 @@ export default function DocumentOverviewPage() {
   const [isShareOpen, setIsShareOpen] = useState(false)
   // undefined : pas encore lue, null : aucune transcription, objet : transcription enregistrée.
   const [texts, setTexts] = useState<Record<string, PageTranscription | null>>({})
+  const [showEntities, setShowEntities] = useState(
+    () => localStorage.getItem(SHOW_ENTITIES_KEY) === 'true',
+  )
+  const [entityInfo, setEntityInfo] = useState<EntityInfoState | null>(null)
+  const entityInfoCache = useRef(new Map<string, EntitySummary>())
+  const entityInfoAbort = useRef<AbortController | null>(null)
   // Ligne survolée (et d'où vient le survol) ou ouverte dans la fenêtre, pour une page donnée.
   const [hover, setHover] = useState<{
     pageId: string
@@ -99,6 +122,9 @@ export default function DocumentOverviewPage() {
     setPages([])
     setSelectedId(null)
     setTexts({})
+    setEntityInfo(null)
+    entityInfoCache.current.clear()
+    entityInfoAbort.current?.abort()
     setDocumentJob(null)
     setDocumentJobFailed(false)
     documentAbort.current?.abort()
@@ -131,6 +157,7 @@ export default function DocumentOverviewPage() {
       cancelled = true
       pollAbort.current?.abort()
       documentAbort.current?.abort()
+      entityInfoAbort.current?.abort()
     }
   }, [documentId])
 
@@ -186,6 +213,33 @@ export default function DocumentOverviewPage() {
       cancelled = true
     }
   }, [documentId, pages])
+
+  function inspectEntity(entity: RecognizedEntity) {
+    if (entity.label === 'date' || !selectedId) return
+    const pageId = selectedId
+    const language = i18n.resolvedLanguage?.startsWith('fr') ? 'fr' : 'en'
+    const cacheKey = `${language}:${entity.label}:${entity.text.trim().toLocaleLowerCase()}`
+    const cached = entityInfoCache.current.get(cacheKey)
+    entityInfoAbort.current?.abort()
+    if (cached) {
+      setEntityInfo({ pageId, entity, loading: false, failed: false, result: cached })
+      return
+    }
+
+    const controller = new AbortController()
+    entityInfoAbort.current = controller
+    setEntityInfo({ pageId, entity, loading: true, failed: false, result: null })
+    void getEntitySummary(entity, language, controller.signal)
+      .then((result) => {
+        entityInfoCache.current.set(cacheKey, result)
+        setEntityInfo({ pageId, entity, loading: false, failed: false, result })
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setEntityInfo({ pageId, entity, loading: false, failed: true, result: null })
+        }
+      })
+  }
 
   // line-clamp masque la hauteur réelle : on mesure une copie sans limite.
   useLayoutEffect(() => {
@@ -328,6 +382,10 @@ export default function DocumentOverviewPage() {
   const failed = selectedId !== null && failedId === selectedId && !shownText
   const imageSize = shownText ? shownText.imageSize : null
   const lines = shownText ? linesOf(shownText) : []
+  const lineEntities =
+    showEntities && shownText?.entities
+      ? entitiesByLine(shownText.text, lines, shownText.entities)
+      : {}
   const hovered = hover !== null && hover.pageId === selectedId ? hover : null
   const openedIndex = opened !== null && opened.pageId === selectedId ? opened.index : null
   const focused = focus !== null && focus.pageId === selectedId ? focus : null
@@ -691,10 +749,73 @@ export default function DocumentOverviewPage() {
                   </div>
                 )}
               </section>
-              <section className={`${panelClass} p-5`}>
-                <h2 className="m-0 shrink-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
-                  {t('documents.transcription')}
-                </h2>
+              <section className={`${panelClass} relative p-5`}>
+                <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <h2 className="m-0 font-sans text-[0.72rem] font-semibold tracking-[0.08em] text-[#71717a] uppercase">
+                    {t('documents.transcription')}
+                  </h2>
+                  {shownText?.entities && shownText.text !== '' && (
+                    <EntitiesToggle
+                      checked={showEntities}
+                      onChange={(next) => {
+                        setShowEntities(next)
+                        localStorage.setItem(SHOW_ENTITIES_KEY, String(next))
+                      }}
+                    />
+                  )}
+                </div>
+                {entityInfo && entityInfo.pageId === selectedId && (
+                  <aside className="absolute right-5 bottom-5 left-5 z-30 max-h-[45%] overflow-y-auto rounded-xl border border-[#e4e7ef] bg-[#fafbff] p-3 text-sm text-[#3f3f46] shadow-[0_14px_35px_rgba(23,28,51,0.2)]">
+                    <button
+                      type="button"
+                      className="absolute top-2 right-2 cursor-pointer rounded-md px-2 py-0.5 text-[#71717a] hover:bg-[#e9ecf5]"
+                      aria-label={t('documents.entities.closeSummary')}
+                      onClick={() => setEntityInfo(null)}
+                    >
+                      ×
+                    </button>
+                    <p className="m-0 pr-7 text-xs font-semibold tracking-wide text-[#71717a] uppercase">
+                      {t(`documents.entities.${entityInfo.entity.label}`)} · Wikipedia
+                    </p>
+                    {entityInfo.loading ? (
+                      <p className="mt-2 mb-0">{t('documents.entities.summaryLoading')}</p>
+                    ) : entityInfo.failed ? (
+                      <p className="mt-2 mb-0 text-[#b91c1c]">
+                        {t('documents.entities.summaryFailed')}
+                      </p>
+                    ) : !entityInfo.result?.found ? (
+                      <p className="mt-2 mb-0">{t('documents.entities.summaryMissing')}</p>
+                    ) : (
+                      <div className="mt-2 flex gap-3">
+                        {entityInfo.result.thumbnail_url && (
+                          <img
+                            className="size-16 shrink-0 rounded-lg object-cover"
+                            src={entityInfo.result.thumbnail_url}
+                            alt=""
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <h3 className="m-0 pr-5 text-sm font-bold text-[#27272a]">
+                            {entityInfo.result.title ?? entityInfo.entity.text}
+                          </h3>
+                          {entityInfo.result.summary && (
+                            <p className="mt-1 mb-0 leading-5">{entityInfo.result.summary}</p>
+                          )}
+                          {entityInfo.result.url && (
+                            <a
+                              className="mt-2 inline-block font-semibold text-[#2563eb] hover:underline"
+                              href={entityInfo.result.url}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {t('documents.entities.readWikipedia')}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </aside>
+                )}
                 {hasBoxes && (
                   <div className="mt-3">
                     <LineSource src={imageSrc} size={imageSize} line={activeLine} />
@@ -720,6 +841,8 @@ export default function DocumentOverviewPage() {
                           }
                           onHover={(index) => hoverLine('text', index)}
                           onOpen={openLine}
+                          onEntityInspect={inspectEntity}
+                          entities={lineEntities[line.index] ?? []}
                         />
                       ))}
                     </ol>

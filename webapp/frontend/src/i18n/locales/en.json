@@ -137,6 +137,17 @@
     "resetZoom": "Reset zoom",
     "noImages": "No images yet.",
     "transcription": "Transcription",
+    "entities": {
+      "person": "Person",
+      "date": "Date",
+      "location": "Location",
+      "show": "Show entities",
+      "summaryLoading": "Loading a short Wikipedia introduction…",
+      "summaryFailed": "The Wikipedia introduction could not be loaded.",
+      "summaryMissing": "No matching Wikipedia page was found.",
+      "readWikipedia": "Read on Wikipedia",
+      "closeSummary": "Close the introduction"
+    },
     "transcribe": "Transcribe",
     "transcribing": "Transcribing…",
     "transcriptionEmpty": "The text of the displayed image will appear here.",

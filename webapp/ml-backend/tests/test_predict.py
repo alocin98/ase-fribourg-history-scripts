@@ -42,3 +42,24 @@ def test_predict_without_lines_is_unprocessable(client, fake_pipeline):
     )
 
     assert response.status_code == 422
+
+
+def test_entities_returns_people_dates_and_locations(client):
+    response = client.post("/entities", json={"text": "John Smith visited London."})
+
+    assert response.status_code == 200
+    assert response.json()["entities"] == [
+        {
+            "text": "John Smith",
+            "label": "person",
+            "start": 0,
+            "end": 10,
+            "score": 0.91,
+        }
+    ]
+
+
+def test_entities_rejects_empty_text(client):
+    response = client.post("/entities", json={"text": ""})
+
+    assert response.status_code == 422

@@ -225,10 +225,18 @@ async def get_page_transcription(
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
 
-    transcription = await transcription_service.get_page_transcription(page_id)
-    if transcription is None:
+    found = await transcription_service.get_page_transcription_with_entities(page_id)
+    if found is None:
         raise HTTPException(status_code=404, detail="Transcription not found")
-    return transcription
+    transcription, entities = found
+    return PageTranscriptionRead(
+        page_id=transcription.page_id,
+        text=transcription.text,
+        lines=transcription.lines,
+        image_width=transcription.image_width,
+        image_height=transcription.image_height,
+        entities=entities.entities if entities is not None else None,
+    )
 
 
 @router.get(

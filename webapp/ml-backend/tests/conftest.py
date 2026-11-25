@@ -20,12 +20,25 @@ class FakePipeline:
 
     def __call__(self, image, y_tolerance=60):
         return {
-            "text": "\n".join(line["text"] for line in self.lines),
+            "text": " ".join(line["text"] for line in self.lines),
             "lines": self.lines,
             "n_fragments": len(self.lines),
             "image_size": list(image.size),
             "models": {},
         }
+
+
+class FakeEntityRecognizer:
+    def __call__(self, text, threshold=0.5):
+        return [
+            {
+                "text": "John Smith",
+                "label": "person",
+                "start": 0,
+                "end": 10,
+                "score": 0.91,
+            }
+        ]
 
 
 @pytest.fixture
@@ -37,5 +50,7 @@ def fake_pipeline(monkeypatch):
 
 @pytest.fixture
 def client(fake_pipeline):
+    main.entity_recognizer = FakeEntityRecognizer()
     with TestClient(main.app) as client:
         yield client
+    main.entity_recognizer = None

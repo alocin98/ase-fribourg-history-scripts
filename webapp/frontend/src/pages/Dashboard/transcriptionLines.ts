@@ -5,7 +5,7 @@ export type ConfidenceLevel = 'high' | 'medium' | 'low' | 'unknown'
 // Confiance d'une ligne, en % arrondi : moyenne des probabilités p que TrOCR donne
 // à chacun des tokens qu'il a choisis.
 export function confidencePercent(confidence: number): number {
-  return Math.round(confidence * 100)
+  return Math.round(Math.min(1, Math.max(0, confidence)) * 100)
 }
 
 // Bornes des couleurs sur le pourcentage affiché : vert ≥ 90, orange 70–89, rouge < 70.

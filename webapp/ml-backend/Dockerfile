@@ -17,9 +17,12 @@ RUN uv pip install --system --index-strategy unsafe-best-match -r requirements.t
 # transformers refuse de charger pytorch_model.bin avec torch < 2.6.
 ARG TROCR_MODEL=microsoft/trocr-small-handwritten
 ARG TROCR_REVISION=8cb4cfdbd0f9863f3e8e62f7563321c2f0282c56
+ARG GLINER_MODEL=urchade/gliner_small-v2.1
 ENV TROCR_MODEL=${TROCR_MODEL} \
-    TROCR_REVISION=${TROCR_REVISION}
+    TROCR_REVISION=${TROCR_REVISION} \
+    GLINER_MODEL=${GLINER_MODEL}
 RUN python -c "import os; from transformers import TrOCRProcessor, VisionEncoderDecoderModel as M; n, r = os.environ['TROCR_MODEL'], os.environ['TROCR_REVISION']; TrOCRProcessor.from_pretrained(n, revision=r); M.from_pretrained(n, revision=r, use_safetensors=True)"
+RUN python -c "import os; from gliner import GLiNER; GLiNER.from_pretrained(os.environ['GLINER_MODEL'])"
 ENV HF_HUB_OFFLINE=1
 
 COPY app ./app
