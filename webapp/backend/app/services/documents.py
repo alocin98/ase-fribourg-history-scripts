@@ -65,8 +65,34 @@ class DocumentService:
             return None
         return await self.repository.get_document_by_id(document_id, user_id)
 
-    async def list_owned(self, owner_id: UUID) -> list[Document]:
-        return await self.repository.get_all(owner_id)
+    async def list_for_user(
+        self,
+        user_id: UUID,
+    ) -> dict[str, list[Document] | list[dict[str, UUID | str]]]:
+        documents = await self.repository.get_for_user(user_id)
+        user_documents: list[Document] = []
+        shared_document: list[dict[str, UUID | str]] = []
+
+        for document, owner_name, share_role in documents:
+            if document.owner_id == user_id:
+                user_documents.append(document)
+            else:
+                if share_role is None:
+                    raise RuntimeError("Shared document is missing its access role")
+                shared_document.append(
+                    {
+                        "id": document.id,
+                        "name": document.name,
+                        "description": document.description,
+                        "owner_name": owner_name,
+                        "access": share_role.value,
+                    }
+                )
+
+        return {
+            "user_documents": user_documents,
+            "shared_document": shared_document,
+        }
 
     async def list_pages(
         self,

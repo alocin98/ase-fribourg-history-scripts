@@ -13,6 +13,16 @@ class DocumentRead(BaseModel):
     description: str
 
 
+class SharedDocumentRead(DocumentRead):
+    owner_name: str
+    access: Literal["viewer", "editor"]
+
+
+class UserDocumentsRead(BaseModel):
+    user_documents: list[DocumentRead]
+    shared_document: list[SharedDocumentRead]
+
+
 class DocumentCreate(BaseModel):
     name: str
     description: str

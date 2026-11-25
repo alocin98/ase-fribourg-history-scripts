@@ -27,13 +27,13 @@ from app.api.dependencies.pdf import build_document_pdf
 from app.api.dependencies.zip_files import extract_and_upload_pages
 from app.api.schemas.documents import (
     DocumentCreate,
-    DocumentRead,
     DocumentSearchResult,
     DocumentShareCreate,
     DocumentShareRead,
     DocumentShareUpdate,
     DocumentUploadResponse,
     PageRead,
+    UserDocumentsRead,
 )
 from app.api.schemas.transcriptions import PageTranscriptionRead
 from app.infrastructure.database.session import get_db
@@ -179,17 +179,17 @@ async def delete_document(
 
 @router.get(
     "/me",
-    response_model=list[DocumentRead],
+    response_model=UserDocumentsRead,
     dependencies=[Security(csrf_header)],
     name="list_user_documents",
-    description="List all documents owned by the current user.",
+    description="List documents owned by or shared with the current user.",
     status_code=status.HTTP_200_OK,
 )
 async def list_user_documents(
     service: DocumentServiceDep,
     current_user: User = Depends(get_current_user),
 ):
-    return await service.list_owned(current_user.id)
+    return await service.list_for_user(current_user.id)
 
 
 @router.get(

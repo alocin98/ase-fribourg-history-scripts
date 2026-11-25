@@ -11,6 +11,7 @@ from app.models.documents import (
     Page,
 )
 from app.models.transcriptions import PageTranscription
+from app.models.user import User
 
 
 class DocumentRepository:
@@ -53,15 +54,21 @@ class DocumentRepository:
             for page in pages
         )
 
-    async def get_all(self, owner_id: UUID) -> list[Document]:
-        result = await self.session.scalars(
-            select(Document)
+    async def get_for_user(
+        self,
+        user_id: UUID,
+    ) -> list[tuple[Document, str, DocumentShareRole | None]]:
+        result = await self.session.execute(
+            select(Document, User.name, DocumentShare.role)
+            .join(User, User.id == Document.owner_id)
+            .outerjoin(
+                DocumentShare,
+                (DocumentShare.document_id == Document.id)
+                & (DocumentShare.user_id == user_id),
+            )
             .where(
-                (Document.owner_id == owner_id)
-                | exists().where(
-                    (DocumentShare.document_id == Document.id)
-                    & (DocumentShare.user_id == owner_id)
-                )
+                (Document.owner_id == user_id)
+                | (DocumentShare.user_id == user_id)
             )
             .order_by(Document.id.desc())
         )

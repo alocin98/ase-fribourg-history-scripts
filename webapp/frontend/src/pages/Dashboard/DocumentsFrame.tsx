@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { listDocuments, listSharedDocuments, type StoredDocument } from '../../api/documents'
+import { listDocumentCollections, type StoredDocument } from '../../api/documents'
 import { useAuth } from '../../auth/AuthProvider'
 import Brand from '../../components/Brand'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
@@ -41,14 +41,17 @@ export default function DocumentsFrame({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return
     let cancelled = false
-    Promise.all([
-      listDocuments().catch(() => [] as StoredDocument[]),
-      listSharedDocuments().catch(() => [] as StoredDocument[]),
-    ]).then(([ownedItems, sharedItems]) => {
-      if (cancelled) return
-      setOwned(ownedItems)
-      setShared(sharedItems)
-    })
+    listDocumentCollections()
+      .then(({ owned: ownedItems, shared: sharedItems }) => {
+        if (cancelled) return
+        setOwned(ownedItems)
+        setShared(sharedItems)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setOwned([])
+        setShared([])
+      })
     return () => {
       cancelled = true
     }

@@ -36,5 +36,45 @@ async def test_require_document_access_roles(role, minimum_role, allowed):
     assert (result is not None) is allowed
 
 
+async def test_list_for_user_separates_owned_and_shared_documents():
+    user_id = uuid4()
+    owner_id = uuid4()
+    owned_document = SimpleNamespace(
+        id=uuid4(),
+        owner_id=user_id,
+        name="Owned",
+        description="Owned document",
+    )
+    shared_document = SimpleNamespace(
+        id=uuid4(),
+        owner_id=owner_id,
+        name="Shared",
+        description="Shared document",
+    )
+    repository = SimpleNamespace(
+        get_for_user=AsyncMock(
+            return_value=[
+                (owned_document, "Current user", None),
+                (shared_document, "Document owner", DocumentShareRole.EDITOR),
+            ]
+        )
+    )
+
+    result = await DocumentService(repository).list_for_user(user_id)
+
+    assert result == {
+        "user_documents": [owned_document],
+        "shared_document": [
+            {
+                "id": shared_document.id,
+                "name": "Shared",
+                "description": "Shared document",
+                "owner_name": "Document owner",
+                "access": "editor",
+            }
+        ],
+    }
+
+
 def test_document_share_roles_are_restricted():
     assert {role.value for role in DocumentShareRole} == {"viewer", "editor"}
