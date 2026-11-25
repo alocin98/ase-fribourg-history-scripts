@@ -169,9 +169,7 @@ async def test_save_page_results_links_entities_to_their_transcription():
     new_transcription = {"page_id": new_page, "text": "London"}
     failed_transcription = {"page_id": failed_page, "text": "Paris"}
     repository = FakeRepository({new_page: new_id, failed_page: failed_id})
-    service = TranscriptionService(
-        session=None, document_repository=object(), repository=repository
-    )
+    service = TranscriptionService(document_repository=object(), repository=repository)
 
     await service.save_page_results(
         [
@@ -208,11 +206,7 @@ class FakePersonWikipediaClient:
                     qid: {
                         "claims": {
                             "P31": [
-                                {
-                                    "mainsnak": {
-                                        "datavalue": {"value": {"id": "Q5"}}
-                                    }
-                                }
+                                {"mainsnak": {"datavalue": {"value": {"id": "Q5"}}}}
                             ]
                         }
                     }
@@ -243,9 +237,7 @@ class FakePersonWikipediaClient:
 
 async def test_person_summary_uses_fuzzy_name_and_human_wikidata_type(monkeypatch):
     transcriptions._wikipedia_cache.clear()
-    monkeypatch.setattr(
-        transcriptions.httpx, "AsyncClient", FakePersonWikipediaClient
-    )
+    monkeypatch.setattr(transcriptions.httpx, "AsyncClient", FakePersonWikipediaClient)
 
     result = await transcriptions.request_entity_summary(
         "Eric Severeid", "person", "en"

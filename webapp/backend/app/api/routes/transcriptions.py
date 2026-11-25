@@ -29,12 +29,9 @@ router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 
 WIKIPEDIA_CACHE_TTL_SECONDS = 24 * 60 * 60
 WIKIPEDIA_USER_AGENT = (
-    "ManuscriptAI/0.1 "
-    "(https://github.com/alocin98/ase-fribourg-history-scripts)"
+    "ManuscriptAI/0.1 (https://github.com/alocin98/ase-fribourg-history-scripts)"
 )
-_wikipedia_cache: dict[
-    tuple[str, str, str], tuple[float, EntitySummaryResponse]
-] = {}
+_wikipedia_cache: dict[tuple[str, str, str], tuple[float, EntitySummaryResponse]] = {}
 
 
 def shorten_wikipedia_extract(text: str, max_sentences: int = 2) -> str:
@@ -179,9 +176,10 @@ async def request_entity_summary(
             ),
             default=None,
         )
-        if page is not None and name_similarity(
-            normalized_query, str(page.get("title", ""))
-        ) < 0.45:
+        if (
+            page is not None
+            and name_similarity(normalized_query, str(page.get("title", ""))) < 0.45
+        ):
             page = None
     else:
         page = min(
@@ -203,14 +201,10 @@ async def request_entity_summary(
             found=True,
             title=title if isinstance(title, str) else None,
             summary=(
-                shorten_wikipedia_extract(extract)
-                if isinstance(extract, str)
-                else None
+                shorten_wikipedia_extract(extract) if isinstance(extract, str) else None
             ),
             url=url if isinstance(url, str) else None,
-            thumbnail_url=(
-                thumbnail_url if isinstance(thumbnail_url, str) else None
-            ),
+            thumbnail_url=(thumbnail_url if isinstance(thumbnail_url, str) else None),
         )
 
     _wikipedia_cache[cache_key] = (now + WIKIPEDIA_CACHE_TTL_SECONDS, result)
