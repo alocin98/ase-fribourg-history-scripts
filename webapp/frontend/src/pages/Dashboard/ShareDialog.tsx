@@ -26,7 +26,7 @@ type Props = {
 export default function ShareDialog({ documentId, onClose }: Props) {
   const { t } = useTranslation()
   const [shares, setShares] = useState<DocumentShare[] | null>(null)
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [role, setRole] = useState<ShareRole>('viewer')
   const [isSaving, setIsSaving] = useState(false)
   const [busyShareId, setBusyShareId] = useState<string | null>(null)
@@ -60,17 +60,17 @@ export default function ShareDialog({ documentId, onClose }: Props) {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const nextUsername = username.trim()
-    if (!nextUsername) {
+    const nextEmail = email.trim()
+    if (!nextEmail) {
       setError(t('errors.requiredFields'))
       return
     }
     setIsSaving(true)
     setError(null)
     try {
-      const created = await shareDocument(documentId, nextUsername, role)
+      const created = await shareDocument(documentId, nextEmail, role)
       setShares((current) => [...(current ?? []), created])
-      setUsername('')
+      setEmail('')
       setRole('viewer')
     } catch (shareError) {
       setError(mapError(shareError))
@@ -81,11 +81,13 @@ export default function ShareDialog({ documentId, onClose }: Props) {
 
   const changeRole = async (share: DocumentShare, nextRole: ShareRole) => {
     if (share.role === nextRole || busyShareId) return
-    setBusyShareId(share.id)
+    setBusyShareId(share.user_id)
     setError(null)
     try {
-      const updated = await updateDocumentShare(documentId, share.id, nextRole)
-      setShares((current) => (current ?? []).map((item) => (item.id === share.id ? updated : item)))
+      const updated = await updateDocumentShare(documentId, share.user_id, nextRole)
+      setShares((current) =>
+        (current ?? []).map((item) => (item.user_id === share.user_id ? updated : item)),
+      )
     } catch (shareError) {
       setError(mapError(shareError))
     } finally {
@@ -95,11 +97,11 @@ export default function ShareDialog({ documentId, onClose }: Props) {
 
   const removeShare = async (share: DocumentShare) => {
     if (busyShareId) return
-    setBusyShareId(share.id)
+    setBusyShareId(share.user_id)
     setError(null)
     try {
-      await removeDocumentShare(documentId, share.id)
-      setShares((current) => (current ?? []).filter((item) => item.id !== share.id))
+      await removeDocumentShare(documentId, share.user_id)
+      setShares((current) => (current ?? []).filter((item) => item.user_id !== share.user_id))
     } catch (shareError) {
       setError(mapError(shareError))
     } finally {
@@ -134,15 +136,17 @@ export default function ShareDialog({ documentId, onClose }: Props) {
             onSubmit={handleSubmit}
           >
             <label className="block min-w-0 font-sans text-[0.82rem] font-semibold text-[#33251a]">
-              {t('documents.share.username')}
+              {t('documents.share.email')}
               <input
                 className={fieldClass}
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                autoComplete="off"
-                name="share-username"
-                placeholder={t('documents.share.usernamePlaceholder')}
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
+                name="share-email"
+                placeholder={t('documents.share.emailPlaceholder')}
                 disabled={isSaving}
+                required
               />
             </label>
             <label className="block font-sans text-[0.82rem] font-semibold text-[#33251a]">
@@ -180,18 +184,18 @@ export default function ShareDialog({ documentId, onClose }: Props) {
             <ul className="mt-5 mb-0 grid list-none gap-2 p-0">
               {shares.map((share) => (
                 <li
-                  key={share.id}
+                  key={share.user_id}
                   className="flex flex-col gap-2 rounded-xl border border-[#efe6d6] bg-[#faf5ec] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <span className="min-w-0 truncate font-sans text-[0.9rem] font-semibold text-[#2a1d10]">
-                    {share.username}
+                    {share.name}
                   </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <select
                       className="h-8 rounded-full border border-[#dfcfb2] bg-[#fffdf8] px-2.5 font-sans text-[0.75rem] font-bold text-[#7a4d22] outline-none disabled:opacity-60"
                       value={share.role}
-                      disabled={busyShareId === share.id}
-                      aria-label={t('documents.share.roleFor', { username: share.username })}
+                      disabled={busyShareId === share.user_id}
+                      aria-label={t('documents.share.roleFor', { name: share.name })}
                       onChange={(event) => {
                         void changeRole(share, event.target.value as ShareRole)
                       }}
@@ -202,7 +206,8 @@ export default function ShareDialog({ documentId, onClose }: Props) {
                     <button
                       type="button"
                       className="inline-flex h-8 cursor-pointer items-center rounded-full border border-[#f3d0d0] bg-[#fffdf8] px-2.5 font-sans text-[0.75rem] font-bold text-[#dc2626] hover:border-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={busyShareId === share.id}
+                      disabled={busyShareId === share.user_id}
+
                       onClick={() => {
                         void removeShare(share)
                       }}

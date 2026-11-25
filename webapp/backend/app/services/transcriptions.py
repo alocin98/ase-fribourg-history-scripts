@@ -36,34 +36,36 @@ class TranscriptionService:
         await self.repository.commit()
         return job
 
-    async def get_job(self, job_id: UUID, owner_id: UUID) -> TranscriptionJob | None:
-        return await self.repository.get_transcription_job_by_id(
-            job_id=job_id,
-            owner_id=owner_id,
-        )
+    async def get_job(self, job_id: UUID) -> TranscriptionJob | None:
+        return await self.repository.get_transcription_job_by_id(job_id=job_id)
 
     async def get_page_transcription(self, page_id: UUID) -> PageTranscription | None:
         return await self.repository.get_page_transcription_by_page_id(page_id)
 
     async def get_owned_page_transcription(
-        self, *, document_id: UUID, page_id: UUID, owner_id: UUID
+        self, *, document_id: UUID, page_id: UUID, user_id: UUID
     ) -> PageTranscription | None:
         return await self.repository.get_owned_page_transcription(
             document_id=document_id,
             page_id=page_id,
-            owner_id=owner_id,
+            user_id=user_id,
         )
 
     async def get_worker_job(self, job_id: UUID) -> TranscriptionJob | None:
         return await self.repository.get_transcription_job_by_id(job_id)
 
     async def get_document_pages(
-        self, *, document_id: UUID, owner_id: UUID
+        self, *, document_id: UUID, user_id: UUID
     ) -> list[tuple[Page, PageTranscription | None]]:
         return await self.repository.get_document_pages_with_transcriptions(
             document_id=document_id,
-            owner_id=owner_id,
+            user_id=user_id,
         )
+
+    async def get_document_pages_for_worker(
+        self, document_id: UUID
+    ) -> list[tuple[Page, PageTranscription | None]]:
+        return await self.repository.get_document_pages_for_worker(document_id)
 
     async def get_page_for_worker(self, page_id: UUID) -> Page | None:
         return await self.document_repository.get_page(page_id)

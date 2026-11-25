@@ -18,6 +18,11 @@ export type StoredDocument = {
   owner_name?: string
 }
 
+type DocumentListsResponse = {
+  user_documents: StoredDocument[]
+  shared_document: StoredDocument[]
+}
+
 export type DocumentPage = {
   id: string
   page_number: number
@@ -25,9 +30,11 @@ export type DocumentPage = {
 }
 
 export type DocumentShare = {
-  id: string
-  username: string
+  document_id: string
+  user_id: string
+  name: string
   role: ShareRole
+  created_at: string
 }
 
 export function isDocumentOwner(document: StoredDocument | null | undefined): boolean {
@@ -43,33 +50,31 @@ export function notifyDocumentsChanged(): void {
   window.dispatchEvent(new Event('ase-documents-changed'))
 }
 
-export function listDocuments(): Promise<StoredDocument[]> {
-  return request<StoredDocument[]>('/documents/me').then((items) =>
-    items.map((item) => ({ ...item, access: item.access ?? 'owner' })),
-  )
-}
-
-// Route attendue : GET /documents/shared
-export async function listSharedDocuments(): Promise<StoredDocument[]> {
-  try {
-    const items = await request<StoredDocument[]>('/documents/shared')
-    return items.map((item) => ({
+export async function listDocumentCollections(): Promise<{
+  owned: StoredDocument[]
+  shared: StoredDocument[]
+}> {
+  const response = await request<DocumentListsResponse>('/documents/me')
+  return {
+    owned: response.user_documents.map((item) => ({ ...item, access: 'owner' as const })),
+    shared: response.shared_document.map((item) => ({
       ...item,
       access: item.access === 'editor' ? 'editor' : 'viewer',
-    }))
-  } catch (error) {
-    // Backend pas encore prêt : la section reste vide.
-    if (error instanceof ApiError && (error.status === 404 || error.status === 501)) return []
-    throw error
+    })),
   }
+}
+
+export async function listDocuments(): Promise<StoredDocument[]> {
+  return (await listDocumentCollections()).owned
+}
+
+export async function listSharedDocuments(): Promise<StoredDocument[]> {
+  return (await listDocumentCollections()).shared
 }
 
 // Il n'y a pas encore de route pour un seul document : on le cherche dans les listes.
 export async function getDocument(documentId: string): Promise<StoredDocument> {
-  const [owned, shared] = await Promise.all([
-    listDocuments().catch(() => [] as StoredDocument[]),
-    listSharedDocuments().catch(() => [] as StoredDocument[]),
-  ])
+  const { owned, shared } = await listDocumentCollections()
   const found = [...owned, ...shared].find((document) => document.id === documentId)
   if (!found) throw new ApiError(404, 'Document not found')
   return found
@@ -144,9 +149,9 @@ export async function exportDocumentPdf(documentId: string, documentName: string
 
 // Routes attendues pour le partage :
 // GET    /documents/{id}/shares
-// POST   /documents/{id}/shares           { username, role }
-// PATCH  /documents/{id}/shares/{shareId} { role }
-// DELETE /documents/{id}/shares/{shareId}
+// POST   /documents/{id}/shares           { email, role }
+// PATCH  /documents/{id}/shares/{userId}  { role }
+// DELETE /documents/{id}/shares/{userId}
 
 export function listDocumentShares(documentId: string): Promise<DocumentShare[]> {
   return request<DocumentShare[]>(`/documents/${documentId}/shares`)
@@ -154,12 +159,12 @@ export function listDocumentShares(documentId: string): Promise<DocumentShare[]>
 
 export async function shareDocument(
   documentId: string,
-  username: string,
+  email: string,
   role: ShareRole,
 ): Promise<DocumentShare> {
   const share = await request<DocumentShare>(`/documents/${documentId}/shares`, {
     method: 'POST',
-    body: JSON.stringify({ username, role }),
+    body: JSON.stringify({ email, role }),
   })
   notifyDocumentsChanged()
   return share
@@ -167,10 +172,10 @@ export async function shareDocument(
 
 export async function updateDocumentShare(
   documentId: string,
-  shareId: string,
+  userId: string,
   role: ShareRole,
 ): Promise<DocumentShare> {
-  const share = await request<DocumentShare>(`/documents/${documentId}/shares/${shareId}`, {
+  const share = await request<DocumentShare>(`/documents/${documentId}/shares/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify({ role }),
   })
@@ -178,7 +183,7 @@ export async function updateDocumentShare(
   return share
 }
 
-export async function removeDocumentShare(documentId: string, shareId: string): Promise<void> {
-  await request<void>(`/documents/${documentId}/shares/${shareId}`, { method: 'DELETE' })
+export async function removeDocumentShare(documentId: string, userId: string): Promise<void> {
+  await request<void>(`/documents/${documentId}/shares/${userId}`, { method: 'DELETE' })
   notifyDocumentsChanged()
 }

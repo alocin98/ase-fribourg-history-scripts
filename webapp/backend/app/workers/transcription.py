@@ -130,10 +130,7 @@ async def transcribe_document(job_id: UUID) -> None:
         if job is None:
             return
 
-        pages = await service.get_document_pages(
-            document_id=job.document_id,
-            owner_id=job.owner_id,
-        )
+        pages = await service.get_document_pages_for_worker(job.document_id)
 
         if await service.start_job(job_id) is None:
             return

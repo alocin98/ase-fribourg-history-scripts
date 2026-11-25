@@ -4,7 +4,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.documents import Document, Page
+from app.models.documents import Document, DocumentShare, Page
 from app.models.transcriptions import PageTranscription, TranscriptionJob
 
 
@@ -158,7 +158,7 @@ class TranscriptionRepository:
         self,
         document_id: UUID,
         page_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
     ) -> PageTranscription | None:
         return await self.session.scalar(
             select(PageTranscription)
@@ -167,7 +167,15 @@ class TranscriptionRepository:
             .where(
                 Page.id == page_id,
                 Page.document_id == document_id,
-                Document.owner_id == owner_id,
+                (Document.owner_id == user_id)
+                | (
+                    select(DocumentShare.document_id)
+                    .where(
+                        DocumentShare.document_id == Document.id,
+                        DocumentShare.user_id == user_id,
+                    )
+                    .exists()
+                ),
             )
         )
 
@@ -220,7 +228,7 @@ class TranscriptionRepository:
     async def get_document_pages_with_transcriptions(
         self,
         document_id: UUID,
-        owner_id: UUID,
+        user_id: UUID,
     ) -> list[tuple[Page, PageTranscription | None]]:
         result = await self.session.execute(
             select(Page, PageTranscription)
@@ -231,7 +239,30 @@ class TranscriptionRepository:
             )
             .where(
                 Page.document_id == document_id,
-                Document.owner_id == owner_id,
+                (Document.owner_id == user_id)
+                | (
+                    select(DocumentShare.document_id)
+                    .where(
+                        DocumentShare.document_id == Document.id,
+                        DocumentShare.user_id == user_id,
+                    )
+                    .exists()
+                ),
+            )
+            .order_by(Page.page_number)
+        )
+        return list(result.all())
+
+    async def get_document_pages_for_worker(
+        self,
+        document_id: UUID,
+    ) -> list[tuple[Page, PageTranscription | None]]:
+        result = await self.session.execute(
+            select(Page, PageTranscription)
+            .where(Page.document_id == document_id)
+            .outerjoin(
+                PageTranscription,
+                PageTranscription.page_id == Page.id,
             )
             .order_by(Page.page_number)
         )

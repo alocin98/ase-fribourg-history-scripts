@@ -9,6 +9,7 @@ from app.api.dependencies.injection import (
     TranscriptionServiceDep,
 )
 from app.api.schemas.transcriptions import TranscriptionResponse
+from app.models.documents import DocumentAccessRole
 from app.models.user import User
 from app.workers.queue import enqueue_document_transcription, enqueue_page_transcription
 
@@ -29,7 +30,21 @@ async def create_document_transcription_job(
     transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
 ) -> TranscriptionResponse:
-    document = await document_service.get_owned(document_id, current_user.id)
+    if not await document_service.document_exists(document_id):
+        raise HTTPException(status_code=404, detail="Document not found")
+    role = await document_service.get_access_role(document_id, current_user.id)
+    if role is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this document",
+        )
+    if role not in (DocumentAccessRole.EDITOR, DocumentAccessRole.OWNER):
+        raise HTTPException(status_code=403, detail="Editor access required")
+    document = await document_service.require_access(
+        document_id,
+        current_user.id,
+        DocumentAccessRole.EDITOR,
+    )
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
@@ -57,8 +72,18 @@ async def create_page_transcription(
     transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
 ):
+    if not await document_service.document_exists(document_id):
+        raise HTTPException(status_code=404, detail="Document not found")
+    role = await document_service.get_access_role(document_id, current_user.id)
+    if role is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this document",
+        )
+    if role not in (DocumentAccessRole.EDITOR, DocumentAccessRole.OWNER):
+        raise HTTPException(status_code=403, detail="Editor access required")
     page = await document_service.get_owned_page(
-        document_id=document_id, page_id=page_id, owner_id=current_user.id
+        document_id=document_id, page_id=page_id, user_id=current_user.id
     )
     if page is None:
         raise HTTPException(status_code=404, detail="Document or Page not found")
@@ -80,12 +105,20 @@ async def create_page_transcription(
 )
 async def get_transcription_job_status(
     job_id: UUID,
+    document_service: DocumentServiceDep,
     transcription_service: TranscriptionServiceDep,
     current_user: User = Depends(get_current_user),
 ):
-    job = await transcription_service.get_job(job_id=job_id, owner_id=current_user.id)
+    job = await transcription_service.get_job(job_id=job_id)
 
     if job is None:
         raise HTTPException(status_code=404, detail="Transcription job not found")
+
+    role = await document_service.get_access_role(job.document_id, current_user.id)
+    if role is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this document",
+        )
 
     return TranscriptionResponse(job_id=job.id, status=job.status)
