@@ -7,7 +7,7 @@ from fastapi import HTTPException, UploadFile
 from PIL import Image
 
 from app.core.config import settings
-from app.infrastructure.storage.s3 import ensure_bucket, upload_file
+from app.infrastructure.storage.s3 import delete_file, ensure_bucket, upload_file
 
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
 MAX_PAGE_COUNT = 1000
@@ -34,6 +34,7 @@ def _safe_zip_path(name: str) -> PurePosixPath:
 async def extract_and_upload_pages(
     file: UploadFile,
     document_id: UUID,
+    first_page_number: int = 1,
 ) -> list[dict[str, int | str]]:
     await ensure_bucket()
     with tempfile.TemporaryDirectory() as temporary_directory:
@@ -72,23 +73,34 @@ async def extract_and_upload_pages(
                 )
 
             pages = []
-            for page_number, (member, safe_path) in enumerate(image_members, start=1):
-                image_path = pages_dir / f"{page_number:04d}{safe_path.suffix.lower()}"
-                with archive.open(member) as source, image_path.open("wb") as target:
-                    while chunk := source.read(1024 * 1024):
-                        target.write(chunk)
-                with Image.open(image_path) as image:
-                    width, height = image.size
-                image_key = f"{document_id}/pages/{image_path.name}"
-                await upload_file(str(image_path), image_key)
-                pages.append(
-                    {
-                        "page_number": page_number,
-                        "width": width,
-                        "height": height,
-                        "mime_type": _mime_type_for_extension(safe_path.suffix),
-                        "image_key": image_key,
-                    }
-                )
+            uploaded_keys = []
+            try:
+                for page_number, (member, safe_path) in enumerate(
+                    image_members, start=first_page_number
+                ):
+                    image_path = (
+                        pages_dir / f"{page_number:04d}{safe_path.suffix.lower()}"
+                    )
+                    with archive.open(member) as source, image_path.open("wb") as target:
+                        while chunk := source.read(1024 * 1024):
+                            target.write(chunk)
+                    with Image.open(image_path) as image:
+                        width, height = image.size
+                    image_key = f"{document_id}/pages/{image_path.name}"
+                    uploaded_keys.append(image_key)
+                    await upload_file(str(image_path), image_key)
+                    pages.append(
+                        {
+                            "page_number": page_number,
+                            "width": width,
+                            "height": height,
+                            "mime_type": _mime_type_for_extension(safe_path.suffix),
+                            "image_key": image_key,
+                        }
+                    )
+            except Exception:
+                for image_key in uploaded_keys:
+                    await delete_file(image_key)
+                raise
 
     return pages

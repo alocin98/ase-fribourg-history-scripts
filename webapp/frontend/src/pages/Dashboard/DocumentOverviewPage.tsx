@@ -290,8 +290,9 @@ export default function DocumentOverviewPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!file || !file.name.toLowerCase().endsWith('.zip')) {
-      setFormError(t('errors.zipOnly'))
+    const extension = file?.name.toLowerCase().split('.').pop()
+    if (!file || (extension !== 'zip' && extension !== 'pdf')) {
+      setFormError(t('errors.uploadFileOnly'))
       return
     }
     setIsSaving(true)
@@ -304,7 +305,7 @@ export default function DocumentOverviewPage() {
       closeDialog()
     } catch (error) {
       const invalid = error instanceof ApiError && (error.status === 400 || error.status === 413)
-      setFormError(t(invalid ? 'errors.invalidZip' : 'errors.server'))
+      setFormError(t(invalid ? 'errors.invalidUpload' : 'errors.server'))
       setIsSaving(false)
     }
   }
@@ -889,7 +890,7 @@ export default function DocumentOverviewPage() {
               ref={fileInput}
               className="sr-only"
               type="file"
-              accept=".zip,application/zip"
+              accept=".zip,.pdf,application/zip,application/pdf"
               onChange={(event) => takeFile(event.target.files?.[0] ?? null)}
             />
             <button

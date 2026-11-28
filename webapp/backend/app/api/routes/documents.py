@@ -23,6 +23,7 @@ from app.api.dependencies.injection import (
     TranscriptionServiceDep,
 )
 from app.api.dependencies.pdf import build_document_pdf
+from app.api.dependencies.pdf_files import extract_and_upload_pdf_pages
 from app.api.dependencies.zip_files import extract_and_upload_pages
 from app.api.schemas.documents import (
     DocumentCreate,
@@ -34,7 +35,7 @@ from app.api.schemas.documents import (
 from app.api.schemas.transcriptions import PageTranscriptionRead
 from app.infrastructure.database.session import get_db
 from app.infrastructure.storage.s3 import (
-    delete_prefix,
+    delete_file,
     download_file,
 )
 from app.models.user import User
@@ -72,7 +73,7 @@ async def create_document(
     response_model=DocumentUploadResponse,
     dependencies=[Security(csrf_header)],
     name="upload_files_to_document",
-    description="Upload a ZIP file containing images to an existing document.",
+    description="Upload a ZIP of images or a PDF to an existing document.",
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_files_to_document(
@@ -82,25 +83,50 @@ async def upload_files_to_document(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> DocumentUploadResponse:
-    document = await service.get_owned(document_id, current_user.id)
-    if document is None:
-        raise HTTPException(status_code=404, detail="Document not found")
-
+    pages = []
     try:
-        pages = await extract_and_upload_pages(file, document_id)
+        document = await service.get_owned(document_id, current_user.id)
+        if document is None:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        filename = file.filename or ""
+        suffix = (
+            filename.rsplit(".", maxsplit=1)[-1].lower() if "." in filename else ""
+        )
+        if suffix not in {"zip", "pdf"}:
+            raise HTTPException(
+                status_code=400, detail="Only ZIP and PDF files are accepted"
+            )
+
+        existing_pages = await service.list_all_pages(document_id, current_user.id)
+        first_page_number = max(
+            (page.page_number for page in existing_pages),
+            default=0,
+        ) + 1
+        if suffix == "zip":
+            pages = await extract_and_upload_pages(
+                file, document_id, first_page_number
+            )
+        else:
+            pages = await extract_and_upload_pdf_pages(
+                file, document_id, first_page_number
+            )
         await service.create_pages(document_id=document_id, pages=pages)
         return DocumentUploadResponse(id=document.id)
     except HTTPException:
         await session.rollback()
-        await delete_prefix(f"{document_id}/")
+        for page in pages:
+            await delete_file(str(page["image_key"]))
         raise
     except (zipfile.BadZipFile, OSError) as e:
         await session.rollback()
-        await delete_prefix(f"{document_id}/")
-        raise HTTPException(status_code=400, detail="Invalid ZIP file") from e
+        for page in pages:
+            await delete_file(str(page["image_key"]))
+        raise HTTPException(status_code=400, detail="Invalid uploaded file") from e
     except Exception:
         await session.rollback()
-        await delete_prefix(f"{document_id}/")
+        for page in pages:
+            await delete_file(str(page["image_key"]))
         raise
     finally:
         await file.close()

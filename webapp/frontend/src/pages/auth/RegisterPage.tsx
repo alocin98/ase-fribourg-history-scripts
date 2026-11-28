@@ -49,6 +49,10 @@ export default function RegisterPage() {
       setError('errors.requiredFields')
       return
     }
+    if (password.length < 8) {
+      setError('errors.passwordTooShort')
+      return
+    }
     if (password !== confirmPassword) {
       setError('errors.passwordMismatch')
       return
@@ -128,10 +132,14 @@ export default function RegisterPage() {
                 className={inputClass}
                 type="password"
                 autoComplete="new-password"
+                minLength={8}
                 value={formData.password}
                 onChange={(event) => updateField('password', event.target.value)}
                 placeholder={t('register.passwordPlaceholder')}
               />
+              <span className="font-normal text-[0.75rem] text-[#5d657c]">
+                {t('register.passwordHint')}
+              </span>
             </label>
             <label className={labelClass}>
               {t('register.confirmPassword')}

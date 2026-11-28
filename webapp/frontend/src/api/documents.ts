@@ -1,5 +1,5 @@
 // Documents enregistrés par l'API : un document est créé d'abord (nom, description),
-// puis un ZIP d'images y est importé.
+// puis un ZIP d'images ou un PDF y est importé.
 
 import { ApiError, request, requestBlob } from './client'
 
@@ -93,7 +93,7 @@ export async function deleteDocument(documentId: string): Promise<void> {
   notifyDocumentsChanged()
 }
 
-// Importe les images d'un ZIP dans un document existant.
+// Importe les images d'un ZIP ou les pages d'un PDF dans un document existant.
 export function uploadDocument(documentId: string, file: File): Promise<{ id: string }> {
   const body = new FormData()
   body.append('file', file)
